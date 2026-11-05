@@ -405,7 +405,7 @@ const CASE = {
   num: 9,
   title: "Home Care Burn: Heat Pack",
   expectedLevel: "ACA",
-  vignette: `A patient receiving home health occupational therapy services is recovering at home following a traumatic brain injury. Her injury has resulted in reduced ability to communicate pain and discomfort clearly and reliably. During a scheduled home visit, the OT applies a wet heat pack to the patient's wrist and hand as part of her treatment session. The heat pack was heated in a microwave and wrapped in a washcloth prior to application. The therapist assesses the temperature by touch before applying it and determines it is acceptable. She does not observe the patient's non-verbal response at the time of application. She does not perform a skin check for 15 minutes after application. When she does check, she finds a second-degree burn: erythema and a small blister on the patient's wrist and hand. Wound ointment and a gauze bandage are applied. The patient needs dressing changes at the start of four later home visits, and the burn heals without scarring or lasting effects.`,
+  vignette: `A patient receiving home health occupational therapy services is recovering at home following a traumatic brain injury. Her injury has resulted in reduced ability to communicate pain and discomfort clearly and reliably. During a scheduled home visit, the OT applies a wet heat pack to the patient's wrist and hand as part of her treatment session. The heat pack was heated in a microwave and wrapped in a washcloth prior to application. The therapist assesses the temperature by touch before applying it and determines it is acceptable. She does not observe the patient's non-verbal response at the time of application. She does not perform a skin check for 15 minutes after application. When she does check, she finds a second-degree burn: erythema and a small blister on the patient's wrist and hand. Wound ointment and a gauze bandage are applied. At each of her next four home visits, the OT changes the burn dressing before starting treatment. The burn heals in about two weeks without scarring or lasting effects.`,
   eventName: "Second-degree burn from a microwaved heat pack during a home health OT visit"
 };
 
@@ -438,7 +438,7 @@ const RECORDS = [
 // ---------------------------------------------------------------------
 const INTERVIEWS = [
   { id: "i_ot", role: "Treating OT", sub: "Home health occupational therapist",
-    body: `<p class="quote">I have used moist heat for years. In her kitchen I heated the pack in her microwave, which is an older model, so I guessed at the time. I wrapped it in a washcloth from her kitchen. It was a little damp, and I did not think about it. I checked it with my fingers and it felt fine.</p><p class="quote">I know her speech is limited. I usually watch for her to pull away. This time I turned to set up her exercise materials, and her daughter was asking me about appointments. I did not look at the face sheet before the visit, and the sensation finding is in the evaluation, not on that sheet.</p><p class="quote">I did not have a thermometer or strips. They are in the clinic and I have to ask for them, and I never did. I saw an email about a protocol change, and I did not open it. The visit note did not remind me of a skin check, so I checked when I finished setting up. When I saw the blister I felt terrible.</p>` },
+    body: `<p class="quote">I have used moist heat for years. In her kitchen I heated the pack in her microwave, which is an older model, so I guessed at the time. I wrapped it in a washcloth from her kitchen. It was a little damp, and I did not think about it. I checked it with my fingers and it felt fine.</p><p class="quote">I know her speech is limited. I usually watch for her to pull away. This time I turned to set up her exercise materials, and her daughter was asking me about appointments. I did not look at the face sheet before the visit, and the sensation finding is in the evaluation, not on that sheet.</p><p class="quote">I did not have a thermometer or strips with me. They are kept in the clinic supply room, and a therapist has to request them. I had never requested any, because they are not part of the bag I carry, so I did not think of them that morning. I saw an email about a protocol change, and I did not open it. The visit note did not remind me of a skin check, so I checked when I finished setting up. When I saw the blister I felt terrible.</p>` },
   { id: "i_super", role: "Clinical supervisor", sub: "Home health rehabilitation",
     body: `<p class="quote">The OT called me at 10:20. Revision 3 of the protocol added the thermometer and strip step after a close call at another agency. We send protocol changes by email. We do not hold a huddle for them.</p><p class="quote">Temperature strips are in the clinic, and any therapist can ask for them. Most do not ask. I see many therapists use the touch test, because it is how many of us learned. I closed two thermal reports last year with a reminder email, and I did not look for a pattern.</p>` },
   { id: "i_family", role: "Patient's daughter", sub: "Primary caregiver, present during the visit",
@@ -601,6 +601,231 @@ CASE.acaSigFb = function (sig) {
 CASE.acaLimitsTitle = "What an ACA shows in this case, and what to watch.";
 CASE.teamActionsNote = "Weaker supporting actions: send a reminder about the protocol and ask therapists to check the skin within five minutes, which sets expectations but does not sustain change alone.";
 CASE.peopleNote = "The therapist in this event will likely experience what researchers call second victim syndrome: guilt, self-doubt, and distress after harm to a patient in her care. She came to work to help this patient recover, and she worked inside a system where the supplies, the visit note, and the protocol update did not support her. A strong organizational response includes attending to her wellbeing, in addition to analyzing the system. The patient and her daughter also deserve a clear, honest account and follow-up, which fits the CANDOR approach.";
+
+// ---------------------------------------------------------------------
+// GUIDED ACA CONTENT: statements, gaps, and actions students judge
+// ---------------------------------------------------------------------
+CASE.acaGuided = {
+  causeStmts: [
+    { id: "c1", rating: "weak",
+      text: "The OT failed to follow the agency protocol and did not use good judgment when she applied the heat pack.",
+      why: "This statement names a person and a behavior, and it does not say why. The review found that the therapist did not have strips in her bag, that the visit note did not prompt her, and that most of her peers work the same way. A statement that stops at \"she should have followed the protocol\" leads to coaching one therapist and leaves the next therapist in the same position." },
+    { id: "c2", rating: "partial",
+      text: "Thermometers and temperature strips are not part of the visit bag.",
+      why: "This is a true system finding, and it names a what. It is incomplete: it does not connect to the event (the touch test), and it leaves out the visit note and the way the protocol change reached therapists. If the report stopped here, two of the three gaps would stay open." },
+    { id: "c3", rating: "weak",
+      text: "Lack of training on thermal modalities.",
+      why: "This is vague, and the record does not support it. The therapist completed orientation with a return demonstration. \"Lack of training\" also points toward training as the fix, which sits low on the Action Hierarchy. A leader asks what specifically was missing, and why." },
+    { id: "c4", rating: "strong",
+      text: "The therapist relied on a touch test because thermometers and temperature strips are not in the visit bag and the visit note does not prompt for temperature verification or an early skin check, and because the protocol revision that added those steps reached therapists only by email.",
+      why: "This statement names what happened (the touch test), connects it to system conditions (the supplies, the visit note, and the way the protocol change was shared), and it is supported by the record and the interviews. Each part can be fixed by an action. It does not depend on one person trying harder." },
+    { id: "c5", rating: "partial",
+      text: "The visit note template is missing fields, so the therapist was not reminded to check the temperature or the skin.",
+      why: "This is a system finding with a clear link to the event, and it is a good start. It covers one condition and leaves out the missing supplies and the way the protocol revision was communicated. A leader asks whether the statement explains enough of the event to drive the actions." },
+    { id: "c6", rating: "weak",
+      text: "The patient has a brain injury and could not tell the therapist the pack was too hot, so the burn was not noticed sooner.",
+      why: "This describes why the patient was at higher risk. It does not describe a system condition that failed. The protocol was written for exactly this patient, so the question to ask is why the safeguards for her were not in place on the day of the visit." }
+  ],
+  gapCands: [
+    { id: "ga", kind: "real",
+      text: "Thermometers, temperature strips, and heat pack covers are not on the visit bag checklist, and strips are issued only on request.",
+      why: "This is a system gap that a leader can fix. The therapist could not verify the temperature without asking for supplies that her bag never included.",
+      actions: [
+        { text: "Send an email reminding therapists to request temperature strips from the clinic before visits with heat.", strength: "Weaker", owner: "Clinical Supervisor of Rehabilitation", due: "30 days",
+          why: "A reminder asks people to remember to ask, which is the habit that has not been working. Reminders fade, and the next therapist is in the same position." },
+        { text: "Post a checklist in the clinic reminding therapists to take strips on visits where heat is planned.", strength: "Intermediate", owner: "Clinical Supervisor of Rehabilitation", due: "30 days",
+          why: "A checklist or cognitive aid helps, and it still depends on a therapist stopping to read it before she leaves the clinic." },
+        { text: "Add strips, a thermometer, and covers to the standard visit bag and the checklist, and audit bags monthly.", strength: "Stronger", owner: "Clinical Supervisor of Rehabilitation", due: "30 days",
+          why: "This standardizes the equipment, so the supplies are with the therapist at every visit and she does not have to remember to ask." }
+      ] },
+    { id: "gb", kind: "real",
+      text: "The visit note has no fields or prompts for temperature verification, the covering used, or an early skin check.",
+      why: "This is a system gap. The note can be completed and signed without any of the protocol steps, so nothing in the workflow prompts them.",
+      actions: [
+        { text: "Send a memo reminding therapists to document the temperature check and the skin check.", strength: "Weaker", owner: "Education and Quality Coordinator", due: "30 days",
+          why: "A memo is a new instruction. It does not change the note, so it relies on memory and good intentions." },
+        { text: "Add optional fields for the temperature check and the skin check to the thermal modality section.", strength: "Intermediate", owner: "Clinical Informatics Manager", due: "90 days",
+          why: "Adding fields improves documentation and gives a prompt. Because the fields are optional, a busy therapist can skip them." },
+        { text: "Make the fields required so the note cannot be signed without them, and show an alert for patients flagged with impaired communication.", strength: "Stronger", owner: "Clinical Informatics Manager", due: "90 days",
+          why: "A required field acts as a forcing function: the safe step becomes part of the workflow, and the system prompts it for every patient." }
+      ] },
+    { id: "gc", kind: "real",
+      text: "The protocol revision reached therapists by email only, with no huddle, confirmation, or competency refresh, and the touch test remains common practice.",
+      why: "This is a system gap. The agency changed the protocol and relied on an email, so the new steps never became practice, as the peer interviews show.",
+      actions: [
+        { text: "Resend the protocol by email and ask therapists to reply that they have read it.", strength: "Weaker", owner: "Education and Quality Coordinator", due: "30 days",
+          why: "A read receipt shows who opened the email. It does not show that anyone changed what they do at the bedside." },
+        { text: "Hold a huddle and a hands-on competency refresh with return demonstration, and track completion.", strength: "Intermediate", owner: "Education and Quality Coordinator", due: "60 days",
+          why: "Simulation-based training with a refresher is an intermediate action. It works better than an email, and it fades without repetition, so it fits best as support for a stronger action." },
+        { text: "Issue agency pre-set moist heat units for patients with impaired communication or sensation, so no one has to guess at the temperature.", strength: "Stronger", owner: "Director of Home Health Operations", due: "120 days",
+          why: "This changes the equipment and removes the guesswork, so safe practice no longer depends on the therapist recalling an email. A huddle and refresher can support it." }
+      ] },
+    { id: "gd", kind: "person",
+      text: "The therapist did not follow the protocol and needs coaching.",
+      why: "This blames one person and does not explain why. The peers described the same practice, so coaching one therapist would not close the gap for the others. Speaking with the therapist and supporting her is important, and it belongs in the response to the people involved, not in the gap table." },
+    { id: "ge", kind: "vague",
+      text: "Staff need to be more careful with heat packs.",
+      why: "This is too vague to assign an owner or a date, and nothing could be measured. It also depends on people trying harder, and the review showed supplies, a note, and a communication method that were not helping them." },
+    { id: "gf", kind: "person",
+      text: "The patient could not tell the therapist she was in pain.",
+      why: "This is a risk the protocol already anticipated. The question for a leader is why the safeguards for patients who cannot report pain were not in place, and that question is already captured in the gaps above." },
+    { id: "gg", kind: "off",
+      text: "The patient's insurance authorization was not reviewed before the visit.",
+      why: "Authorization and billing details do not help explain how the burn happened, so a gap here would send resources toward a fix that does not reduce harm." }
+  ]
+};
+// Align the model gap table with the strongest actions offered above
+ACA_GAPS_MODEL[2] = { gap: "The protocol revision reached therapists by email only, and the touch test remains common practice.", action: "Issue pre-set moist heat units for patients with impaired communication, and hold a huddle and competency refresh on the revised protocol.", owner: "Director of Home Health Operations", due: "120 days" };
+// ---------------------------------------------------------------------
+// GUIDED ACA (used when CASE.acaGuided is present)
+// Students judge strong versus weak statements instead of writing them
+// from a blank page: apparent cause statements, gaps, and actions.
+// ---------------------------------------------------------------------
+const RATE_LABELS = { strong: 'Strong', partial: 'Needs work', weak: 'Weak' };
+function agInit() {
+  if (S.acaPhase) return;
+  S.acaPhase = 'cause'; S.acaRate = {}; S.acaRateChecked = false; S.acaAdopt = '';
+  S.acaGapSel = new Set(); S.acaGapChecked = false; S.acaActPick = {};
+}
+function agMgrBox() {
+  const mgr = MANAGER_REVIEW.map((m, i) => `<p><strong>${i + 1}. ${esc(m.q)}</strong><br>${esc(m.a)}</p>`).join('');
+  return `<details class="reveal"><summary class="hd" style="cursor:pointer;"><span>Manager Review received from the ${esc(CASE.managerRole)}</span><span class="tag">Open to reread</span></summary><div class="bd">${mgr}</div></details>`;
+}
+function agHead(part, title, intro) {
+  return `<span class="step-label">Step 5: ACA Report, Part ${part} of 4</span><h2 class="title">${title}</h2><p>${intro}</p>${agMgrBox()}`;
+}
+function agSetGaps() {
+  const G = CASE.acaGuided;
+  const real = G.gapCands.filter(g => g.kind === 'real');
+  S.aca.gaps = [0, 1, 2].map(i => {
+    const g = real[i]; if (!g) return { gap: '', action: '', owner: '', due: '' };
+    const a = g.actions[S.acaActPick[g.id]];
+    return a ? { gap: g.text, action: a.text, owner: a.owner, due: a.due } : { gap: g.text, action: '', owner: '', due: '' };
+  });
+}
+function renderACAGuided() {
+  agInit();
+  const ph = S.acaPhase;
+  if (ph === 'cause') return agCause();
+  if (ph === 'gaps') return agGaps();
+  if (ph === 'acts') return agActs();
+  return agWrite();
+}
+
+// Part 1: rate apparent cause statements, then adopt one
+function agCause() {
+  const G = CASE.acaGuided;
+  const rows = G.causeStmts.map((c, i) => {
+    const r = S.acaRate[c.id];
+    const radios = ['strong', 'partial', 'weak'].map(k => `<label style="margin-right:14px;white-space:nowrap;"><input type="radio" name="rate_${c.id}" data-rate="${c.id}" value="${k}" ${r === k ? 'checked' : ''} ${S.acaRateChecked ? 'disabled' : ''}> ${RATE_LABELS[k]}</label>`).join('');
+    let f = '';
+    if (S.acaRateChecked) {
+      const ok = r === c.rating;
+      f = ok ? fb('Your rating matches.', c.why, true) : fb(`Let's look at this one again (rated ${RATE_LABELS[c.rating]}).`, c.why);
+    }
+    return `<div class="box" style="margin:12px 0;"><strong>Statement ${String.fromCharCode(65 + i)}</strong><p style="margin:6px 0 10px;">${esc(c.text)}</p><div>${radios}</div>${f}</div>`;
+  }).join('');
+  const allRated = G.causeStmts.every(c => S.acaRate[c.id]);
+  let adopt = '';
+  if (S.acaRateChecked) {
+    const opts = G.causeStmts.map((c, i) => `<label class="pick"><input type="radio" name="adopt" data-adopt="${c.id}" ${S.acaAdopt === c.id ? 'checked' : ''}><span><span class="t">Statement ${String.fromCharCode(65 + i)}</span><br><span class="d">${esc(c.text.slice(0, 90))}...</span></span></label>`).join('');
+    const chosen = G.causeStmts.find(c => c.id === S.acaAdopt);
+    adopt = `<div class="question">Which statement will you put in your ACA Report as the Apparent Cause Statement?</div><div class="picks">${opts}</div>`;
+    if (chosen) adopt += chosen.rating === 'strong'
+      ? fb('That is the statement a reviewer can act on.', 'It names system conditions (what), explains why they allowed the event, and does not depend on one person being more careful next time.', true)
+      : fb(`Have you thought about whether this is the strongest choice?`, `This statement was rated ${RATE_LABELS[chosen.rating]}. A leader looks for the statement that names what happened in the system and why, so that the actions that follow can change the system. Reread your ratings and choose again.`);
+  }
+  app.innerHTML = `<div class="card">${agHead(1, 'Judge the Apparent Cause Statements', 'An Apparent Cause Statement says what system issues were identified, because of WHAT, because WHY. Read the six statements below. Rate each as Strong, Needs work, or Weak. A quick test for a leader: Does it name the system and not just a person? Does it explain why? Is it supported by what the review found? Could actions change it?')}
+    ${rows}
+    ${S.acaRateChecked ? adopt : ''}
+    ${nav(!S.acaRateChecked
+      ? `<button class="btn" id="agChk" ${allRated ? '' : 'disabled'}>Check My Ratings</button>`
+      : `<button class="btn alt" id="agRedo">Rate Again</button><button class="btn" id="agNext" ${S.acaAdopt && G.causeStmts.find(c => c.id === S.acaAdopt).rating === 'strong' ? '' : 'disabled'}>Continue to Gaps</button>`)}
+  </div>`;
+  app.querySelectorAll('[data-rate]').forEach(el => el.onchange = () => { S.acaRate[el.dataset.rate] = el.value; const b = document.getElementById('agChk'); if (b) b.disabled = !G.causeStmts.every(c => S.acaRate[c.id]); });
+  app.querySelectorAll('[data-adopt]').forEach(el => el.onchange = () => { S.acaAdopt = el.dataset.adopt; const y = window.scrollY; renderACAGuided(); window.scrollTo(0, y); });
+  const c = document.getElementById('agChk'); if (c) c.onclick = () => { S.acaRateChecked = true; renderACAGuided(); };
+  const r = document.getElementById('agRedo'); if (r) r.onclick = () => { S.acaRate = {}; S.acaRateChecked = false; S.acaAdopt = ''; renderACAGuided(); };
+  const n = document.getElementById('agNext'); if (n) n.onclick = () => { S.aca.cause = G.causeStmts.find(x => x.id === S.acaAdopt).text; S.acaPhase = 'gaps'; renderACAGuided(); window.scrollTo(0, 0); };
+}
+
+// Part 2: choose the real gaps
+function agGaps() {
+  const G = CASE.acaGuided;
+  const items = G.gapCands.map(g => {
+    const sel = S.acaGapSel.has(g.id);
+    let f = '';
+    if (S.acaGapChecked) {
+      const real = g.kind === 'real';
+      if (real && sel) f = fb('A gap worth carrying forward.', g.why, true);
+      else if (real && !sel) f = fb('This one is missing from your list.', g.why);
+      else if (!real && sel) f = fb(`Let's look at this one again.`, g.why);
+      else f = fb('Left out, and that fits.', g.why, true);
+    }
+    return `<div style="margin:10px 0;"><label class="pick"><input type="checkbox" data-gap-sel="${g.id}" ${sel ? 'checked' : ''} ${S.acaGapChecked ? 'disabled' : ''}><span><span class="t">${esc(g.text)}</span></span></label>${f}</div>`;
+  }).join('');
+  const realSet = G.gapCands.filter(g => g.kind === 'real').map(g => g.id);
+  const match = realSet.length === S.acaGapSel.size && realSet.every(id => S.acaGapSel.has(id));
+  app.innerHTML = `<div class="card">${agHead(2, 'Choose the Gaps Worth Acting On', 'The gap table lists issues in the system that, if fixed, would reduce the chance of the event happening again. Select the statements below that belong in your gap table. Some describe system gaps. Others blame a person, are too vague to act on, or do not help explain how the event happened.')}
+    ${items}
+    ${S.acaGapChecked ? (match ? fb('Your list is ready.', 'You kept the gaps a leader can fix and left out the ones that blame people, stay vague, or do not explain the event.', true) : fb('Adjust your selection and check again.', 'Use the notes above to see which statements to add or remove.')) : ''}
+    ${nav(!S.acaGapChecked
+      ? `<button class="btn" id="agGChk" ${S.acaGapSel.size ? '' : 'disabled'}>Check My Gaps</button>`
+      : (match ? `<button class="btn" id="agGNext">Continue to Actions for Each Gap</button>` : `<button class="btn alt" id="agGRedo">Change My Selection</button>`))}
+  </div>`;
+  app.querySelectorAll('[data-gap-sel]').forEach(el => el.onchange = () => { el.checked ? S.acaGapSel.add(el.dataset.gapSel) : S.acaGapSel.delete(el.dataset.gapSel); const b = document.getElementById('agGChk'); if (b) b.disabled = !S.acaGapSel.size; });
+  const c = document.getElementById('agGChk'); if (c) c.onclick = () => { S.acaGapChecked = true; renderACAGuided(); };
+  const r = document.getElementById('agGRedo'); if (r) r.onclick = () => { S.acaGapChecked = false; renderACAGuided(); };
+  const n = document.getElementById('agGNext'); if (n) n.onclick = () => { S.acaPhase = 'acts'; renderACAGuided(); window.scrollTo(0, 0); };
+}
+
+// Part 3: pick the action that best closes each gap
+function agActs() {
+  const G = CASE.acaGuided;
+  const real = G.gapCands.filter(g => g.kind === 'real');
+  const blocks = real.map((g, gi) => {
+    const pick = S.acaActPick[g.id];
+    const opts = g.actions.map((a, ai) => `<label class="pick"><input type="radio" name="act_${g.id}" data-act="${g.id}" data-ai="${ai}" ${pick === ai ? 'checked' : ''}><span><span class="t">${esc(a.text)}</span></span></label>`).join('');
+    let f = '';
+    if (pick !== undefined) {
+      const a = g.actions[pick];
+      f = a.strength === 'Stronger'
+        ? fb('This is the strongest of these actions.', `${a.why} <em>Action Hierarchy: ${a.strength}.</em>`, true)
+        : fb(`This one is ${a.strength === 'Weaker' ? 'a weaker action' : 'an intermediate action'}.`, `${a.why} <em>Action Hierarchy: ${a.strength}.</em> A quick test for a leader: does the action still depend on someone remembering? If so, look for an option that changes the equipment or the process.`);
+    }
+    return `<div class="box" style="margin:14px 0;"><strong>Gap ${gi + 1}</strong><p style="margin:6px 0 10px;">${esc(g.text)}</p><div class="picks">${opts}</div>${f}</div>`;
+  }).join('');
+  const all = real.every(g => S.acaActPick[g.id] !== undefined);
+  app.innerHTML = `<div class="card">${agHead(3, 'Choose the Action for Each Gap', 'For each gap, choose the action you would put in the report. The options range from weaker to stronger on the RCA2 Action Hierarchy. As leaders, y\'all will not always have the strongest option available, but you should be able to tell the difference and know what you are accepting.')}
+    ${blocks}
+    ${nav(`<button class="btn" id="agAN" ${all ? '' : 'disabled'}>Continue to Write the Report</button>`)}
+  </div>`;
+  app.querySelectorAll('[data-act]').forEach(el => el.onchange = () => { S.acaActPick[el.dataset.act] = +el.dataset.ai; agSetGaps(); const y = window.scrollY; renderACAGuided(); window.scrollTo(0, y); });
+  const n = document.getElementById('agAN'); if (n) n.onclick = () => { agSetGaps(); S.acaPhase = 'write'; renderACAGuided(); window.scrollTo(0, 0); };
+}
+
+// Part 4: write the remaining narrative sections, then compare
+function agWrite() {
+  const free = ACA_FIELDS.filter(f => f.id !== 'cause');
+  const ready = () => free.every(f => S.aca[f.id].trim().length >= (f.id === 'staffing' ? 5 : 20));
+  const sig = S.aca.significance;
+  const fields = free.map(f => `
+    <div class="question">${f.label}</div><div class="helper">${f.help}</div>
+    <textarea data-aca="${f.id}" aria-label="${esc(f.label)}">${esc(S.aca[f.id])}</textarea>
+    ${S.acaCompared ? `<div class="box"><strong>A model response:</strong> ${esc(ACA_MODEL[f.id])}</div>` : ''}
+    ${S.acaCompared && f.id === 'significance' ? CASE.acaSigFb(sig) : ''}`).join('');
+  const rows = S.aca.gaps.map((g, i) => g.gap ? `<tr><td class="num">${i + 1}</td><td>${esc(g.gap)}</td><td>${esc(g.action)}</td><td>${esc(g.owner)}</td><td>${esc(g.due)}</td></tr>` : '').join('');
+  app.innerHTML = `<div class="card">${agHead(4, 'Write the Rest of the Report', 'You chose the Apparent Cause Statement, the gaps, and the actions. Now write the narrative sections in your own words. Keep your answers free of names and protected health information.')}
+    <div class="box"><strong>Your Apparent Cause Statement:</strong> ${esc(S.aca.cause)}</div>
+    <div class="tbl-scroll"><table><tr><th>Gap #</th><th>Gap</th><th>Action</th><th>Owner</th><th>Due</th></tr>${rows}</table></div>
+    ${fields}
+    ${S.acaCompared ? fb(CASE.acaLimitsTitle, `<ul style="margin:6px 0 0;padding-left:20px;">${ACA_LIMITS.map(l => `<li>${l}</li>`).join('')}</ul>`) : ''}
+    ${nav(!S.acaCompared ? `<button class="btn" id="cmp" ${ready() ? '' : 'disabled'}>Compare with a Model Report</button>` : `<button class="btn" id="toAct">Continue to Actions</button>`)}
+  </div>`;
+  app.querySelectorAll('[data-aca]').forEach(t => t.oninput = () => { S.aca[t.dataset.aca] = t.value; const c = document.getElementById('cmp'); if (c) c.disabled = !ready(); });
+  const cmp = document.getElementById('cmp'); if (cmp) cmp.onclick = () => { S.acaCompared = true; const y = window.scrollY; renderACAGuided(); window.scrollTo(0, y); };
+  const toAct = document.getElementById('toAct'); if (toAct) toAct.onclick = () => go('actions');
+}
 // =====================================================================
 // ENGINE
 // =====================================================================
@@ -912,6 +1137,7 @@ function acaReady() {
     g0.gap.trim().length >= 10 && g0.action.trim().length >= 10;
 }
 function renderACA() {
+  if (CASE.acaGuided) return renderACAGuided();
   const dueOpts = `<option value="">Due date</option>` + DUE_OPTIONS.map(d => `<option value="${d}">${d}</option>`).join('');
   const sig = S.aca.significance;
   let sigFb = '';
