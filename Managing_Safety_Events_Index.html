@@ -593,6 +593,13 @@ window.addEventListener('message', function(event){
     console.log('Shell stored log for case', num, ':', JSON.stringify(sessionLogs[num]).substring(0,200));
     renderLanding();
   }
+  if(d.type === 'open-case' && d.caseNum && CASES.find(x=>x.num===d.caseNum)){
+    openCase(d.caseNum);
+    window.scrollTo({top:0,behavior:'smooth'});
+  }
+  if(d.type === 'return-to-landing'){
+    returnToLanding();
+  }
   if(d.type === 'case-progress' && d.caseNum){
     const num = d.caseNum;
     if(caseStatus[num] !== 'completed') caseStatus[num] = 'in-progress';

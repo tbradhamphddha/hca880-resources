@@ -1339,7 +1339,7 @@ function renderSummary() {
         <strong>Something worth reflecting on as you close this case.</strong>
         Because no additional information was requested, this event was scored as SSE 4 based on what was documented at the time. In practice, the manager's update, that the patient will not regain knee flexion and will require permanent device assistance, would shift this classification to SSE 2: Severe Permanent Harm. This is a good illustration of why gathering complete information before finalizing a score matters. The same event can land in a different category depending on what the reviewer knows, and that difference has real implications for the response the organization is obligated to provide.
       </div>` : ''}
-      <button class="restart-btn" id="restart-btn">Restart Case 1</button> <button class="next-case-btn" id="next-case-btn" onclick="window.parent.postMessage({type:'>Go to Case 2 &#8594;</button>
+      <button class="restart-btn" id="restart-btn">Restart Case 1</button> <button class="next-case-btn" id="next-case-btn" onclick="window.parent.postMessage({type:'open-case',caseNum:2},'*')">Go to Case 2 &#8594;</button>
     </div>
   `;
   
