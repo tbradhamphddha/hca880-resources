@@ -55,11 +55,13 @@
     flex-shrink: 0; display: flex; align-items: center; gap: 0.3rem; font-size: 0.78rem;
     color: #E6E3DE; text-decoration: none; padding: 0.35rem 0.7rem; border-radius: 4px; white-space: nowrap;
   }
+  .resource-header-links { display: flex; align-items: center; gap: 0.25rem; flex-shrink: 0; }
   .resource-header-back:hover { color: var(--white); background: rgba(255,255,255,0.1); }
   .resource-header-back svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2; }
   @media (max-width: 600px) {
     .resource-header { flex-wrap: wrap; padding: 0.7rem 1rem; gap: 0.6rem; }
-    .resource-header-back { order: -1; width: 100%; padding: 0.2rem 0; font-size: 0.72rem; }
+    .resource-header-links { order: -1; width: 100%; }
+    .resource-header-back { padding: 0.2rem 0.4rem; font-size: 0.72rem; }
     .resource-header-title { font-size: 0.95rem; }
   }
   .accent-bar { height: 6px; background: var(--red); margin: 0 -20px; }
@@ -255,10 +257,13 @@
       <div class="resource-header-course">HCA 880: Patient Safety and Risk</div>
       <div class="resource-header-title">Comprehensive Safety Analysis Workbench: Case 2</div>
     </div>
-    <a class="resource-header-back" href="index.html">
-      <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
-      Course Home
-    </a>
+    <div class="resource-header-links">
+      <a class="resource-header-back" href="Managing_Safety_Events_CSA_Index.html">
+        <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+        CSA Cases
+      </a>
+      <a class="resource-header-back" href="index.html">Course Home</a>
+    </div>
   </header>
   <div class="accent-bar"></div>
 
@@ -273,19 +278,8 @@
 
 <script>
 // =====================================================================
-// CASE DATA: CASE 2 (STEMI: Delayed Escalation)
-// All chart entries and interview notes below are fictional teaching
-// material written to stay consistent with the Case 2 event description.
-// No real patients, staff, or organizations are represented.
+// SHARED DATA (used by every CSA workbench case)
 // =====================================================================
-const CASE = {
-  num: 2,
-  title: "STEMI: Delayed Escalation",
-  expectedLevel: "RCA",
-  vignette: `A 71-year-old patient with a history of hypertension and diabetes is admitted to the intensive care unit following an acute exacerbation of congestive heart failure. On the second day of admission, the patient reports new onset chest pressure radiating to the left arm, rated 7 out of 10. The bedside nurse administers acetaminophen per standing orders and reassesses 45 minutes later. The patient's pain has not improved and the nurse documents the complaint in the chart. A second-year resident reviews the chart remotely, orders a basic metabolic panel and cardiac enzymes, and notes the complaint. An EKG is obtained by the telemetry tech and transmitted to the system. The EKG reveals ST-elevation in leads II, III, and aVF, consistent with an acute inferior wall myocardial infarction. The result is available in the electronic health record for 38 minutes before anyone acts on it. The attending cardiologist is paged twice and does not respond. The resident does not attempt additional contact and does not activate the rapid response team or the facility's STEMI protocol. The nurse, aware that the cardiologist has not responded and that the patient's condition is worsening, does not escalate through available channels. The patient progresses to hemodynamic instability, a code blue is called, and the patient expires despite resuscitative efforts.`,
-  eventName: "38-minute delay in treating an acute inferior STEMI; patient death"
-};
-
 // ---------------------------------------------------------------------
 // SAC MATRIX (RCA2 Appendix 1)
 // ---------------------------------------------------------------------
@@ -317,6 +311,103 @@ const LEVELS = [
   { key: "CCA", label: "Common Cause Analysis (CCA)", sub: "A review across several similar events" },
   { key: "RCA", label: "Root Cause Analysis (RCA)", sub: "A formal, in-depth review (RCA2)" }
 ];
+
+// ---------------------------------------------------------------------
+// FISHBONE: categories, types, and findings
+// ---------------------------------------------------------------------
+const CATS = [
+  { key: "comm", label: "Communication" },
+  { key: "policy", label: "Policies and Procedures" },
+  { key: "culture", label: "Culture and Leadership" },
+  { key: "training", label: "Training and Competency" },
+  { key: "staff", label: "Staffing and Workload" },
+  { key: "env", label: "Environment and Technology" }
+];
+// HPI Taxonomy of System Failure Mechanisms (SFM), Appendix F-2. Applies to root causes only.
+const SFM = [
+  { key: "P", label: "Process", items: [
+    { code: "P1", label: "Omitted Actions", d: "key activity is missing or incomplete" },
+    { code: "P2", label: "Excessive Actions", d: "contains low-value activities" },
+    { code: "P3", label: "Poorly Sequenced", d: "poor flow, excessive branching of work process activities" },
+    { code: "P4", label: "Inadequate Interface", d: "lack of or poorly designed handoffs of information, resources, or products" },
+    { code: "P5", label: "Inadequate Checks", d: "lack of or poorly designed checks, inspections, or reviews" } ] },
+  { key: "D", label: "Policy and Protocol", items: [
+    { code: "D1", label: "Lacking or Informal", d: "no policy or protocol" },
+    { code: "D2", label: "Usability", d: "poor presentation or information depiction, low credibility, poor access" },
+    { code: "D3", label: "Understandability", d: "difficult to comprehend because guidance detail is lacking or inadequate for the knowledge and skill level of the user" },
+    { code: "D4", label: "Knowledge in Environment", d: "inadequate or under-utilized job aids, forcing functions" } ] },
+  { key: "T", label: "Technology and Environment", items: [
+    { code: "T1", label: "Input / Output", d: "visual display, alarms, control configuration" },
+    { code: "T2", label: "Human Capability", d: "symbols, codes, anthropometry, devices, human control, physical work" },
+    { code: "T3", label: "Arrangement", d: "physical arrangement of work space, department, facility, or campus negatively impacting performance" },
+    { code: "T4", label: "Environment", d: "lighting, noise, climate, motion negatively impacting performance" } ] },
+  { key: "S", label: "Structure", items: [
+    { code: "S1", label: "Structure Model", d: "wrong model, incompatible missions" },
+    { code: "S2", label: "Inadequate Job Function", d: "overlap or gaps in roles, responsibilities, or expectations" },
+    { code: "S3", label: "Resource Allocation", d: "insufficient infrastructure, people, budget, equipment, or other resources" },
+    { code: "S4", label: "Collaboration Mechanisms", d: "wrong or inadequate collaboration mechanisms" },
+    { code: "S5", label: "Inadequate Structure", d: "span of control, levels of leadership, leveraging positions and experience" } ] },
+  { key: "C", label: "Culture", items: [
+    { code: "C1", label: "Inadequate Vision or Mission", d: "lacking or poorly executed mission" },
+    { code: "C2", label: "Operational Leadership", d: "lacking or inadequate command, prioritization, or assignment in response to emergent or emerging issues" },
+    { code: "C3", label: "Non-Collaboration", d: "disruptive competition, defensiveness, poor teamwork, low morale" },
+    { code: "C4", label: "High Reliability Environment", d: "setting does not incorporate error prevention expectations (consciousness, critical thinking, compliance, competency, communication)" } ] }
+];
+function sfmObj(key) { const g = SFM.find(x => x.key === key); return g ? { code: g.key, group: g.label, label: g.label, items: g.items, d: g.items.map(i => i.label + ' (' + i.d + ')').join('; ') } : null; }
+const TYPES = [
+  { key: "prox", label: "Proximate cause", short: "Proximate", help: "An action or happening that should not have occurred and that contributes directly to the event." },
+  { key: "causal", label: "Causal factor", short: "Causal factor", help: "A condition in the work system that shapes or contributes to a proximate cause." },
+  { key: "root", label: "Root cause", short: "Root cause", help: "The most significant causal factor that, if corrected, would prevent recurrence." },
+  { key: "non", label: "Not causal (context)", short: "Context", help: "Information that is true and worth knowing but does not explain the event." }
+];
+// ---------------------------------------------------------------------
+// FIVE RULES OF CAUSATION (RCA2 Appendix 6)
+// ---------------------------------------------------------------------
+const FIVE_RULES = [
+  "Clearly shows the cause and effect relationship.",
+  "Uses specific and accurate descriptors, and avoids negative or vague words such as poor, inadequate, careless, or failed.",
+  "Treats any human error as having a preceding cause.",
+  "Treats any violation of procedure as having a preceding cause, and does not name the violation itself as a root cause.",
+  "Describes a failure to act only where a pre-existing duty to act existed."
+];
+// ---------------------------------------------------------------------
+// ACTION HIERARCHY (RCA2 Action Hierarchy)
+// ---------------------------------------------------------------------
+const HIERARCHY = [
+  { group: "Stronger", cats: ["Architectural or physical plant change", "Forcing function or engineering control", "Simplify the process or remove unnecessary steps", "Standardize equipment or process", "Tangible involvement by leadership"] },
+  { group: "Intermediate", cats: ["Redundancy", "Increase staffing or decrease workload", "Software enhancement or modification", "Eliminate or reduce distractions", "Simulation-based training with periodic refreshers", "Checklist or cognitive aid", "Eliminate look-alikes and sound-alikes", "Standardized communication tool", "Enhanced documentation or communication"] },
+  { group: "Weaker", cats: ["Double check", "Warning", "New procedure, memorandum, or policy", "Training"] }
+];
+function strengthOf(cat) {
+  for (const g of HIERARCHY) if (g.cats.indexOf(cat) >= 0) return g.group;
+  return "";
+}
+const DUE_OPTIONS = ["30 days", "60 days", "90 days", "120 days", "180 days"];
+
+const SMARTIES = [
+  { k: "S", name: "Specific", q: "Does the action say what will change, where, and who is responsible?" },
+  { k: "M", name: "Measurable", q: "Does the measure state what will be measured, for how long, and the expected level of compliance?" },
+  { k: "A", name: "Attainable", q: "Can the organization carry this out with the resources, authority, and time available?" },
+  { k: "R", name: "Relevant", q: "Does the action connect directly to a root cause you identified?" },
+  { k: "T", name: "Timely", q: "Does the action have a due date, and is there a date when it will be measured?" },
+  { k: "I", name: "Inclusive", q: "Were frontline staff, patients or families, and the people who do the work involved in shaping it?" },
+  { k: "E", name: "Equitable", q: "Does it work across shifts, roles, and abilities, and does it avoid shifting burden onto the people with the least power?" },
+  { k: "Sf", name: "Safe", q: "Could the action create new hazards or burdens, and have you looked for them?" }
+];
+
+// =====================================================================
+// CASE DATA: CASE 2 (STEMI: Delayed Escalation)
+// All chart entries and interview notes below are fictional teaching
+// material written to stay consistent with the Case 2 event description.
+// No real patients, staff, or organizations are represented.
+// =====================================================================
+const CASE = {
+  num: 2,
+  title: "STEMI: Delayed Escalation",
+  expectedLevel: "RCA",
+  vignette: `A 71-year-old patient with a history of hypertension and diabetes is admitted to the intensive care unit following an acute exacerbation of congestive heart failure. On the second day of admission, the patient reports new onset chest pressure radiating to the left arm, rated 7 out of 10. The bedside nurse administers acetaminophen per standing orders and reassesses 45 minutes later. The patient's pain has not improved and the nurse documents the complaint in the chart. A second-year resident reviews the chart remotely, orders a basic metabolic panel and cardiac enzymes, and notes the complaint. An EKG is obtained by the telemetry tech and transmitted to the system. The EKG reveals ST-elevation in leads II, III, and aVF, consistent with an acute inferior wall myocardial infarction. The result is available in the electronic health record for 38 minutes before anyone acts on it. The attending cardiologist is paged twice and does not respond. The resident does not attempt additional contact and does not activate the rapid response team or the facility's STEMI protocol. The nurse, aware that the cardiologist has not responded and that the patient's condition is worsening, does not escalate through available channels. The patient progresses to hemodynamic instability, a code blue is called, and the patient expires despite resuscitative efforts.`,
+  eventName: "38-minute delay in treating an acute inferior STEMI; patient death"
+};
 
 // ---------------------------------------------------------------------
 // CHART REVIEW ITEMS
@@ -422,54 +513,6 @@ const GAPS = [
     why: "One 650 mg dose is well within labeled limits, so the dose itself does not help explain the delay." }
 ];
 
-// ---------------------------------------------------------------------
-// FISHBONE: categories, types, and findings
-// ---------------------------------------------------------------------
-const CATS = [
-  { key: "comm", label: "Communication" },
-  { key: "policy", label: "Policies and Procedures" },
-  { key: "culture", label: "Culture and Leadership" },
-  { key: "training", label: "Training and Competency" },
-  { key: "staff", label: "Staffing and Workload" },
-  { key: "env", label: "Environment and Technology" }
-];
-// HPI Taxonomy of System Failure Mechanisms (SFM), Appendix F-2. Applies to root causes only.
-const SFM = [
-  { key: "P", label: "Process", items: [
-    { code: "P1", label: "Omitted Actions", d: "key activity is missing or incomplete" },
-    { code: "P2", label: "Excessive Actions", d: "contains low-value activities" },
-    { code: "P3", label: "Poorly Sequenced", d: "poor flow, excessive branching of work process activities" },
-    { code: "P4", label: "Inadequate Interface", d: "lack of or poorly designed handoffs of information, resources, or products" },
-    { code: "P5", label: "Inadequate Checks", d: "lack of or poorly designed checks, inspections, or reviews" } ] },
-  { key: "D", label: "Policy and Protocol", items: [
-    { code: "D1", label: "Lacking or Informal", d: "no policy or protocol" },
-    { code: "D2", label: "Usability", d: "poor presentation or information depiction, low credibility, poor access" },
-    { code: "D3", label: "Understandability", d: "difficult to comprehend because guidance detail is lacking or inadequate for the knowledge and skill level of the user" },
-    { code: "D4", label: "Knowledge in Environment", d: "inadequate or under-utilized job aids, forcing functions" } ] },
-  { key: "T", label: "Technology and Environment", items: [
-    { code: "T1", label: "Input / Output", d: "visual display, alarms, control configuration" },
-    { code: "T2", label: "Human Capability", d: "symbols, codes, anthropometry, devices, human control, physical work" },
-    { code: "T3", label: "Arrangement", d: "physical arrangement of work space, department, facility, or campus negatively impacting performance" },
-    { code: "T4", label: "Environment", d: "lighting, noise, climate, motion negatively impacting performance" } ] },
-  { key: "S", label: "Structure", items: [
-    { code: "S1", label: "Structure Model", d: "wrong model, incompatible missions" },
-    { code: "S2", label: "Inadequate Job Function", d: "overlap or gaps in roles, responsibilities, or expectations" },
-    { code: "S3", label: "Resource Allocation", d: "insufficient infrastructure, people, budget, equipment, or other resources" },
-    { code: "S4", label: "Collaboration Mechanisms", d: "wrong or inadequate collaboration mechanisms" },
-    { code: "S5", label: "Inadequate Structure", d: "span of control, levels of leadership, leveraging positions and experience" } ] },
-  { key: "C", label: "Culture", items: [
-    { code: "C1", label: "Inadequate Vision or Mission", d: "lacking or poorly executed mission" },
-    { code: "C2", label: "Operational Leadership", d: "lacking or inadequate command, prioritization, or assignment in response to emergent or emerging issues" },
-    { code: "C3", label: "Non-Collaboration", d: "disruptive competition, defensiveness, poor teamwork, low morale" },
-    { code: "C4", label: "High Reliability Environment", d: "setting does not incorporate error prevention expectations (consciousness, critical thinking, compliance, competency, communication)" } ] }
-];
-function sfmObj(key) { const g = SFM.find(x => x.key === key); return g ? { code: g.key, group: g.label, label: g.label, items: g.items, d: g.items.map(i => i.label + ' (' + i.d + ')').join('; ') } : null; }
-const TYPES = [
-  { key: "prox", label: "Proximate cause", short: "Proximate", help: "An action or happening that should not have occurred and that contributes directly to the event." },
-  { key: "causal", label: "Causal factor", short: "Causal factor", help: "A condition in the work system that shapes or contributes to a proximate cause." },
-  { key: "root", label: "Root cause", short: "Root cause", help: "The most significant causal factor that, if corrected, would prevent recurrence." },
-  { key: "non", label: "Not causal (context)", short: "Context", help: "Information that is true and worth knowing but does not explain the event." }
-];
 const FINDINGS = [
   { id: "f1", flow: 2, text: "The resident did not activate the STEMI protocol or the rapid response team after two unanswered pages.",
     needs: ["r_paging", "i_res", "r_orders"], type: "prox", cats: ["comm", "culture"],
@@ -518,16 +561,6 @@ const FINDINGS = [
     why: "This shows the barrier that was available and unused. It is context that makes the delay more significant, but it does not explain why the line was not called." }
 ];
 
-// ---------------------------------------------------------------------
-// FIVE RULES OF CAUSATION (RCA2 Appendix 6)
-// ---------------------------------------------------------------------
-const FIVE_RULES = [
-  "Clearly shows the cause and effect relationship.",
-  "Uses specific and accurate descriptors, and avoids negative or vague words such as poor, inadequate, careless, or failed.",
-  "Treats any human error as having a preceding cause.",
-  "Treats any violation of procedure as having a preceding cause, and does not name the violation itself as a root cause.",
-  "Describes a failure to act only where a pre-existing duty to act existed."
-];
 const TEAM_STATEMENTS = [
   { id: "rc1", cause: "A unit expectation, learned from past experiences, that escalating past the cardiology attending would bring a negative response",
     effect: "led the resident and the nurse to wait for a callback instead of activating the STEMI line or the rapid response team, both of which policy allows without attending approval",
@@ -585,31 +618,6 @@ const ACA_LIMITS = [
   "A death is a sentinel event with a SAC score of 3, and accreditation requirements call for a comprehensive systematic analysis. The Significance and Possible Extent of Condition section of the ACA Report is where an analyst recommends escalation."
 ];
 
-// ---------------------------------------------------------------------
-// ACTION HIERARCHY (RCA2 Action Hierarchy)
-// ---------------------------------------------------------------------
-const HIERARCHY = [
-  { group: "Stronger", cats: ["Architectural or physical plant change", "Forcing function or engineering control", "Simplify the process or remove unnecessary steps", "Standardize equipment or process", "Tangible involvement by leadership"] },
-  { group: "Intermediate", cats: ["Redundancy", "Increase staffing or decrease workload", "Software enhancement or modification", "Eliminate or reduce distractions", "Simulation-based training with periodic refreshers", "Checklist or cognitive aid", "Eliminate look-alikes and sound-alikes", "Standardized communication tool", "Enhanced documentation or communication"] },
-  { group: "Weaker", cats: ["Double check", "Warning", "New procedure, memorandum, or policy", "Training"] }
-];
-function strengthOf(cat) {
-  for (const g of HIERARCHY) if (g.cats.indexOf(cat) >= 0) return g.group;
-  return "";
-}
-const DUE_OPTIONS = ["30 days", "60 days", "90 days", "120 days", "180 days"];
-
-const SMARTIES = [
-  { k: "S", name: "Specific", q: "Does the action say what will change, where, and who is responsible?" },
-  { k: "M", name: "Measurable", q: "Does the measure state what will be measured, for how long, and the expected level of compliance?" },
-  { k: "A", name: "Attainable", q: "Can the organization carry this out with the resources, authority, and time available?" },
-  { k: "R", name: "Relevant", q: "Does the action connect directly to a root cause you identified?" },
-  { k: "T", name: "Timely", q: "Does the action have a due date, and is there a date when it will be measured?" },
-  { k: "I", name: "Inclusive", q: "Were frontline staff, patients or families, and the people who do the work involved in shaping it?" },
-  { k: "E", name: "Equitable", q: "Does it work across shifts, roles, and abilities, and does it avoid shifting burden onto the people with the least power?" },
-  { k: "Sf", name: "Safe", q: "Could the action create new hazards or burdens, and have you looked for them?" }
-];
-
 const TEAM_ACTIONS = [
   { rc: "A unit expectation that escalating past the attending brings a negative response",
     action: "Add automatic STEMI activation: any 12-lead EKG with a machine-read acute STEMI pattern pages the STEMI team and cardiology on-call at once, so activation no longer depends on one person's decision to escalate.",
@@ -641,6 +649,35 @@ const TEAM_CHAINS = [
   { prox: 'f2', causal: ['f9', 'f8'], root: ['f4'] }
 ];
 const TEAM_CTX = ['f11', 'f12', 'f13', 'f14', 'f15'];
+
+// ---------------------------------------------------------------------
+// CASE 2 SETTINGS: text the workbench shows for this event
+// ---------------------------------------------------------------------
+CASE.budget = { rec: 6, int: 4 };
+CASE.allowTryAca = true;
+CASE.managerRole = "ICU unit manager";
+CASE.harm = {
+  expectedSeverity: "catastrophic",
+  sevRight: ["That aligns with the SAC definition.", `The SAC Matrix scores actual events by the patient's actual condition. A death that is not related to the natural course of the illness falls in the Catastrophic category.`],
+  sevWrong: [`Let's look at the severity definitions together.`, `The SAC Matrix assigns severity from the patient's actual outcome. Reread the event: the patient died despite resuscitation, and the death followed a treatable condition that went untreated for 38 minutes. Which category describes an outcome like that?`],
+  probFb: function (prob) { return ["Probability noted.", `At Catastrophic severity, every probability category produces a SAC score of 3, so the score does not change here. Probability still matters for lower-severity events, and for deciding where else a similar event could occur.`]; },
+  resultNote: function (sac) { return " (highest risk)"; },
+  dimension: ["One more dimension to keep in mind.", `The SAC Matrix guides how you spend your analysis resources, and your accrediting body and organizational policy operate alongside it. A patient death that is not related to the natural course of the illness is also a sentinel event, which carries its own requirement for a comprehensive systematic analysis.`]
+};
+CASE.levelFb = {
+  none: [`Let's explore that more.`, `Tracking and trending suits events with a low SAC score and no unanswered question about cause. This event scored 3, and a death is a sentinel event. Without an analysis, the conditions that allowed the delay would stay in place. Have you thought about what the organization would learn, and what it would miss, if it only counted this event?`],
+  ACA: ["That is one way to view this.", `An Apparent Cause Analysis is a less formal process used for less significant events. It asks what happened, what should have happened, and why the expected process did not occur, usually from a few conversations. Consider the SAC score and the sentinel event status: would a less formal review satisfy the organization and its accrediting body? You can reconsider, or complete an ACA to see what it surfaces and compare it with a full analysis.`],
+  CCA: [`Let's think about what a CCA needs.`, `A Common Cause Analysis looks across several similar events to find the causes they share. You have one event in hand. The Substitution Test pattern suggests this condition may exist beyond this unit, so a CCA could be a useful follow-up across units, which links to the idea of transportability. For this event, though, you need a deeper look at a single death first. Which level fits that?`],
+  RCA: ["Your choice aligns with the evidence.", `A SAC score of 3 and a sentinel event call for a comprehensive systematic analysis. An RCA (RCA2) is a formal process that asks what happened, why it happened, and what to do to prevent recurrence, and it focuses on system causes instead of individual blame. A CCA can follow later to look for the same pattern elsewhere.`, true]
+};
+CASE.acaSigFb = function (sig) {
+  return /escalat|RCA|root cause|higher level|comprehensive/i.test(sig)
+    ? fb("You raised escalation.", "The Significance section is where an analyst recommends a higher level of analysis when the event calls for one. Your note points the report in that direction, and this event does call for it.", true)
+    : fb("Have you thought about the escalation question?", "The Significance section asks directly whether the level of analysis was appropriate or whether the event should move to a higher level of cause analysis. Consider the SAC score, the sentinel event status, and the pattern of hesitation the manager described.");
+};
+CASE.acaLimitsTitle = "What an ACA is likely to leave unexamined in this case.";
+CASE.teamActionsNote = "Weaker supporting actions: update the escalation policy to the new time-based rule and educate staff on it, which sets expectations but does not sustain change alone.";
+CASE.peopleNote = "The resident and the nurse in this event will likely experience what researchers call second victim syndrome: guilt, self-doubt, and distress after an event on their watch. They came to work to provide safe care, and they made decisions inside a culture that narrowed their options. A strong organizational response includes attending to their wellbeing, in addition to analyzing the system. A just culture and psychological safety are preventive measures, and they are also part of how an organization cares for its people after harm occurs.";
 // =====================================================================
 // ENGINE
 // =====================================================================
@@ -746,13 +783,14 @@ function renderHarm() {
   const probOpts = PROBABILITY.map(o => `<button class="opt${S.prob === o.key ? ' chosen' : ''}" data-prob="${o.key}" ${probDone ? 'disabled' : ''}>${o.label}<small>${o.desc}</small></button>`).join('');
   let sevFb = '';
   if (sevDone) {
-    sevFb = S.sev === 'catastrophic'
-      ? fb('That aligns with the SAC definition.', 'The SAC Matrix scores actual events by the patient\'s actual condition. A death that is not related to the natural course of the illness falls in the Catastrophic category.', true)
-      : fb('Let\'s look at the severity definitions together.', 'The SAC Matrix assigns severity from the patient\'s actual outcome. Reread the event: the patient died despite resuscitation, and the death followed a treatable condition that went untreated for 38 minutes. Which category describes an outcome like that?');
+    sevFb = S.sev === CASE.harm.expectedSeverity
+      ? fb(CASE.harm.sevRight[0], CASE.harm.sevRight[1], true)
+      : fb(CASE.harm.sevWrong[0], CASE.harm.sevWrong[1]);
   }
   let probFb = '';
   if (probDone) {
-    probFb = fb('Probability noted.', 'At Catastrophic severity, every probability category produces a SAC score of 3, so the score does not change here. Probability still matters for lower-severity events, and for deciding where else a similar event could occur.', true);
+    const pf = CASE.harm.probFb(S.prob);
+    probFb = fb(pf[0], pf[1], true);
   }
   app.innerHTML = `
   <div class="card">
@@ -763,15 +801,15 @@ function renderHarm() {
     <div class="helper">Use the Safety Assessment Code (SAC) Matrix from RCA2 Appendix 1. For actual events, assign severity from the patient's actual condition.</div>
     <div class="options" id="sevOpts">${sevOpts}</div>
     ${sevFb}
-    ${sevDone && S.sev !== 'catastrophic' ? nav(`<button class="btn alt" id="sevRetry">Try again</button>`) : ''}
-    ${sevDone && S.sev === 'catastrophic' ? `
+    ${sevDone && S.sev !== CASE.harm.expectedSeverity ? nav(`<button class="btn alt" id="sevRetry">Try again</button>`) : ''}
+    ${sevDone && S.sev === CASE.harm.expectedSeverity ? `
       <div class="question">How probable is a similar event at your organization?</div>
       <div class="helper">If you do not have tracking data, the SAC guidance suggests asking the staff most familiar with the process for an informed estimate.</div>
       <div class="options">${probOpts}</div>${probFb}` : ''}
     ${probDone ? `
-      <h3 style="margin-top:22px;">SAC Matrix Result: ${SAC[S.prob][S.sev]} (highest risk)</h3>
+      <h3 style="margin-top:22px;">SAC Matrix Result: ${SAC[S.prob][S.sev]}${CASE.harm.resultNote(SAC[S.prob][S.sev])}</h3>
       ${matrixHTML()}
-      ${fb('One more dimension to keep in mind.', 'The SAC Matrix guides how you spend your analysis resources, and your accrediting body and organizational policy operate alongside it. A patient death that is not related to the natural course of the illness is also a sentinel event, which carries its own requirement for a comprehensive systematic analysis.')}
+      ${fb(CASE.harm.dimension[0], CASE.harm.dimension[1])}
       ${nav(`<button class="btn" id="next">Decide the Level of Analysis</button>`)}` : ''}
   </div>`;
   app.querySelectorAll('[data-sev]').forEach(b => b.onclick = () => { S.sev = b.dataset.sev; renderHarm(); });
@@ -784,10 +822,8 @@ function renderHarm() {
 // STEP: LEVEL OF ANALYSIS
 // ---------------------------------------------------------------------
 function levelFeedback(key) {
-  if (key === 'none') return fb('Let\'s explore that more.', 'Tracking and trending suits events with a low SAC score and no unanswered question about cause. This event scored 3, and a death is a sentinel event. Without an analysis, the conditions that allowed the delay would stay in place. Have you thought about what the organization would learn, and what it would miss, if it only counted this event?');
-  if (key === 'ACA') return fb('That is one way to view this.', 'An Apparent Cause Analysis is a less formal process used for less significant events. It asks what happened, what should have happened, and why the expected process did not occur, usually from a few conversations. Consider the SAC score and the sentinel event status: would a less formal review satisfy the organization and its accrediting body? You can reconsider, or complete an ACA to see what it surfaces and compare it with a full analysis.');
-  if (key === 'CCA') return fb('Let\'s think about what a CCA needs.', 'A Common Cause Analysis looks across several similar events to find the causes they share. You have one event in hand. The Substitution Test pattern suggests this condition may exist beyond this unit, so a CCA could be a useful follow-up across units, which links to the idea of transportability. For this event, though, you need a deeper look at a single death first. Which level fits that?');
-  return fb('Your choice aligns with the evidence.', 'A SAC score of 3 and a sentinel event call for a comprehensive systematic analysis. An RCA (RCA2) is a formal process that asks what happened, why it happened, and what to do to prevent recurrence, and it focuses on system causes instead of individual blame. A CCA can follow later to look for the same pattern elsewhere.', true);
+  const t = CASE.levelFb[key];
+  return fb(t[0], t[1], !!t[2]);
 }
 function renderLevel() {
   const chosen = S.levelTried.length ? S.levelTried[S.levelTried.length - 1] : null;
@@ -795,8 +831,8 @@ function renderLevel() {
   let after = '';
   if (chosen) {
     after = levelFeedback(chosen);
-    if (chosen === 'RCA') after += nav(`<button class="btn" id="goGather">Begin Fact Finding</button>`);
-    else if (chosen === 'ACA') after += nav(`<button class="btn alt" id="again">Reconsider the level</button><button class="btn dark" id="tryAca">Complete an ACA to compare</button>`);
+    if (chosen === CASE.expectedLevel) after += nav(`<button class="btn" id="goGather">Begin Fact Finding</button>`);
+    else if (chosen === 'ACA' && CASE.allowTryAca) after += nav(`<button class="btn alt" id="again">Reconsider the level</button><button class="btn dark" id="tryAca">Complete an ACA to compare</button>`);
     else after += nav(`<button class="btn alt" id="again">Choose again</button>`);
   }
   app.innerHTML = `
@@ -815,7 +851,7 @@ function renderLevel() {
     ${after}
   </div>`;
   app.querySelectorAll('[data-lv]').forEach(b => b.onclick = () => { S.levelTried.push(b.dataset.lv); renderLevel(); });
-  const g = document.getElementById('goGather'); if (g) g.onclick = () => { S.level = 'RCA'; go('gather'); };
+  const g = document.getElementById('goGather'); if (g) g.onclick = () => { S.level = CASE.expectedLevel; go('gather'); };
   const a = document.getElementById('again'); if (a) a.onclick = () => { S.levelTried.push(null); S.levelTried = S.levelTried.filter(x => x !== null); S.levelTried.length = 0; renderLevel(); };
   const t = document.getElementById('tryAca'); if (t) t.onclick = () => { S.level = 'ACA'; S.triedACA = true; go('gather'); };
 }
@@ -823,7 +859,7 @@ function renderLevel() {
 // ---------------------------------------------------------------------
 // STEP: GATHER (chart review and interviews)
 // ---------------------------------------------------------------------
-const BUDGET = { rec: 6, int: 4 };
+const BUDGET = CASE.budget || { rec: 6, int: 4 };
 function revealHTML(list, kind) {
   const items = list.filter(x => gathered(x.id));
   return items.map(x => `<div class="reveal"><div class="hd"><span>${esc(x.title || x.role)}</span><span class="tag">${esc(x.sub)}</span></div><div class="bd">${x.body}</div></div>`).join('');
@@ -957,9 +993,7 @@ function renderACA() {
   const sig = S.aca.significance;
   let sigFb = '';
   if (S.acaCompared) {
-    sigFb = /escalat|RCA|root cause|higher level|comprehensive/i.test(sig)
-      ? fb('You raised escalation.', 'The Significance section is where an analyst recommends a higher level of analysis when the event calls for one. Your note points the report in that direction, and this event does call for it.', true)
-      : fb('Have you thought about the escalation question?', 'The Significance section asks directly whether the level of analysis was appropriate or whether the event should move to a higher level of cause analysis. Consider the SAC score, the sentinel event status, and the pattern of hesitation the manager described.');
+    sigFb = CASE.acaSigFb(sig);
   }
   const mgr = MANAGER_REVIEW.map((m, i) => `<p><strong>${i + 1}. ${esc(m.q)}</strong><br>${esc(m.a)}</p>`).join('');
   const fields = ACA_FIELDS.map(f => `
@@ -980,13 +1014,13 @@ function renderACA() {
     <span class="step-label">Step 5: ACA Report</span>
     <h2 class="title">Complete the Apparent Cause Analysis Report</h2>
     <p>In an ACA, the unit manager completes a Manager Review form for the Safety Event Review Team, and the analyst turns it, along with a look at the record, into the ACA Report. Read the manager's review below, then complete the report. Keep your answers free of names and protected health information.</p>
-    <details class="reveal" open><summary class="hd" style="cursor:pointer;"><span>Manager Review received from the ICU unit manager</span><span class="tag">Six-question Manager Review Template</span></summary><div class="bd">${mgr}</div></details>
+    <details class="reveal" open><summary class="hd" style="cursor:pointer;"><span>Manager Review received from the ${esc(CASE.managerRole)}</span><span class="tag">Six-question Manager Review Template</span></summary><div class="bd">${mgr}</div></details>
     ${fields}
     <div class="question">Gaps in Care or Issues Identified, and Actions to Prevent Recurrence</div>
     <div class="helper">Enter up to three gaps. Complete at least the first row (the gap and its action).</div>
     <div class="tbl-scroll"><table><tr><th style="width:44px">Gap #</th><th>Gap in care or issue identified</th><th>Action to prevent recurrence</th><th>Action owner</th><th>Due</th></tr>${gapRows}</table></div>
     ${S.acaCompared ? `<div class="box"><strong>A model gap table:</strong><div class="tbl-scroll"><table><tr><th>Gap #</th><th>Gap</th><th>Action</th><th>Owner</th><th>Due</th></tr>${ACA_GAPS_MODEL.map((g, i) => `<tr><td class="num">${i + 1}</td><td>${esc(g.gap)}</td><td>${esc(g.action)}</td><td>${esc(g.owner)}</td><td>${g.due}</td></tr>`).join('')}</table></div></div>` : ''}
-    ${S.acaCompared ? fb('What an ACA is likely to leave unexamined in this case.', `<ul style="margin:6px 0 0;padding-left:20px;">${ACA_LIMITS.map(l => `<li>${l}</li>`).join('')}</ul>`) : ''}
+    ${S.acaCompared ? fb(CASE.acaLimitsTitle, `<ul style="margin:6px 0 0;padding-left:20px;">${ACA_LIMITS.map(l => `<li>${l}</li>`).join('')}</ul>`) : ''}
     ${nav(!S.acaCompared
       ? `<button class="btn" id="cmp" ${acaReady() ? '' : 'disabled'}>Compare with a Model Report</button>`
       : (CASE.expectedLevel === 'ACA'
@@ -1299,7 +1333,12 @@ function newAction() {
   S.actionSeq++;
   return { id: 'ac' + S.actionSeq, text: '', rc: '', cat: '', owner: '', due: '', measure: '', sm: {} };
 }
-function studentRoots() { return FINDINGS.filter(f => anyGathered(f.needs) && S.tags[f.id] && S.tags[f.id].type === 'root'); }
+function acaMode() { return S.level === 'ACA' && CASE.expectedLevel === 'ACA'; }
+function causeNoun() { return acaMode() ? 'gap' : 'root cause'; }
+function studentRoots() {
+  if (acaMode()) return S.aca.gaps.map((g, i) => ({ id: 'gap' + (i + 1), text: g.gap })).filter(g => g.text.trim());
+  return FINDINGS.filter(f => anyGathered(f.needs) && S.tags[f.id] && S.tags[f.id].type === 'root');
+}
 function actionNotes(a) {
   const n = [];
   const st = strengthOf(a.cat);
@@ -1311,12 +1350,12 @@ function actionNotes(a) {
   if (!a.due) n.push('Choose a due date so the action can be tracked.');
   if (!/\d/.test(a.measure)) n.push('A measure needs an expected level of compliance, such as a percentage or a count.');
   if (!/(day|week|month|quarter|year)/i.test(a.measure)) n.push('Add how long the measure will be tracked, for example monthly for six months.');
-  if (!a.rc) n.push('Link this action to a root cause so its relevance is clear.');
+  if (!a.rc) n.push(`Link this action to a ${causeNoun()} so its relevance is clear.`);
   // SMARTIES self-check consistency
   const sm = a.sm;
   if (sm.M && (!/\d/.test(a.measure) || !/(day|week|month|quarter|year)/i.test(a.measure))) n.push('You marked Measurable, and the measure still lacks a number or a time period.');
   if (sm.T && !a.due) n.push('You marked Timely, and no due date is chosen.');
-  if (sm.R && !a.rc) n.push('You marked Relevant, and no root cause is linked.');
+  if (sm.R && !a.rc) n.push(`You marked Relevant, and no ${causeNoun()} is linked.`);
   if (sm.S && (a.text.trim().length < 30 || !a.owner.trim())) n.push('You marked Specific, and the action text or the owner could say more.');
   SMARTIES.filter(x => ['A', 'I', 'E', 'Sf'].indexOf(x.k) >= 0 && !sm[x.k]).forEach(x => n.push(`${x.name}: ${x.q}`));
   return n;
@@ -1324,7 +1363,7 @@ function actionNotes(a) {
 function renderActions() {
   if (S.actions.length === 0) S.actions.push(newAction());
   const roots = studentRoots();
-  const rcList = a => `<label class="fl">Root cause it addresses (choose one)</label><div class="picklist" role="radiogroup">${roots.map(r => `<label class="pick"><input type="radio" name="${a.id}_rcr" id="${a.id}_rc_${r.id}" value="${r.id}" data-af="rc" ${a.rc === r.id ? 'checked' : ''}><span class="t" style="font-weight:400;">${esc(r.text)}</span></label>`).join('')}<label class="pick"><input type="radio" name="${a.id}_rcr" id="${a.id}_rc_other" value="other" data-af="rc" ${a.rc === 'other' ? 'checked' : ''}><span class="t" style="font-weight:400;">A cause I did not tag as a root cause</span></label></div>`;
+  const rcList = a => `<label class="fl">${causeNoun() === 'gap' ? 'Gap it addresses (choose one)' : 'Root cause it addresses (choose one)'}</label><div class="picklist" role="radiogroup">${roots.map(r => `<label class="pick"><input type="radio" name="${a.id}_rcr" id="${a.id}_rc_${r.id}" value="${r.id}" data-af="rc" ${a.rc === r.id ? 'checked' : ''}><span class="t" style="font-weight:400;">${esc(r.text)}</span></label>`).join('')}<label class="pick"><input type="radio" name="${a.id}_rcr" id="${a.id}_rc_other" value="other" data-af="rc" ${a.rc === 'other' ? 'checked' : ''}><span class="t" style="font-weight:400;">${acaMode() ? 'A cause I did not list as a gap' : 'A cause I did not tag as a root cause'}</span></label></div>`;
   const catOpts = `<option value="">Choose a category</option>` + HIERARCHY.map(g => `<optgroup label="${g.group}">${g.cats.map(c => `<option value="${esc(c)}">${esc(c)}</option>`).join('')}</optgroup>`).join('');
   const dueOpts = `<option value="">Choose a due date</option>` + DUE_OPTIONS.map(d => `<option value="${d}">${d} after approval</option>`).join('');
   const sel = (html, val) => html.replace(`value="${esc(val)}"`, `value="${esc(val)}" selected`);
@@ -1353,18 +1392,18 @@ function renderActions() {
     }).join('');
     const cov = roots.map(r => {
       const linked = S.actions.filter(a => a.rc === r.id && ['Stronger', 'Intermediate'].indexOf(strengthOf(a.cat)) >= 0);
-      return linked.length ? '' : `<li>No stronger or intermediate action is linked to this root cause: ${esc(r.text)}</li>`;
+      return linked.length ? '' : `<li>No stronger or intermediate action is linked to this ${causeNoun()}: ${esc(r.text)}</li>`;
     }).join('');
-    result = fb('How your action plan reads.', `<ul style="margin:6px 0 0;padding-left:20px;">${blocks}</ul>${cov ? `<p style="margin:8px 0 0;"><strong>Coverage:</strong> RCA2 recommends at least one stronger or intermediate action for each root cause.</p><ul style="padding-left:20px;margin:4px 0 0;">${cov}</ul>` : (roots.length ? '<p style="margin:8px 0 0;"><strong>Coverage:</strong> every root cause you tagged has at least one stronger or intermediate action.</p>' : '<p style="margin:8px 0 0;">Tag root causes on the diagram so each action can be linked to one.</p>')}`, true);
+    result = fb('How your action plan reads.', `<ul style="margin:6px 0 0;padding-left:20px;">${blocks}</ul>${cov ? `<p style="margin:8px 0 0;"><strong>Coverage:</strong> RCA2 recommends at least one stronger or intermediate action for each ${causeNoun()}.</p><ul style="padding-left:20px;margin:4px 0 0;">${cov}</ul>` : (roots.length ? `<p style="margin:8px 0 0;"><strong>Coverage:</strong> every ${causeNoun()} you listed has at least one stronger or intermediate action.</p>` : `<p style="margin:8px 0 0;">${acaMode() ? 'List gaps in the ACA report so each action can be linked to one.' : 'Tag root causes on the diagram so each action can be linked to one.'}</p>`)}`, true);
     result += `<h3 style="margin-top:22px;">The Review Team's Action Plan</h3><p class="small">Your plan does not need to match this one. Compare the strength of the actions, the owners, and the measures.</p>
-      <div class="tbl-scroll"><table><tr><th>Root cause</th><th>Action</th><th>Strength</th><th>Owner and due</th><th>Measure</th></tr>${TEAM_ACTIONS.map(t => `<tr><td>${esc(t.rc)}</td><td>${esc(t.action)}</td><td>${t.strength}<br><span class="small">${esc(t.cat)}</span></td><td>${esc(t.owner)}<br><span class="small">${t.due} after approval</span></td><td>${esc(t.measure)}</td></tr>`).join('')}</table></div>
-      <div class="box"><strong>Also in the review team's plan.</strong> Weaker supporting actions: update the escalation policy to the new time-based rule and educate staff on it, which sets expectations but does not sustain change alone. ${esc(IMMEDIATE_ACTIONS)}</div>`;
+      <div class="tbl-scroll"><table><tr><th>${acaMode() ? 'Gap' : 'Root cause'}</th><th>Action</th><th>Strength</th><th>Owner and due</th><th>Measure</th></tr>${TEAM_ACTIONS.map(t => `<tr><td>${esc(t.rc)}</td><td>${esc(t.action)}</td><td>${t.strength}<br><span class="small">${esc(t.cat)}</span></td><td>${esc(t.owner)}<br><span class="small">${t.due} after approval</span></td><td>${esc(t.measure)}</td></tr>`).join('')}</table></div>
+      <div class="box"><strong>Also in the review team's plan.</strong> ${esc(CASE.teamActionsNote)} ${esc(IMMEDIATE_ACTIONS)}</div>`;
   }
   app.innerHTML = `
   <div class="card">
     <span class="step-label">Step 6</span>
     <h2 class="title">Write the Actions and Check Them</h2>
-    <p>For each root cause, write an action that would prevent recurrence or reduce its effect. Rank each action with the RCA2 Action Hierarchy and check it against the SMART(IES) criteria: <strong>S</strong>pecific, <strong>M</strong>easurable, <strong>A</strong>ttainable, <strong>R</strong>elevant, <strong>T</strong>imely, <strong>I</strong>nclusive, <strong>E</strong>quitable, and <strong>S</strong>afe.</p>
+    <p>For each ${causeNoun()}, write an action that would prevent recurrence or reduce its effect. Rank each action with the RCA2 Action Hierarchy and check it against the SMART(IES) criteria: <strong>S</strong>pecific, <strong>M</strong>easurable, <strong>A</strong>ttainable, <strong>R</strong>elevant, <strong>T</strong>imely, <strong>I</strong>nclusive, <strong>E</strong>quitable, and <strong>S</strong>afe.</p>
     <div class="box"><strong>The Action Hierarchy (RCA2)</strong><ul>${HIERARCHY.map(g => `<li><strong>${g.group}:</strong> ${g.cats.join('; ')}.</li>`).join('')}</ul></div>
     <div id="acards">${cards}</div>
     ${nav(`<button class="btn alt" id="add" ${S.actions.length >= 6 ? 'disabled' : ''}>Add Another Action</button><button class="btn dark" id="chk">Check My Plan</button>`)}
@@ -1400,7 +1439,7 @@ function renderSummary() {
   const found = roots.filter(f => anyGathered(f.needs) && S.tags[f.id] && S.tags[f.id].type === 'root').length;
   const recNames = RECORDS.filter(r => S.rec.has(r.id)).map(r => r.title);
   const intNames = INTERVIEWS.filter(i => S.int.has(i.id)).map(i => i.role);
-  const levelLabel = S.level === 'ACA' ? 'ACA (completed), compared with a full analysis' : (S.triedACA ? 'ACA explored, then RCA' : 'RCA');
+  const levelLabel = CASE.expectedLevel === 'ACA' ? 'ACA (completed), compared with a model report' : S.level === 'ACA' ? 'ACA (completed), compared with a full analysis' : (S.triedACA ? 'ACA explored, then RCA' : 'RCA');
   const actionRows = S.actions.filter(a => a.text.trim()).map((a, i) => {
     const smChecked = SMARTIES.filter(x => a.sm[x.k]).map(x => x.name).join(', ') || 'None marked';
     return `<tr><td>${i + 1}. ${esc(a.text)}</td><td>${a.cat ? strengthOf(a.cat) + '<br><span class="small">' + esc(a.cat) + '</span>' : ''}</td><td>${esc(a.owner)}<br><span class="small">${esc(a.due)}</span></td><td>${esc(a.measure)}</td><td class="small">${esc(smChecked)}</td></tr>`;
@@ -1418,13 +1457,13 @@ function renderSummary() {
       <tr><td>Level of analysis</td><td>${levelLabel}</td></tr>
       <tr><td>Chart review</td><td>${recNames.length ? esc(recNames.join('; ')) : 'None'}</td></tr>
       <tr><td>Interviews</td><td>${intNames.length ? esc(intNames.join('; ')) : 'None'}</td></tr>
-      <tr><td>Root causes</td><td>${found} of ${roots.length} root causes identified by the review team were tagged by you</td></tr>
+      ${CASE.expectedLevel === 'ACA' ? '' : `<tr><td>Root causes</td><td>${found} of ${roots.length} root causes identified by the review team were tagged by you</td></tr>`}
     </table>
     <h3 style="margin-top:22px;">Timeline from Your Fact Finding</h3>${timelineHTML()}
     ${activeFindings().some(f => S.tags[f.id] && S.tags[f.id].type) ? `<h3 style="margin-top:22px;">Your Cause and Effect Diagram (read from top to bottom)</h3>${fishHTML()}` : ''}
     ${S.aca.occ.trim() ? `<h3 style="margin-top:22px;">Your ACA Report</h3><table>${ACA_FIELDS.map(f => `<tr><td style="width:30%">${esc(f.label)}</td><td>${esc(S.aca[f.id])}</td></tr>`).join('')}</table>${S.aca.gaps.some(g => g.gap.trim()) ? `<table><tr><th>Gap #</th><th>Gap</th><th>Action</th><th>Owner</th><th>Due</th></tr>${S.aca.gaps.map((g, i) => g.gap.trim() ? `<tr><td class="num">${i + 1}</td><td>${esc(g.gap)}</td><td>${esc(g.action)}</td><td>${esc(g.owner)}</td><td>${esc(g.due)}</td></tr>` : '').join('')}</table>` : ''}` : ''}
     ${actionRows ? `<h3 style="margin-top:22px;">Your Action Plan</h3><div class="tbl-scroll"><table><tr><th>Action</th><th>Strength</th><th>Owner and due</th><th>Measure</th><th>SMART(IES) marked</th></tr>${actionRows}</table></div>` : ''}
-    ${fb('A note on the people involved.', 'The resident and the nurse in this event will likely experience what researchers call second victim syndrome: guilt, self-doubt, and distress after an event on their watch. They came to work to provide safe care, and they made decisions inside a culture that narrowed their options. A strong organizational response includes attending to their wellbeing, in addition to analyzing the system. A just culture and psychological safety are preventive measures, and they are also part of how an organization cares for its people after harm occurs.')}
+    ${fb('A note on the people involved.', CASE.peopleNote)}
     ${nav(`<button class="btn dark" id="print">Print or Save as PDF</button><button class="btn alt" id="restart">Start Over</button>`)}
     <p class="small noprint" style="text-align:right;">In the print dialog, choose "Save as PDF" to create the file you will submit to your instructor.</p>
   </div>`;

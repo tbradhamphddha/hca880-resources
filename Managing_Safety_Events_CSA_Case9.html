@@ -1,0 +1,1421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Comprehensive Safety Analysis Workbench: Case 9</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&family=Spectral:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  /* Edgewood web palette: Edgewood Red, Black, White, Dark Gold, Medium Gold, Dark Web Grey, Warm Web Grey */
+  :root {
+    --red: #BB0000;
+    --red-dark: #930000;
+    --black: #000000;
+    --white: #FFFFFF;
+    --gold: #C8932B;
+    --gold-med: #CEB06A;
+    --grey: #58595B;
+    --warm: #F0EEEB;
+    --gold-wash: #FAF4E6;
+    --line: #D9D5CF;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Source Sans 3', 'Source Sans Pro', Arial, sans-serif;
+    background: var(--warm);
+    color: var(--black);
+    margin: 0;
+    line-height: 1.6;
+    font-size: 17px;
+  }
+  h1, h2, h3, h4 { font-family: 'Spectral', Georgia, serif; line-height: 1.25; }
+  .wrap { max-width: 920px; margin: 0 auto; padding: 0 20px 60px; }
+
+  /* Resource header (inside the constraining wrapper) */
+  .resource-header {
+    background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
+    color: var(--white);
+    padding: 0.8rem 1.5rem;
+    display: flex; align-items: center; gap: 1rem;
+    position: relative;
+    margin: 0 -20px;
+  }
+  .resource-header::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px;
+    background: linear-gradient(90deg, var(--red) 0%, var(--red) 33%, var(--gold) 33%, var(--gold) 66%, var(--gold-med) 66%, var(--gold-med) 100%);
+  }
+  .resource-header-logo { height: 40px; width: auto; border-radius: 4px; flex-shrink: 0; }
+  .resource-header-text { flex: 1; min-width: 0; }
+  .resource-header-course { font-size: 0.65rem; font-weight: 600; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold); line-height: 1.2; }
+  .resource-header-title { font-size: 1.05rem; font-weight: 600; color: var(--white); line-height: 1.3; }
+  .resource-header-back {
+    flex-shrink: 0; display: flex; align-items: center; gap: 0.3rem; font-size: 0.78rem;
+    color: #E6E3DE; text-decoration: none; padding: 0.35rem 0.7rem; border-radius: 4px; white-space: nowrap;
+  }
+  .resource-header-links { display: flex; align-items: center; gap: 0.25rem; flex-shrink: 0; }
+  .resource-header-back:hover { color: var(--white); background: rgba(255,255,255,0.1); }
+  .resource-header-back svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2; }
+  @media (max-width: 600px) {
+    .resource-header { flex-wrap: wrap; padding: 0.7rem 1rem; gap: 0.6rem; }
+    .resource-header-links { order: -1; width: 100%; }
+    .resource-header-back { padding: 0.2rem 0.4rem; font-size: 0.72rem; }
+    .resource-header-title { font-size: 0.95rem; }
+  }
+  .accent-bar { height: 6px; background: var(--red); margin: 0 -20px; }
+
+  /* Stepper */
+  .stepper { display: flex; gap: 6px; margin: 22px 0 6px; flex-wrap: wrap; }
+  .stepper .st {
+    flex: 1 1 100px; font-size: 0.74rem; font-weight: 600; text-transform: uppercase; letter-spacing: .6px;
+    color: var(--grey); border-top: 4px solid var(--line); padding-top: 6px;
+  }
+  .stepper .st.done { border-top-color: var(--gold); color: var(--black); }
+  .stepper .st.now { border-top-color: var(--red); color: var(--red); }
+
+  .card {
+    background: var(--white); border: 1px solid var(--line); border-radius: 6px;
+    padding: 24px 26px; margin-top: 18px; box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  }
+  .step-label {
+    display: inline-block; background: var(--gold); color: var(--white); font-size: 0.78rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 1px; padding: 3px 10px; border-radius: 3px; margin-bottom: 10px;
+  }
+  .title { font-size: 1.45rem; margin: 0 0 12px; }
+  .lead { font-size: 1.05rem; }
+  .vignette {
+    background: var(--warm); border-left: 4px solid var(--gold); padding: 14px 18px; border-radius: 4px; margin: 14px 0 18px; font-size: 0.98rem;
+  }
+  .question { font-weight: 700; margin: 16px 0 4px; font-size: 1.05rem; }
+  .helper { font-size: 0.92rem; color: var(--grey); margin: 4px 0 12px; }
+  .box {
+    background: var(--warm); border: 1px solid var(--line); border-radius: 4px; padding: 12px 16px; margin: 14px 0; font-size: 0.92rem; color: var(--grey);
+  }
+  .box strong { color: var(--black); }
+  .box ul { margin: 6px 0 0; padding-left: 20px; }
+  .box li { margin-bottom: 3px; }
+  .pswp {
+    background: var(--gold-wash); border: 1px solid var(--gold-med); border-left: 4px solid var(--gold);
+    border-radius: 4px; padding: 10px 14px; font-size: 0.88rem; margin: 14px 0;
+  }
+
+  /* Option buttons */
+  .options { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; }
+  .opt {
+    flex: 1 1 200px; background: var(--white); border: 2px solid var(--grey); color: var(--black);
+    font-family: inherit; font-size: 0.97rem; font-weight: 600; padding: 12px 16px; border-radius: 5px;
+    cursor: pointer; text-align: left; transition: all .15s ease;
+  }
+  .opt small { display: block; font-weight: 400; color: var(--grey); margin-top: 2px; font-size: 0.82rem; }
+  .opt:hover:not(:disabled) { background: var(--black); color: var(--white); border-color: var(--black); }
+  .opt:hover:not(:disabled) small { color: #E6E3DE; }
+  .opt.chosen { background: var(--black); border-color: var(--black); color: var(--white); }
+  .opt.chosen small { color: #E6E3DE; }
+  .opt:disabled { cursor: default; }
+  .opt:disabled:not(.chosen) { opacity: .5; }
+  .opt:focus-visible, .btn:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, .pick:focus-within {
+    outline: 3px solid var(--gold); outline-offset: 2px;
+  }
+
+  .feedback {
+    margin-top: 16px; padding: 14px 18px; border-radius: 5px; font-size: 0.97rem;
+    background: var(--warm); border-left: 4px solid var(--gold); animation: fadein .25s ease;
+  }
+  .feedback.strong { border-left-color: var(--black); }
+  .feedback .lbl { font-weight: 700; display: block; margin-bottom: 4px; }
+  @keyframes fadein { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+  .nav { display: flex; justify-content: flex-end; gap: 10px; margin-top: 22px; flex-wrap: wrap; }
+  .btn {
+    background: var(--red); color: var(--white); border: none; font-family: inherit; font-size: 1rem; font-weight: 700;
+    padding: 11px 26px; border-radius: 5px; cursor: pointer;
+  }
+  .btn:hover:not(:disabled) { background: var(--red-dark); }
+  .btn:disabled { background: var(--line); color: var(--grey); cursor: not-allowed; }
+  .btn.alt { background: transparent; color: var(--grey); border: 2px solid var(--grey); padding: 9px 22px; }
+  .btn.alt:hover:not(:disabled) { background: var(--grey); color: var(--white); }
+  .btn.dark { background: var(--black); }
+  .btn.dark:hover:not(:disabled) { background: #333; }
+
+  /* Tables */
+  table { width: 100%; border-collapse: collapse; font-size: 0.9rem; margin-top: 10px; }
+  th, td { border: 1px solid var(--line); padding: 7px 10px; text-align: left; vertical-align: top; }
+  th { background: var(--black); color: var(--white); font-family: 'Spectral', Georgia, serif; font-weight: 600; }
+  tr:nth-child(even) td { background: var(--warm); }
+  td.num { text-align: center; font-weight: 700; }
+  td.hot { background: var(--gold-wash) !important; outline: 2px solid var(--red); outline-offset: -2px; font-weight: 700; }
+  .tbl-scroll { overflow-x: auto; }
+
+  /* Pick lists (records, interviews, gaps) */
+  .picklist { display: grid; gap: 8px; margin-top: 10px; }
+  .pick {
+    display: flex; gap: 12px; align-items: flex-start; border: 1px solid var(--line); border-radius: 5px; padding: 10px 14px;
+    background: var(--white); cursor: pointer;
+  }
+  .pick:hover { border-color: var(--grey); }
+  .pick input { margin-top: 5px; width: 18px; height: 18px; accent-color: var(--red); flex-shrink: 0; }
+  .pick .t { font-weight: 600; }
+  .pick .d { font-size: 0.85rem; color: var(--grey); }
+  .pick.disabled { opacity: .5; cursor: not-allowed; }
+  .counter { font-size: 0.9rem; font-weight: 700; color: var(--red); }
+
+  /* Reveal panels */
+  .reveal { border: 1px solid var(--line); border-radius: 5px; margin-top: 12px; overflow: hidden; background: var(--white); }
+  .reveal > .hd { background: var(--black); color: var(--white); padding: 8px 14px; font-weight: 600; font-size: 0.93rem; display: flex; justify-content: space-between; gap: 10px; }
+  .reveal > .hd .tag { color: var(--gold-med); font-weight: 400; font-size: 0.8rem; }
+  .reveal > .bd { padding: 12px 16px; font-size: 0.93rem; }
+  .reveal > .bd p { margin: 0 0 8px; }
+  .reveal .mono { font-family: Consolas, Menlo, monospace; font-size: 0.84rem; background: var(--warm); padding: 8px 10px; border-radius: 4px; display: block; margin: 6px 0; }
+  .reveal .quote { border-left: 3px solid var(--gold-med); padding-left: 12px; font-style: italic; }
+  .reveal .ynote { margin-top: 8px; font-size: 0.85rem; color: var(--grey); }
+
+  /* Timeline */
+  .tl { border-left: 3px solid var(--grey); margin: 12px 0 4px 8px; padding-left: 0; }
+  .tl .ev { position: relative; padding: 4px 0 10px 22px; }
+  .tl .ev::before { content: ''; position: absolute; left: -9px; top: 10px; width: 14px; height: 14px; border-radius: 50%; background: var(--white); border: 3px solid var(--black); }
+  .tl .ev.gap::before { border-color: var(--red); background: var(--red); }
+  .tl .ev .tm { font-weight: 700; font-family: 'Spectral', Georgia, serif; }
+  .tl .ev.gap { color: var(--red); font-weight: 600; }
+  .tl .ev .src { font-size: 0.78rem; color: var(--grey); }
+
+  /* Cause and effect chain (reads top to bottom) */
+  .chain { display: flex; flex-direction: column; align-items: stretch; }
+  .chain-head { background: var(--black); color: var(--white); border-radius: 6px; padding: 12px 16px; font-family: 'Spectral', Georgia, serif; font-size: 1rem; text-align: center; }
+  .chain-head small { display: block; font-family: 'Source Sans 3', 'Source Sans Pro', sans-serif; font-size: 0.7rem; letter-spacing: .12em; text-transform: uppercase; color: var(--gold-med); margin-bottom: 2px; }
+  .chain .link { text-align: center; font-size: 1.3rem; line-height: 1.1; color: var(--grey); padding: 4px 0; }
+  .tier { border: 1px solid var(--line); border-left: 6px solid var(--grey); border-radius: 4px; padding: 10px 14px; background: var(--warm); }
+  .tier.prox { border-left-color: var(--black); }
+  .tier.causal { border-left-color: var(--gold); }
+  .tier.root { border-left-color: var(--red); }
+  .tier h5 { margin: 0 0 8px; font-family: 'Spectral', Georgia, serif; font-size: 0.95rem; }
+  .tier .item { margin: 0 0 7px; line-height: 1.4; font-size: 0.93rem; }
+  .fish { margin-top: 14px; border: 1px solid var(--line); border-radius: 6px; background: var(--white); padding: 14px; }
+  .chip { display: inline-block; font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: .4px; padding: 1px 6px; border-radius: 3px; margin-right: 5px; vertical-align: 1px; }
+  .chip.root { background: var(--red); color: var(--white); }
+  .chip.causal { background: var(--gold); color: var(--white); }
+  .chip.prox { background: var(--black); color: var(--white); }
+  .chip.non { background: var(--line); color: var(--grey); }
+  .chip.none { background: var(--white); border: 1px dashed var(--grey); color: var(--grey); }
+  .chip.cat { background: var(--white); border: 1px solid var(--grey); color: var(--grey); }
+
+  .cmp-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; align-items: start; }
+  .cmp-grid h4 { margin: 16px 0 0; font-family: 'Spectral', Georgia, serif; font-size: 1.05rem; }
+  .cmp-grid .fish { margin-top: 8px; }
+  .chip.lock { background: var(--gold-wash); border: 1px dashed var(--gold); color: var(--black); }
+  /* Finding cards */
+  .fcard { border: 1px solid var(--line); border-radius: 5px; padding: 12px 14px; margin-top: 10px; background: var(--white); }
+  .fcard.locked { background: var(--warm); color: var(--grey); }
+  .fcard .ft { font-size: 0.97rem; margin-bottom: 8px; }
+  .fcard .row { display: flex; gap: 10px; flex-wrap: wrap; }
+  .fcard label { font-size: 0.78rem; font-weight: 700; color: var(--grey); text-transform: uppercase; letter-spacing: .4px; display: block; }
+  select, input[type=text], input[type=number], textarea {
+    font-family: inherit; font-size: 0.93rem; border: 2px solid var(--grey); border-radius: 4px; padding: 7px 9px; background: var(--white); color: var(--black); width: 100%;
+  }
+  textarea { min-height: 74px; resize: vertical; }
+  td select { min-width: 104px; }
+  .fcard .col { flex: 1 1 200px; }
+
+  /* Action cards */
+  .acard { border: 1px solid var(--line); border-top: 4px solid var(--red); border-radius: 5px; padding: 14px 16px; margin-top: 14px; background: var(--white); }
+  .acard .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 8px; }
+  @media (max-width: 640px) { .acard .grid2 { grid-template-columns: 1fr; } }
+  .acard label.fl { font-size: 0.78rem; font-weight: 700; color: var(--grey); text-transform: uppercase; letter-spacing: .4px; display: block; margin: 8px 0 3px; }
+  .smart { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-top: 8px; }
+  @media (max-width: 640px) { .smart { grid-template-columns: repeat(2, 1fr); } }
+  .smart label { font-size: 0.85rem; display: flex; gap: 6px; align-items: center; border: 1px solid var(--line); border-radius: 4px; padding: 5px 8px; cursor: pointer; background: var(--warm); }
+  .smart input { accent-color: var(--red); width: 16px; height: 16px; }
+  .rm { background: none; border: none; color: var(--red); font-weight: 700; cursor: pointer; float: right; font-family: inherit; }
+
+  .stat { display: inline-block; background: var(--red); color: var(--white); font-family: 'Spectral', Georgia, serif; font-size: 1.6rem; font-weight: 700; padding: 10px 26px; border-radius: 6px; margin: 8px 0; }
+  .small { font-size: 0.85rem; color: var(--grey); }
+  .printonly { display: none; }
+  .nameline { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin: 12px 0; }
+  .nameline input { max-width: 340px; }
+
+  .resource-footer { text-align: center; padding: 1.5rem; font-size: 0.75rem; color: var(--grey); border-top: 1px solid var(--line); background: var(--white); margin: 40px -20px -60px; }
+  .resource-footer a { color: var(--grey); text-decoration: underline; }
+
+  @media print {
+    body { background: #fff; font-size: 11pt; }
+    .resource-header, .accent-bar, .stepper, .nav, .noprint, .resource-footer, .btn, .rm { display: none !important; }
+    .card { box-shadow: none; border: none; padding: 0; margin-top: 10px; }
+    .printonly { display: block; }
+    .wrap { max-width: none; padding: 0; }
+    .reveal, .acard, .fish, .fcard, .tier { break-inside: avoid; }
+    th { background: #000 !important; color: #fff !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .chip, .chain-head, .stat { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="resource-header">
+    <img class="resource-header-logo" src="eu_logo_primary.jpg" alt="Edgewood University">
+    <div class="resource-header-text">
+      <div class="resource-header-course">HCA 880: Patient Safety and Risk</div>
+      <div class="resource-header-title">Comprehensive Safety Analysis Workbench: Case 9</div>
+    </div>
+    <div class="resource-header-links">
+      <a class="resource-header-back" href="Managing_Safety_Events_CSA_Index.html">
+        <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+        CSA Cases
+      </a>
+      <a class="resource-header-back" href="index.html">Course Home</a>
+    </div>
+  </header>
+  <div class="accent-bar"></div>
+
+  <div id="stepper" class="stepper" aria-label="Progress"></div>
+  <div id="app" aria-live="polite"></div>
+
+  <footer class="resource-footer">
+    &copy; 2026 Edgewood University &middot; Henry Predolin College of Health Sciences<br>
+    <a href="https://www.edgewood.edu" target="_blank" rel="noopener">edgewood.edu</a>
+  </footer>
+</div>
+
+<script>
+// =====================================================================
+// SHARED DATA (used by every CSA workbench case)
+// =====================================================================
+// ---------------------------------------------------------------------
+// SAC MATRIX (RCA2 Appendix 1)
+// ---------------------------------------------------------------------
+const SEVERITY = [
+  { key: "catastrophic", label: "Catastrophic", desc: "Death or major permanent loss of function not related to the natural course of the illness" },
+  { key: "major", label: "Major", desc: "Permanent lessening of function, disfigurement, or surgical intervention required" },
+  { key: "moderate", label: "Moderate", desc: "Increased length of stay or increased level of care for one or two patients" },
+  { key: "minor", label: "Minor", desc: "No injury, no increased length of stay, no increased level of care" }
+];
+const PROBABILITY = [
+  { key: "frequent", label: "Frequent", desc: "Likely to occur immediately or within a short period (several times in 1 year)" },
+  { key: "occasional", label: "Occasional", desc: "Probably will occur (several times in 1 to 2 years)" },
+  { key: "uncommon", label: "Uncommon", desc: "Possible to occur (sometime in 2 to 5 years)" },
+  { key: "remote", label: "Remote", desc: "Unlikely to occur (sometime in 5 to 30 years)" }
+];
+const SAC = {
+  frequent:   { catastrophic: 3, major: 3, moderate: 2, minor: 1 },
+  occasional: { catastrophic: 3, major: 2, moderate: 1, minor: 1 },
+  uncommon:   { catastrophic: 3, major: 2, moderate: 1, minor: 1 },
+  remote:     { catastrophic: 3, major: 2, moderate: 1, minor: 1 }
+};
+
+// ---------------------------------------------------------------------
+// LEVEL OF ANALYSIS
+// ---------------------------------------------------------------------
+const LEVELS = [
+  { key: "none", label: "No CSA needed", sub: "Track and trend the event" },
+  { key: "ACA", label: "Apparent Cause Analysis (ACA)", sub: "A less formal review for less significant events" },
+  { key: "CCA", label: "Common Cause Analysis (CCA)", sub: "A review across several similar events" },
+  { key: "RCA", label: "Root Cause Analysis (RCA)", sub: "A formal, in-depth review (RCA2)" }
+];
+
+// ---------------------------------------------------------------------
+// FISHBONE: categories, types, and findings
+// ---------------------------------------------------------------------
+const CATS = [
+  { key: "comm", label: "Communication" },
+  { key: "policy", label: "Policies and Procedures" },
+  { key: "culture", label: "Culture and Leadership" },
+  { key: "training", label: "Training and Competency" },
+  { key: "staff", label: "Staffing and Workload" },
+  { key: "env", label: "Environment and Technology" }
+];
+// HPI Taxonomy of System Failure Mechanisms (SFM), Appendix F-2. Applies to root causes only.
+const SFM = [
+  { key: "P", label: "Process", items: [
+    { code: "P1", label: "Omitted Actions", d: "key activity is missing or incomplete" },
+    { code: "P2", label: "Excessive Actions", d: "contains low-value activities" },
+    { code: "P3", label: "Poorly Sequenced", d: "poor flow, excessive branching of work process activities" },
+    { code: "P4", label: "Inadequate Interface", d: "lack of or poorly designed handoffs of information, resources, or products" },
+    { code: "P5", label: "Inadequate Checks", d: "lack of or poorly designed checks, inspections, or reviews" } ] },
+  { key: "D", label: "Policy and Protocol", items: [
+    { code: "D1", label: "Lacking or Informal", d: "no policy or protocol" },
+    { code: "D2", label: "Usability", d: "poor presentation or information depiction, low credibility, poor access" },
+    { code: "D3", label: "Understandability", d: "difficult to comprehend because guidance detail is lacking or inadequate for the knowledge and skill level of the user" },
+    { code: "D4", label: "Knowledge in Environment", d: "inadequate or under-utilized job aids, forcing functions" } ] },
+  { key: "T", label: "Technology and Environment", items: [
+    { code: "T1", label: "Input / Output", d: "visual display, alarms, control configuration" },
+    { code: "T2", label: "Human Capability", d: "symbols, codes, anthropometry, devices, human control, physical work" },
+    { code: "T3", label: "Arrangement", d: "physical arrangement of work space, department, facility, or campus negatively impacting performance" },
+    { code: "T4", label: "Environment", d: "lighting, noise, climate, motion negatively impacting performance" } ] },
+  { key: "S", label: "Structure", items: [
+    { code: "S1", label: "Structure Model", d: "wrong model, incompatible missions" },
+    { code: "S2", label: "Inadequate Job Function", d: "overlap or gaps in roles, responsibilities, or expectations" },
+    { code: "S3", label: "Resource Allocation", d: "insufficient infrastructure, people, budget, equipment, or other resources" },
+    { code: "S4", label: "Collaboration Mechanisms", d: "wrong or inadequate collaboration mechanisms" },
+    { code: "S5", label: "Inadequate Structure", d: "span of control, levels of leadership, leveraging positions and experience" } ] },
+  { key: "C", label: "Culture", items: [
+    { code: "C1", label: "Inadequate Vision or Mission", d: "lacking or poorly executed mission" },
+    { code: "C2", label: "Operational Leadership", d: "lacking or inadequate command, prioritization, or assignment in response to emergent or emerging issues" },
+    { code: "C3", label: "Non-Collaboration", d: "disruptive competition, defensiveness, poor teamwork, low morale" },
+    { code: "C4", label: "High Reliability Environment", d: "setting does not incorporate error prevention expectations (consciousness, critical thinking, compliance, competency, communication)" } ] }
+];
+function sfmObj(key) { const g = SFM.find(x => x.key === key); return g ? { code: g.key, group: g.label, label: g.label, items: g.items, d: g.items.map(i => i.label + ' (' + i.d + ')').join('; ') } : null; }
+const TYPES = [
+  { key: "prox", label: "Proximate cause", short: "Proximate", help: "An action or happening that should not have occurred and that contributes directly to the event." },
+  { key: "causal", label: "Causal factor", short: "Causal factor", help: "A condition in the work system that shapes or contributes to a proximate cause." },
+  { key: "root", label: "Root cause", short: "Root cause", help: "The most significant causal factor that, if corrected, would prevent recurrence." },
+  { key: "non", label: "Not causal (context)", short: "Context", help: "Information that is true and worth knowing but does not explain the event." }
+];
+// ---------------------------------------------------------------------
+// FIVE RULES OF CAUSATION (RCA2 Appendix 6)
+// ---------------------------------------------------------------------
+const FIVE_RULES = [
+  "Clearly shows the cause and effect relationship.",
+  "Uses specific and accurate descriptors, and avoids negative or vague words such as poor, inadequate, careless, or failed.",
+  "Treats any human error as having a preceding cause.",
+  "Treats any violation of procedure as having a preceding cause, and does not name the violation itself as a root cause.",
+  "Describes a failure to act only where a pre-existing duty to act existed."
+];
+// ---------------------------------------------------------------------
+// ACTION HIERARCHY (RCA2 Action Hierarchy)
+// ---------------------------------------------------------------------
+const HIERARCHY = [
+  { group: "Stronger", cats: ["Architectural or physical plant change", "Forcing function or engineering control", "Simplify the process or remove unnecessary steps", "Standardize equipment or process", "Tangible involvement by leadership"] },
+  { group: "Intermediate", cats: ["Redundancy", "Increase staffing or decrease workload", "Software enhancement or modification", "Eliminate or reduce distractions", "Simulation-based training with periodic refreshers", "Checklist or cognitive aid", "Eliminate look-alikes and sound-alikes", "Standardized communication tool", "Enhanced documentation or communication"] },
+  { group: "Weaker", cats: ["Double check", "Warning", "New procedure, memorandum, or policy", "Training"] }
+];
+function strengthOf(cat) {
+  for (const g of HIERARCHY) if (g.cats.indexOf(cat) >= 0) return g.group;
+  return "";
+}
+const DUE_OPTIONS = ["30 days", "60 days", "90 days", "120 days", "180 days"];
+
+const SMARTIES = [
+  { k: "S", name: "Specific", q: "Does the action say what will change, where, and who is responsible?" },
+  { k: "M", name: "Measurable", q: "Does the measure state what will be measured, for how long, and the expected level of compliance?" },
+  { k: "A", name: "Attainable", q: "Can the organization carry this out with the resources, authority, and time available?" },
+  { k: "R", name: "Relevant", q: "Does the action connect directly to a root cause you identified?" },
+  { k: "T", name: "Timely", q: "Does the action have a due date, and is there a date when it will be measured?" },
+  { k: "I", name: "Inclusive", q: "Were frontline staff, patients or families, and the people who do the work involved in shaping it?" },
+  { k: "E", name: "Equitable", q: "Does it work across shifts, roles, and abilities, and does it avoid shifting burden onto the people with the least power?" },
+  { k: "Sf", name: "Safe", q: "Could the action create new hazards or burdens, and have you looked for them?" }
+];
+
+// =====================================================================
+// CASE DATA: CASE 9 (Home Care Burn: Heat Pack), an Apparent Cause Analysis
+// All chart entries and interview notes below are fictional teaching
+// material written to stay consistent with the Case 9 event description.
+// No real patients, staff, or organizations are represented.
+// =====================================================================
+const CASE = {
+  num: 9,
+  title: "Home Care Burn: Heat Pack",
+  expectedLevel: "ACA",
+  vignette: `A patient receiving home health occupational therapy services is recovering at home following a traumatic brain injury. Her injury has resulted in reduced ability to communicate pain and discomfort clearly and reliably. During a scheduled home visit, the OT applies a wet heat pack to the patient's wrist and hand as part of her treatment session. The heat pack was heated in a microwave and wrapped in a washcloth prior to application. The therapist assesses the temperature by touch before applying it and determines it is acceptable. She does not observe the patient's non-verbal response at the time of application. She does not perform a skin check for 15 minutes after application. When she does check, she finds a second-degree burn: erythema and a small blister on the patient's wrist and hand. Wound ointment and a gauze bandage are applied. The patient needs dressing changes at the start of four later home visits, and the burn heals without scarring or lasting effects.`,
+  eventName: "Second-degree burn from a microwaved heat pack during a home health OT visit"
+};
+
+// ---------------------------------------------------------------------
+// CHART REVIEW ITEMS
+// ---------------------------------------------------------------------
+const RECORDS = [
+  { id: "r_visit", title: "OT visit note and treatment record", sub: "Day of the event",
+    body: `<span class="mono">09:30  Arrived. Reviewed plan of care with patient and daughter (present in the home).<br>09:45  Moist heat applied to right wrist and hand: "heat pack heated in patient's microwave, wrapped in washcloth, temp checked by touch, acceptable." Planned duration: 15 minutes.<br>10:00  Skin check: erythema and a small blister, right wrist and hand. Pack removed.<br>10:05  Wound ointment and nonadherent gauze applied. Daughter informed.<br>10:20  Called clinical supervisor.</span><p>Observations: the note does not record a thermometer or strip reading, the heating time, the covering used, or any skin check before 10:00. It does not describe the patient's response during application.</p>` },
+  { id: "r_wound", title: "Burn assessment and follow-up wound notes", sub: "Day of the event through day 14",
+    body: `<p><strong>Day 0 (10:05):</strong> second-degree (partial thickness) burn, right wrist and back of the hand, about 4 cm by 3 cm, erythema with one small intact blister. Wound ointment and gauze applied.</p><p><strong>Days 2, 4, 7, and 10:</strong> dressing changes at the start of each OT visit. No infection. Blister resolved. Healing as expected.</p><p><strong>Day 14:</strong> healed, no scarring, full wrist and hand function.</p><p>Observations: the dressing changes extended four later visits. No emergency visit and no hospital stay were needed.</p>` },
+  { id: "r_protocol", title: "Agency protocol: moist heat packs", sub: "Thermal modalities, revision 3 (eight months before the event)",
+    body: `<p><strong>Heating:</strong> Heat packs are heated per the manufacturer's instructions. Microwave wattage varies, so verify the temperature before application.</p><p><strong>Patients with impaired communication, sensation, or cognition:</strong> Verify the pack temperature with a thermometer or a standardized temperature strip before every application. The covered pack must be within the range in the manufacturer's instructions.</p><p><strong>Covering:</strong> Use the agency heat pack cover or at least two dry layers of towel. Do not use a wet or damp cloth.</p><p><strong>Monitoring:</strong> Watch the patient's face and body language during the first five minutes. Perform a skin check within five minutes of application, at the midpoint, and on removal.</p><p><strong>Documentation:</strong> Record the verification method, the covering used, and the time of each skin check.</p><p>Observations: revision 3 added the thermometer or strip step and the five-minute skin check for patients with impaired communication.</p>` },
+  { id: "r_template", title: "Visit note template: thermal modality section", sub: "Electronic visit documentation",
+    body: `<p>Fields in the section: modality (heat, cold, paraffin), body area, duration in minutes, and skin condition after treatment (free text).</p><p>Observations: the section has no field for the temperature verification method, no field for the covering used, and no prompt for a skin check within five minutes. The section can be completed and signed without any of those entries. The template was not changed when the protocol was revised.</p>` },
+  { id: "r_bag", title: "OT visit bag checklist and supply list", sub: "Standard bag, last updated three years ago",
+    body: `<p>Checklist items: gait belt, goniometer, tape measure, reflex hammer, hand sanitizer, gloves, and a heat pack set (two packs).</p><p>Observations: the checklist does not include a thermometer, temperature strips, or heat pack covers. Temperature strips are stocked in the clinic supply room and are issued when a therapist asks for them.</p>` },
+  { id: "r_comp", title: "OT orientation and competency record", sub: "Treating therapist",
+    body: `<p>Orientation completed 14 months before the event, including thermal modalities with a return demonstration. Competency checklist signed.</p><p>The annual competency review is scheduled for the month after the event.</p><p>Observations: the protocol was revised eight months before the event. The record shows a revision notice sent to all therapists by email, with no read confirmation, no team huddle, and no re-attestation.</p>` },
+  { id: "r_eval", title: "Initial OT evaluation and plan of care", sub: "Patient record, eight months after her injury",
+    body: `<p>Traumatic brain injury. Aphasia: understands simple questions, speech limited to short phrases, and the reliability of self-report of pain or discomfort is limited. Right upper extremity weakness with decreased sensation to light touch at the wrist and hand. The patient's daughter is the primary caregiver and is usually present.</p><p>Plan of care: strengthening and range of motion, with moist heat before exercise.</p><p>Observations: the sensation finding and the limited self-report appear in the evaluation (page 4). They do not appear on the visit-day face sheet that therapists open before each visit.</p>` },
+  { id: "r_prior", title: "Event reporting system: thermal modality events", sub: "Last 12 months, agency-wide",
+    body: `<p>Two reports: mild erythema after a hot pack (resolved the same day), and a patient who said she felt "too hot," so the pack was removed. Neither report mentions a thermometer or strip reading.</p><p>Both were closed with "reminder sent to therapists by email." No trend review is documented.</p>` },
+  { id: "r_billing", title: "Authorization and billing record", sub: "Payer, visit counts, and billing codes",
+    body: `<p>Visit authorization dates, payer, and billing codes. This document contains no clinical information.</p>` }
+];
+
+// ---------------------------------------------------------------------
+// INTERVIEWS (paraphrased interview notes)
+// ---------------------------------------------------------------------
+const INTERVIEWS = [
+  { id: "i_ot", role: "Treating OT", sub: "Home health occupational therapist",
+    body: `<p class="quote">I have used moist heat for years. In her kitchen I heated the pack in her microwave, which is an older model, so I guessed at the time. I wrapped it in a washcloth from her kitchen. It was a little damp, and I did not think about it. I checked it with my fingers and it felt fine.</p><p class="quote">I know her speech is limited. I usually watch for her to pull away. This time I turned to set up her exercise materials, and her daughter was asking me about appointments. I did not look at the face sheet before the visit, and the sensation finding is in the evaluation, not on that sheet.</p><p class="quote">I did not have a thermometer or strips. They are in the clinic and I have to ask for them, and I never did. I saw an email about a protocol change, and I did not open it. The visit note did not remind me of a skin check, so I checked when I finished setting up. When I saw the blister I felt terrible.</p>` },
+  { id: "i_super", role: "Clinical supervisor", sub: "Home health rehabilitation",
+    body: `<p class="quote">The OT called me at 10:20. Revision 3 of the protocol added the thermometer and strip step after a close call at another agency. We send protocol changes by email. We do not hold a huddle for them.</p><p class="quote">Temperature strips are in the clinic, and any therapist can ask for them. Most do not ask. I see many therapists use the touch test, because it is how many of us learned. I closed two thermal reports last year with a reminder email, and I did not look for a pattern.</p>` },
+  { id: "i_family", role: "Patient's daughter", sub: "Primary caregiver, present during the visit",
+    body: `<p class="quote">A few minutes after the pack went on, Mom made a sound and pulled her hand toward her chest. I thought she was tired of therapy, because she does that. The therapist was setting up and I did not want to interrupt.</p><p class="quote">The washcloth was wet. It dripped a little. When the therapist looked, I could see her skin was red. Nobody told us the pack could be too hot for her skin, and Mom cannot tell us.</p>` },
+  { id: "i_peer", role: "Peer OT (Substitution Test)", sub: "Asked what they would have done in the same situation",
+    body: `<p class="quote">I use the touch test. Most of us do. I heat packs in whatever microwave is in the home and guess at the time. I have never carried strips, since they are in the clinic and I never think to request them. I skim policy emails. I check skin when I remember, often at the end of the session.</p><p class="ynote">The reviewer asked four other therapists the same question. Three gave similar answers.</p>` },
+  { id: "i_educ", role: "Education and quality coordinator", sub: "Agency policy and competency program",
+    body: `<p class="quote">Revision 3 went out by email eight months ago. We track read receipts only for required in-services, and policy emails do not have them. The visit note template belongs to the informatics vendor. A request to add fields went in six months ago and has not been scheduled.</p><p class="quote">Annual competency review happens at each therapist's anniversary. The bag checklist was last updated three years ago.</p>` }
+];
+
+// ---------------------------------------------------------------------
+// TIMELINE (an entry appears once any of its sources has been gathered)
+// ---------------------------------------------------------------------
+const TIMELINE = [
+  { t: "8 months before", text: "Protocol revision 3 adds a thermometer or strip step and a five-minute skin check for patients with impaired communication. Therapists are notified by email.", needs: ["r_protocol", "r_comp", "i_educ", "i_super"] },
+  { t: "09:30", text: "OT arrives and reviews the plan of care with the patient and her daughter.", needs: ["r_visit", "i_ot", "i_family"] },
+  { t: "09:40", text: "OT heats a moist heat pack in the patient's microwave. The heating time is not documented.", needs: ["r_visit", "i_ot"] },
+  { t: "09:45", text: "OT wraps the pack in a damp washcloth, checks it by touch, and applies it to the right wrist and hand. No thermometer or strip reading is documented.", needs: ["r_visit", "i_ot", "i_family"] },
+  { t: "09:46 to 10:00", text: "No documented observation of the patient and no skin check during this period.", needs: ["r_visit"], gap: true },
+  { t: "About 09:50", text: "The patient makes a sound and pulls her hand toward her chest. Her daughter assumes she is tired of therapy and does not speak.", needs: ["i_family"] },
+  { t: "10:00", text: "OT checks the skin and finds erythema and a small blister on the right wrist and hand. The pack is removed.", needs: ["r_visit", "r_wound", "i_ot", "i_family"] },
+  { t: "10:05", text: "Wound ointment and gauze are applied, and the daughter is informed.", needs: ["r_visit", "r_wound", "i_ot"] },
+  { t: "10:20", text: "OT calls the clinical supervisor. An event report is entered later that day.", needs: ["r_visit", "i_super", "i_ot"] },
+  { t: "Days 2 to 10", text: "Dressing changes at the start of four later OT visits.", needs: ["r_wound"] },
+  { t: "Day 14", text: "The burn is healed with no scarring and full wrist and hand function.", needs: ["r_wound"] }
+];
+
+// ---------------------------------------------------------------------
+// GAP CANDIDATES (student marks which questions remain open)
+// ---------------------------------------------------------------------
+const GAPS = [
+  { id: "g1", text: "Whether the agency protocol required temperature verification and an early skin check for this patient.",
+    resolvedBy: ["r_protocol", "i_super", "i_educ"], answer: "Pull the agency heat pack protocol." },
+  { id: "g2", text: "Why the therapist relied on a touch test instead of a thermometer or strip.",
+    resolvedBy: ["i_ot", "i_peer", "r_bag"], answer: "Interview the treating OT, and ask a peer what they would do." },
+  { id: "g3", text: "Whether thermometers or temperature strips were available to the therapist at the visit.",
+    resolvedBy: ["r_bag", "i_ot", "i_educ"], answer: "Pull the visit bag checklist and ask the therapist." },
+  { id: "g4", text: "Whether the therapist had the information that the patient could not reliably report pain or discomfort.",
+    resolvedBy: ["r_eval", "i_ot"], answer: "Review the initial evaluation, and interview the therapist about what she saw before the visit." },
+  { id: "g5", text: "What the therapist and the daughter noticed in the minutes after the pack was applied.",
+    resolvedBy: ["i_ot", "i_family"], answer: "Interview the therapist and the patient's daughter." },
+  { id: "g6", text: "How the therapist learned about the protocol and its revision.",
+    resolvedBy: ["r_comp", "i_educ", "i_ot", "i_peer", "i_super"], answer: "Review the competency record and interview the education coordinator." },
+  { id: "g7", text: "Whether the visit note prompts the therapist to verify temperature or check the skin early.",
+    resolvedBy: ["r_template", "i_ot", "i_educ"], answer: "Pull the visit note template for the thermal modality section." },
+  { id: "g8", text: "Whether other therapists work the same way, and whether similar events have been reported.",
+    resolvedBy: ["i_peer", "r_prior", "i_super", "i_educ"], answer: "Ask a peer, and review the event reporting system for thermal events." },
+  { id: "g9", text: "How long the burn took to heal and what care it needed afterward.",
+    resolvedBy: ["r_wound"], answer: "Pull the burn assessment and follow-up wound notes." },
+  { id: "g10", text: "The patient's insurance authorization and visit count.", distractor: true,
+    why: "Authorization and billing details would not change how we understand what led to the burn." },
+  { id: "g11", text: "Whether the wound ointment and gauze used were the correct products.", distractor: true,
+    why: "The wound care followed the supervisor's standard and the burn healed fully, so the dressing does not help explain how the burn happened." }
+];
+
+// ---------------------------------------------------------------------
+// RCA path placeholders (this case is analyzed with an ACA)
+// ---------------------------------------------------------------------
+const FINDINGS = [];
+const TEAM_STATEMENTS = [];
+const TEAM_CHAINS = [];
+const TEAM_CTX = [];
+
+// ---------------------------------------------------------------------
+// ACA PATH: the clinical supervisor's review (six-question Manager
+// Review Template) and the analyst's Apparent Cause Analysis Report
+// ---------------------------------------------------------------------
+const MANAGER_REVIEW = [
+  { q: "What happened? Tell me step by step what happened. The details help us understand exactly what happened.",
+    a: "On the morning of the visit, the OT heated a moist heat pack in the patient's microwave, wrapped it in a washcloth, checked it by touch, and applied it to the patient's right wrist and hand at about 09:45. She did not check the skin until about 10:00, when she found a second-degree burn with redness and a small blister. She treated it with wound ointment and gauze and called me at 10:20." },
+  { q: "What should have happened? What should the process look like?",
+    a: "For a patient with impaired communication, the protocol calls for verifying the pack temperature with a thermometer or temperature strip, using the agency cover or two dry towel layers, watching the patient closely for the first five minutes, and checking the skin within five minutes." },
+  { q: "Why did the expected process not occur? What was different this day?",
+    a: "The OT did not have a thermometer or strips in her bag, used the touch test as many therapists do, and wrapped the pack in a damp washcloth. She was turned away setting up exercise materials. She did not recall the protocol revision." },
+  { q: "What was implemented or done right after the event to assure safety?",
+    a: "Wound care at the visit. The daughter was informed that day, and we apologized. The patient was seen for dressing changes at four later visits. An event report was entered. I asked all therapists to hold moist heat on patients with impaired communication until further notice." },
+  { q: "Please share your thoughts on why this event occurred and your ideas on how we can prevent recurrence.",
+    a: "I think the therapist should have used a thermometer or strip. I am not sure we make that easy for her. I do not know whether other therapists work the same way." },
+  { q: "Please provide staffing details: core, float, agency, staffed to grid, short staffed, or similar details.",
+    a: "Core staff. The OT had a normal caseload of five visits that day. No float or agency. The patient's daughter was present." }
+];
+
+const ACA_FIELDS = [
+  { id: "occ", label: "Description of Occurrence", help: "What happened? What was the outcome?" },
+  { id: "immediate", label: "Immediate and Remedial Actions Taken", help: "What actions were taken to address conditions adverse to quality?" },
+  { id: "cause", label: "Apparent Cause Statement", help: "What was included in the investigation? What system issues were identified, because of WHAT, because WHY?" },
+  { id: "significance", label: "Significance and Possible Extent of Condition", help: "What was the potential for harm? What is the extent of condition? Are there trends, or is this a repeat event? Was the level of analysis appropriate, or should this be escalated to a higher level of cause analysis?" },
+  { id: "staffing", label: "Staffing Details", help: "Core, float, agency, or contract staff." }
+];
+const ACA_MODEL = {
+  occ: "A home health OT applied a microwave-heated moist heat pack, wrapped in a damp washcloth, to the right wrist and hand of a patient with a traumatic brain injury and a limited ability to report pain. The therapist checked the temperature by touch, did not watch the patient closely, and checked the skin about 15 minutes later, finding a second-degree burn (erythema and a small blister). The wound was treated, dressing changes were needed at four later visits, and the burn healed fully in two weeks.",
+  immediate: "Wound care at the visit, and disclosure and an apology to the patient and her daughter that day. The supervisor was notified and an event report was entered. The supervisor asked therapists to hold moist heat on patients with impaired communication until temperature strips are in every bag. Peer support was offered to the therapist.",
+  cause: "The investigation included the supervisor's review, the visit note and template, the protocol, the bag checklist, the competency record, the initial evaluation, and interviews with the therapist, the daughter, a peer, and the education coordinator. Apparent cause: the therapist relied on a touch test because thermometers and strips are not in the visit bag and the visit note does not prompt for temperature verification or an early skin check, and because the protocol revision that added those steps reached therapists only by email.",
+  significance: "Potential for harm: moderate to major, since this burn needed added wound care and a deeper burn would have meant a higher level of care. Extent of condition: peers report the same touch-test practice, and two earlier thermal reports were closed with an email reminder, so the condition likely exists across the agency. The level of analysis was appropriate for this event, because the burn healed fully and one process was involved. Recommend trending thermal events across the agency, and a Common Cause Analysis if more events are reported.",
+  staffing: "Core staff, a normal caseload of five visits, no float or agency. The patient's daughter was present."
+};
+const ACA_GAPS_MODEL = [
+  { gap: "Thermometers, temperature strips, and heat pack covers are not on the visit bag checklist, and strips are issued only on request.", action: "Add strips, a thermometer, and covers to the standard bag and the checklist.", owner: "Clinical Supervisor of Rehabilitation", due: "30 days" },
+  { gap: "The visit note has no fields or prompts for temperature verification, the covering used, or an early skin check.", action: "Add required fields to the thermal modality section so the note cannot be signed without them.", owner: "Clinical Informatics Manager", due: "90 days" },
+  { gap: "The protocol revision reached therapists by email only, and the touch test remains common practice.", action: "Hold a huddle and a hands-on competency refresh on the revised protocol, and track completion.", owner: "Education and Quality Coordinator", due: "60 days" }
+];
+const ACA_LIMITS = [
+  "An ACA fits this event: one visit, one process, temporary harm, and a limited number of causes that a few conversations can uncover.",
+  "The supply and template gaps appear only when the analyst looks past the therapist's actions to the bag checklist and the visit note. Have you thought about what would change if the review had stopped at \"the therapist did not use a thermometer\"?",
+  "Peers use the same touch-test practice, and two earlier reports were closed with an email reminder. That is an extent of condition question. If more thermal events appear, a Common Cause Analysis across them could look for shared causes.",
+  "Actions that follow an apparent cause often include weaker items such as reminders. Stronger actions here change the equipment and the template so that safe practice does not depend on memory."
+];
+
+const TEAM_ACTIONS = [
+  { rc: "Thermometers, strips, and covers are not in the visit bag",
+    action: "Stock every OT visit bag with a thermometer or temperature strips and heat pack covers, add them to the checklist, and have the supervisor audit bags monthly.",
+    cat: "Standardize equipment or process", strength: "Stronger", owner: "Clinical Supervisor of Rehabilitation", due: "30 days",
+    measure: "100% of OT bags contain strips, a thermometer, and covers at the first audit; monthly audits for 6 months show at least 95% compliance." },
+  { rc: "The visit note has no prompts for temperature verification or an early skin check",
+    action: "Add required fields to the thermal modality section (verification method, covering, skin check time) so the note cannot be signed without them, and show an alert for patients flagged with impaired communication.",
+    cat: "Forcing function or engineering control", strength: "Stronger", owner: "Clinical Informatics Manager", due: "90 days",
+    measure: "In testing, 100% of thermal modality notes require the three fields. Audit monthly for 6 months: at least 95% of notes show a temperature verification and a skin check within 5 minutes." },
+  { rc: "The touch test remains common practice, and the protocol revision reached therapists by email only",
+    action: "Hold a huddle and a hands-on competency refresh with return demonstration on the revised protocol for all OTs, with read confirmation tracked.",
+    cat: "Simulation-based training with periodic refreshers", strength: "Intermediate", owner: "Education and Quality Coordinator", due: "60 days",
+    measure: "100% of OTs complete the refresh within 60 days; return demonstration repeated each year; a quarterly audit of 10 visit notes shows at least 95% temperature verification." },
+  { rc: "Microwave heating in the home leaves the pack temperature to guesswork (additional action)",
+    action: "For patients with impaired communication or sensation, use agency-issued, pre-set moist heat units in place of microwave-heated packs, so no one has to guess at the temperature.",
+    cat: "Simplify the process or remove unnecessary steps", strength: "Stronger", owner: "Director of Home Health Operations", due: "120 days",
+    measure: "Units are issued to 100% of OT bags; a quarterly audit for 12 months finds no microwave-heated packs documented for flagged patients." }
+];
+const IMMEDIATE_ACTIONS = "Immediate actions taken (before the analysis): wound care at the visit and at four later visits; disclosure and an apology to the patient and her daughter the same day; event report entered; the supervisor asked therapists to hold moist heat for patients with impaired communication until temperature strips were in every bag; peer support offered to the therapist.";
+
+// ---------------------------------------------------------------------
+// CASE 9 SETTINGS: text the workbench shows for this event
+// ---------------------------------------------------------------------
+CASE.budget = { rec: 5, int: 3 };
+CASE.allowTryAca = false;
+CASE.managerRole = "home health clinical supervisor";
+CASE.harm = {
+  expectedSeverity: "moderate",
+  sevRight: ["That aligns with the SAC definition.", `The burn needed wound care and dressing changes at four later visits, which is an increased level of care for one patient. That fits the Moderate category. The burn healed fully with no lasting effect, so Major would overstate it.`],
+  sevWrong: [`Let's look at the severity definitions together.`, `The SAC Matrix assigns severity from the patient's actual outcome. Reread the event: the burn needed dressing changes at four later visits and then healed fully with no lasting effect. Which category describes an outcome like that?`],
+  probFb: function (prob) {
+    return ["Probability noted.", `At Moderate severity, a Frequent probability produces a SAC score of 2, and every other probability category produces a 1. Your estimate gives a score of ${SAC[prob].moderate}. If you do not have tracking data, ask the staff who do this work how often a heat pack goes on a patient who cannot report pain.`];
+  },
+  resultNote: function (sac) { return sac >= 2 ? " (moderate risk)" : " (lower risk)"; },
+  dimension: ["One more dimension to keep in mind.", `The SAC score guides how you spend analysis resources, and organizational policy operates alongside it. A score of 1 or 2 does not mean nothing happened: a patient was harmed, a protocol step was missed, and the agency decides how formally to review an event like this one.`]
+};
+CASE.levelFb = {
+  none: [`Let's explore that more.`, `Tracking and trending suits events with no harm, or with no open question about cause. Here a patient was burned and a required protocol step was missed, and no one yet knows why. Have you thought about what the agency would learn, and what it would miss, if it only counted this event?`],
+  ACA: ["Your choice aligns with the evidence.", `A lower SAC score, a single visit, one process, and a limited number of people point to an Apparent Cause Analysis. An ACA asks what happened, what should have happened, and why the expected process did not occur, usually from a few conversations and a look at the record. It gives the agency learning in proportion to the harm, and it can be escalated later if the facts call for it.`, true],
+  CCA: [`Let's think about what a CCA needs.`, `A Common Cause Analysis looks across several similar events to find the causes they share. You have one event in hand. If the reporting system showed several similar thermal injuries, a CCA could follow. For now, which level fits a single event with temporary harm?`],
+  RCA: ["That is one way to view this.", `A Root Cause Analysis is a formal, resource-intensive process that is usually reserved for events with a SAC score of 3 or a sentinel event. This burn healed fully, involved one visit, and scored lower. Have you thought about whether an ACA would uncover the causes in proportion to the harm, and what new facts would justify moving up to an RCA?`]
+};
+CASE.acaSigFb = function (sig) {
+  let out = /trend|extent|other (therapist|patient|visit|event)|similar|repeat|agency|peer|across|common cause|CCA/i.test(sig)
+    ? fb("You raised extent of condition.", "The Significance section asks whether this is a one-time event or a condition that may exist elsewhere. Your note points the report toward trending and sharing what was learned, which fits an event with temporary harm and a practice that other therapists also use.", true)
+    : fb("Have you thought about extent of condition?", "The Significance section asks about the potential for harm, whether this is a repeat event or part of a trend, and whether the level of analysis was appropriate. Consider what the peer said about the touch test, and what happened to the two earlier thermal reports.");
+  if (/RCA|root cause|escalat/i.test(sig) && !/appropriate|sufficient|fits|proportion|no need/i.test(sig)) {
+    out += fb("About a higher level of analysis.", "You mentioned moving to a higher level. Have you thought about whether the harm, the single process, and the full recovery support an ACA, and which new facts (more events, or a deeper injury) would justify moving up?");
+  }
+  return out;
+};
+CASE.acaLimitsTitle = "What an ACA shows in this case, and what to watch.";
+CASE.teamActionsNote = "Weaker supporting actions: send a reminder about the protocol and ask therapists to check the skin within five minutes, which sets expectations but does not sustain change alone.";
+CASE.peopleNote = "The therapist in this event will likely experience what researchers call second victim syndrome: guilt, self-doubt, and distress after harm to a patient in her care. She came to work to help this patient recover, and she worked inside a system where the supplies, the visit note, and the protocol update did not support her. A strong organizational response includes attending to her wellbeing, in addition to analyzing the system. The patient and her daughter also deserve a clear, honest account and follow-up, which fits the CANDOR approach.";
+// =====================================================================
+// ENGINE
+// =====================================================================
+const app = document.getElementById('app');
+const stepperEl = document.getElementById('stepper');
+
+const S = {
+  step: 'intro',
+  start: Date.now(),
+  sev: null, prob: null,
+  level: null, triedACA: false, levelTried: [],
+  rec: new Set(), int: new Set(),
+  pending: { rec: new Set(), int: new Set() },
+  gapsMarked: new Set(), gapsChecked: false,
+  tags: {}, chains: [], ctx: [], bphase: 'prox', pick: '', rules: {}, rulesWarned: {}, cats: {}, pickCat: '',
+  stmt: { cause: '', effect: '', event: '', rules: [false, false, false, false, false] }, stmtCompared: false,
+  aca: { occ: '', immediate: '', cause: '', significance: '', staffing: '', gaps: [{gap:'',action:'',owner:'',due:''},{gap:'',action:'',owner:'',due:''},{gap:'',action:'',owner:'',due:''}] }, acaCompared: false,
+  actions: [], actionsChecked: false, actionSeq: 0,
+  name: ''
+};
+
+const SECTIONS = [
+  { label: "Harm score", steps: ["harm"] },
+  { label: "Level of analysis", steps: ["level"] },
+  { label: "Fact finding", steps: ["gather", "timeline", "gather2"] },
+  { label: "Cause analysis", steps: ["aca", "fishbone", "check"] },
+  { label: "Actions", steps: ["actions"] },
+  { label: "Summary", steps: ["summary"] }
+];
+
+function esc(s) {
+  return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+function byId(list, id) { return list.find(x => x.id === id); }
+function gathered(id) { return S.rec.has(id) || S.int.has(id); }
+function anyGathered(ids) { return ids.some(gathered); }
+function srcName(id) { const r = byId(RECORDS, id) || byId(INTERVIEWS, id); return r ? (r.title || r.role) : id; }
+function typeObj(k) { return TYPES.find(t => t.key === k); }
+function catObj(k) { return CATS.find(c => c.key === k); }
+
+function renderStepper() {
+  let cur = SECTIONS.findIndex(s => s.steps.indexOf(S.step) >= 0);
+  if (S.step === 'intro') cur = -1;
+  stepperEl.innerHTML = SECTIONS.map((s, i) => {
+    const cls = i < cur ? 'done' : i === cur ? 'now' : '';
+    return `<div class="st ${cls}">${i + 1}. ${s.label}</div>`;
+  }).join('');
+}
+function go(step) {
+  S.step = step;
+  renderStepper();
+  render();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+function fb(label, body, strong) {
+  return `<div class="feedback${strong ? ' strong' : ''}"><span class="lbl">${label}</span>${body}</div>`;
+}
+function vignetteBox() { return `<div class="vignette"><strong>The Event:</strong> ${CASE.vignette}</div>`; }
+function nav(buttons) { return `<div class="nav">${buttons}</div>`; }
+
+// ---------------------------------------------------------------------
+// STEP: INTRO
+// ---------------------------------------------------------------------
+function renderIntro() {
+  app.innerHTML = `
+  <div class="card">
+    <span class="step-label">Case ${CASE.num}: ${CASE.title}</span>
+    <h2 class="title">Comprehensive Safety Analysis Workbench</h2>
+    <p class="lead">You are the patient safety manager. An event report has just reached your desk. In this workbench you decide how deeply to analyze it, gather the facts the way a review team would, work out the causes, and build an action plan.</p>
+    ${vignetteBox()}
+    <div class="box"><strong>What you will do</strong>
+      <ul>
+        <li>Score the level of harm with the SAC Matrix.</li>
+        <li>Decide whether a Comprehensive Safety Analysis (CSA) is needed, and at what level: ACA, CCA, or RCA.</li>
+        <li>Review the chart and interview staff, then build the timeline and identify gaps.</li>
+        <li>Complete an ACA template, or build a cause and effect diagram and test your root causes.</li>
+        <li>Write actions, rank their strength, and check them against the SMART(IES) criteria.</li>
+      </ul>
+    </div>
+    <div class="pswp"><strong>Confidential work product.</strong> In a real review, your documents are patient safety work product. Do not include protected health information or staff names in anything you write. All records and interviews here are fictional teaching material.</div>
+    <div class="pswp"><strong>Save your work before you close this page.</strong> Your responses live in your browser session only. At the end you will print or save a summary as a PDF to submit to your instructor.</div>
+    ${nav(`<button class="btn" id="go">Begin</button>`)}
+  </div>`;
+  document.getElementById('go').onclick = () => go('harm');
+}
+
+// ---------------------------------------------------------------------
+// STEP: HARM (SAC)
+// ---------------------------------------------------------------------
+function matrixHTML() {
+  const sevs = SEVERITY.map(s => s.key);
+  let rows = PROBABILITY.map(p => {
+    return `<tr><td><strong>${p.label}</strong></td>` + sevs.map(sv => {
+      const hot = S.prob === p.key && S.sev === sv;
+      return `<td class="num${hot ? ' hot' : ''}">${SAC[p.key][sv]}</td>`;
+    }).join('') + `</tr>`;
+  }).join('');
+  return `<div class="tbl-scroll"><table><tr><th>Probability</th>${SEVERITY.map(s => `<th>${s.label}</th>`).join('')}</tr>${rows}</table></div>`;
+}
+function renderHarm() {
+  const sevDone = !!S.sev, probDone = !!S.prob;
+  const sevOpts = SEVERITY.map(o => `<button class="opt${S.sev === o.key ? ' chosen' : ''}" data-sev="${o.key}" ${sevDone ? 'disabled' : ''}>${o.label}<small>${o.desc}</small></button>`).join('');
+  const probOpts = PROBABILITY.map(o => `<button class="opt${S.prob === o.key ? ' chosen' : ''}" data-prob="${o.key}" ${probDone ? 'disabled' : ''}>${o.label}<small>${o.desc}</small></button>`).join('');
+  let sevFb = '';
+  if (sevDone) {
+    sevFb = S.sev === CASE.harm.expectedSeverity
+      ? fb(CASE.harm.sevRight[0], CASE.harm.sevRight[1], true)
+      : fb(CASE.harm.sevWrong[0], CASE.harm.sevWrong[1]);
+  }
+  let probFb = '';
+  if (probDone) {
+    const pf = CASE.harm.probFb(S.prob);
+    probFb = fb(pf[0], pf[1], true);
+  }
+  app.innerHTML = `
+  <div class="card">
+    <span class="step-label">Step 1</span>
+    <h2 class="title">Score the Level of Harm</h2>
+    ${vignetteBox()}
+    <div class="question">What is the severity of this event?</div>
+    <div class="helper">Use the Safety Assessment Code (SAC) Matrix from RCA2 Appendix 1. For actual events, assign severity from the patient's actual condition.</div>
+    <div class="options" id="sevOpts">${sevOpts}</div>
+    ${sevFb}
+    ${sevDone && S.sev !== CASE.harm.expectedSeverity ? nav(`<button class="btn alt" id="sevRetry">Try again</button>`) : ''}
+    ${sevDone && S.sev === CASE.harm.expectedSeverity ? `
+      <div class="question">How probable is a similar event at your organization?</div>
+      <div class="helper">If you do not have tracking data, the SAC guidance suggests asking the staff most familiar with the process for an informed estimate.</div>
+      <div class="options">${probOpts}</div>${probFb}` : ''}
+    ${probDone ? `
+      <h3 style="margin-top:22px;">SAC Matrix Result: ${SAC[S.prob][S.sev]}${CASE.harm.resultNote(SAC[S.prob][S.sev])}</h3>
+      ${matrixHTML()}
+      ${fb(CASE.harm.dimension[0], CASE.harm.dimension[1])}
+      ${nav(`<button class="btn" id="next">Decide the Level of Analysis</button>`)}` : ''}
+  </div>`;
+  app.querySelectorAll('[data-sev]').forEach(b => b.onclick = () => { S.sev = b.dataset.sev; renderHarm(); });
+  app.querySelectorAll('[data-prob]').forEach(b => b.onclick = () => { S.prob = b.dataset.prob; renderHarm(); });
+  const retry = document.getElementById('sevRetry'); if (retry) retry.onclick = () => { S.sev = null; renderHarm(); };
+  const next = document.getElementById('next'); if (next) next.onclick = () => go('level');
+}
+
+// ---------------------------------------------------------------------
+// STEP: LEVEL OF ANALYSIS
+// ---------------------------------------------------------------------
+function levelFeedback(key) {
+  const t = CASE.levelFb[key];
+  return fb(t[0], t[1], !!t[2]);
+}
+function renderLevel() {
+  const chosen = S.levelTried.length ? S.levelTried[S.levelTried.length - 1] : null;
+  const opts = LEVELS.map(o => `<button class="opt${chosen === o.key ? ' chosen' : ''}" data-lv="${o.key}" ${chosen ? 'disabled' : ''}>${o.label}<small>${o.sub}</small></button>`).join('');
+  let after = '';
+  if (chosen) {
+    after = levelFeedback(chosen);
+    if (chosen === CASE.expectedLevel) after += nav(`<button class="btn" id="goGather">Begin Fact Finding</button>`);
+    else if (chosen === 'ACA' && CASE.allowTryAca) after += nav(`<button class="btn alt" id="again">Reconsider the level</button><button class="btn dark" id="tryAca">Complete an ACA to compare</button>`);
+    else after += nav(`<button class="btn alt" id="again">Choose again</button>`);
+  }
+  app.innerHTML = `
+  <div class="card">
+    <span class="step-label">Step 2</span>
+    <h2 class="title">Is a CSA Needed, and at What Level?</h2>
+    <div class="reference-box box"><strong>Reference: the levels of analysis</strong>
+      <ul>
+        <li><strong>ACA:</strong> a less formal problem-solving process that asks what happened, why, and how to prevent recurrence; often used for less significant events.</li>
+        <li><strong>CCA:</strong> an analysis across several similar events to find the causes they share.</li>
+        <li><strong>RCA:</strong> a formal problem-solving process that provides the best recurrence control and is used for the most significant events.</li>
+      </ul>
+    </div>
+    <div class="question">Your SAC score is ${SAC[S.prob][S.sev]}. Do you need a Comprehensive Safety Analysis, and if so, which level?</div>
+    <div class="options">${opts}</div>
+    ${after}
+  </div>`;
+  app.querySelectorAll('[data-lv]').forEach(b => b.onclick = () => { S.levelTried.push(b.dataset.lv); renderLevel(); });
+  const g = document.getElementById('goGather'); if (g) g.onclick = () => { S.level = CASE.expectedLevel; go('gather'); };
+  const a = document.getElementById('again'); if (a) a.onclick = () => { S.levelTried.push(null); S.levelTried = S.levelTried.filter(x => x !== null); S.levelTried.length = 0; renderLevel(); };
+  const t = document.getElementById('tryAca'); if (t) t.onclick = () => { S.level = 'ACA'; S.triedACA = true; go('gather'); };
+}
+
+// ---------------------------------------------------------------------
+// STEP: GATHER (chart review and interviews)
+// ---------------------------------------------------------------------
+const BUDGET = CASE.budget || { rec: 6, int: 4 };
+function revealHTML(list, kind) {
+  const items = list.filter(x => gathered(x.id));
+  return items.map(x => `<div class="reveal"><div class="hd"><span>${esc(x.title || x.role)}</span><span class="tag">${esc(x.sub)}</span></div><div class="bd">${x.body}</div></div>`).join('');
+}
+function renderGather(round) {
+  const unlimited = round === 2;
+  const recList = unlimited ? RECORDS.filter(r => !S.rec.has(r.id)) : RECORDS;
+  const intList = unlimited ? INTERVIEWS.filter(i => !S.int.has(i.id)) : INTERVIEWS;
+  const p = S.pending;
+  const recFull = !unlimited && p.rec.size >= BUDGET.rec;
+  const intFull = !unlimited && p.int.size >= BUDGET.int;
+  const mk = (x, kind, full, set) => {
+    const checked = set.has(x.id);
+    const dis = !checked && full;
+    return `<label class="pick${dis ? ' disabled' : ''}"><input type="checkbox" data-kind="${kind}" data-id="${x.id}" ${checked ? 'checked' : ''} ${dis ? 'disabled' : ''}><span><span class="t">${esc(x.title || x.role)}</span><br><span class="d">${esc(x.sub)}</span></span></label>`;
+  };
+  const alreadyRec = !unlimited && S.rec.size > 0;
+  if (alreadyRec) {
+    // Round one results view
+    app.innerHTML = `
+    <div class="card">
+      <span class="step-label">Step 3</span>
+      <h2 class="title">What You Gathered</h2>
+      <p class="helper">Read each source and note what it tells you and what it leaves open. Compare accounts: expect differences between what different people describe.</p>
+      <h3>Chart review</h3>${revealHTML(RECORDS, 'rec') || '<p class="helper">No records selected.</p>'}
+      <h3 style="margin-top:20px;">Interviews</h3>${revealHTML(INTERVIEWS, 'int') || '<p class="helper">No interviews selected.</p>'}
+      ${fb('A thought before you build the timeline.', 'Some records add context without changing the sequence of events, and some interviews carry details that only one person holds. In the next step you will turn what you have into a timeline and decide which questions remain open.')}
+      ${nav(`<button class="btn" id="toTl">Build the Timeline</button>`)}
+    </div>`;
+    document.getElementById('toTl').onclick = () => go('timeline');
+    return;
+  }
+  app.innerHTML = `
+  <div class="card">
+    <span class="step-label">${unlimited ? 'Step 3: More Information' : 'Step 3'}</span>
+    <h2 class="title">${unlimited ? 'Request Additional Information' : 'Chart Review and Interviews'}</h2>
+    <p>${unlimited ? 'Choose any further records or interviews you want. The review team can ask for what it needs; there is no limit in this round.' : 'The review team meets soon, so you have time to pull a limited number of records and hold a limited number of interviews before your first pass. Choose the ones you think will tell you the most about what happened and why.'}</p>
+    ${unlimited ? '' : `<div class="box"><strong>Interviewing tips (RCA2 Appendix 3)</strong><ul>
+      <li>Interview one person at a time, and expect their accounts to differ.</li>
+      <li>The guiding question is not "where did people go wrong?" but "why did their action make sense to them at the time?"</li>
+      <li>Explain that the review seeks system issues and does not assign blame.</li></ul></div>`}
+    <h3>Chart review ${unlimited ? '' : `<span class="counter" id="recCt">(${p.rec.size} of ${BUDGET.rec})</span>`}</h3>
+    <div class="picklist" id="recList">${recList.map(x => mk(x, 'rec', recFull, p.rec)).join('') || '<p class="helper">You have reviewed every record.</p>'}</div>
+    <h3 style="margin-top:22px;">Interviews ${unlimited ? '' : `<span class="counter" id="intCt">(${p.int.size} of ${BUDGET.int})</span>`}</h3>
+    <div class="picklist" id="intList">${intList.map(x => mk(x, 'int', intFull, p.int)).join('') || '<p class="helper">You have held every interview.</p>'}</div>
+    ${nav(`${unlimited ? `<button class="btn alt" id="back">${S.returnTo ? 'Back to the analysis' : 'Back to the timeline'}</button>` : ''}<button class="btn" id="pull" ${p.rec.size + p.int.size === 0 ? 'disabled' : ''}>${unlimited ? 'Add to My Fact Finding' : 'Review What I Selected'}</button>`)}
+  </div>`;
+  app.querySelectorAll('input[type=checkbox][data-id]').forEach(cb => cb.onchange = () => {
+    const set = cb.dataset.kind === 'rec' ? p.rec : p.int;
+    if (cb.checked) set.add(cb.dataset.id); else set.delete(cb.dataset.id);
+    renderGather(round);
+  });
+  const pull = document.getElementById('pull');
+  pull.onclick = () => {
+    p.rec.forEach(id => S.rec.add(id)); p.int.forEach(id => S.int.add(id));
+    p.rec.clear(); p.int.clear();
+    if (unlimited) {
+      app.innerHTML = `<div class="card"><span class="step-label">Step 3: More Information</span><h2 class="title">What You Added</h2>
+        ${revealHTML(RECORDS.filter(r => S.rec.has(r.id)), 'rec')}${revealHTML(INTERVIEWS.filter(i => S.int.has(i.id)), 'int')}
+        ${nav(`<button class="btn alt" id="more">Request more</button><button class="btn" id="toTl2">${S.returnTo ? 'Return to the Analysis' : 'Update the Timeline'}</button>`)}</div>`;
+      document.getElementById('toTl2').onclick = () => { const t = S.returnTo; S.returnTo = null; go(t || 'timeline'); };
+      document.getElementById('more').onclick = () => renderGather(2);
+    } else { renderGather(1); }
+  };
+  const back = document.getElementById('back'); if (back) back.onclick = () => { const t = S.returnTo; S.returnTo = null; go(t || 'timeline'); };
+}
+
+// ---------------------------------------------------------------------
+// STEP: TIMELINE AND GAPS
+// ---------------------------------------------------------------------
+function timelineHTML(forPrint) {
+  const vis = TIMELINE.filter(e => anyGathered(e.needs));
+  const rows = vis.map(e => `<div class="ev${e.gap ? ' gap' : ''}"><span class="tm">${e.t}</span> &nbsp;${e.text}</div>`).join('');
+  return `<div class="tl">${rows || '<div class="ev">No timeline entries are supported yet.</div>'}</div><p class="small">${vis.length} of ${TIMELINE.length} timeline entries documented from your fact finding.</p>`;
+}
+function gapState(g) {
+  if (g.distractor) return 'distractor';
+  return anyGathered(g.resolvedBy) ? 'resolved' : 'open';
+}
+function renderTimeline() {
+  const gapList = GAPS.map(g => `<label class="pick"><input type="checkbox" data-gap="${g.id}" ${S.gapsMarked.has(g.id) ? 'checked' : ''}><span class="t" style="font-weight:400;">${esc(g.text)}</span></label>`).join('');
+  let result = '';
+  if (S.gapsChecked) {
+    const lines = [];
+    GAPS.forEach(g => {
+      const st = gapState(g), marked = S.gapsMarked.has(g.id);
+      if (marked && st === 'open') lines.push(`<li><strong>Still open:</strong> ${esc(g.text)} To close it: ${esc(g.answer)}</li>`);
+      else if (marked && st === 'resolved') {
+        const srcs = g.resolvedBy.filter(gathered).map(srcName).join('; ');
+        lines.push(`<li><strong>Your fact finding already speaks to this:</strong> ${esc(g.text)} See: ${esc(srcs)}.</li>`);
+      } else if (marked && st === 'distractor') lines.push(`<li><strong>Let's test this one:</strong> ${esc(g.text)} ${esc(g.why)}</li>`);
+      else if (!marked && st === 'open') lines.push(`<li><strong>Have you thought about this question?</strong> ${esc(g.text)} To close it: ${esc(g.answer)}</li>`);
+    });
+    const openCount = GAPS.filter(g => gapState(g) === 'open').length;
+    result = fb(lines.length ? 'Here is how your gap list compares with what remains open.' : 'Your marked gaps line up with what remains open.',
+      lines.length ? `<ul style="margin:6px 0 0;padding-left:20px;">${lines.join('')}</ul>` : 'Nothing further stands out from the sources you have gathered.') +
+      `<p class="small">${openCount} question${openCount === 1 ? '' : 's'} about causes remain open based on what you have gathered.</p>`;
+  }
+  app.innerHTML = `
+  <div class="card">
+    <span class="step-label">Step 4</span>
+    <h2 class="title">Build the Timeline and Identify the Gaps</h2>
+    <p>This sequence of events is built from the sources you gathered. Red entries mark periods with no documentation.</p>
+    ${timelineHTML()}
+    <div class="question" style="margin-top:22px;">Which questions about this event are still unanswered?</div>
+    <div class="helper">Check the questions that you believe remain open after your fact finding. A question can be answered by a source you already pulled, so read your sources again if you are unsure.</div>
+    <div class="picklist" id="gapList">${gapList}</div>
+    ${nav(`<button class="btn dark" id="chk">Check My Gap List</button>`)}
+    ${result}
+    ${S.gapsChecked ? nav(`<button class="btn alt" id="more">Gather More Information</button><button class="btn" id="cont">${S.level === 'ACA' ? 'Continue to the ACA Template' : 'Continue to Cause Analysis'}</button>`) : ''}
+  </div>`;
+  app.querySelectorAll('[data-gap]').forEach(cb => cb.onchange = () => { cb.checked ? S.gapsMarked.add(cb.dataset.gap) : S.gapsMarked.delete(cb.dataset.gap); S.gapsChecked = false; renderTimelineKeepScroll(); });
+  document.getElementById('chk').onclick = () => { S.gapsChecked = true; renderTimelineKeepScroll(); };
+  const more = document.getElementById('more'); if (more) more.onclick = () => { S.gapsChecked = false; S.returnTo = null; go('gather2'); };
+  const cont = document.getElementById('cont'); if (cont) cont.onclick = () => go(S.level === 'ACA' ? 'aca' : 'fishbone');
+}
+function renderTimelineKeepScroll() { const y = window.scrollY; renderTimeline(); window.scrollTo(0, y); }
+
+// ---------------------------------------------------------------------
+// STEP: ACA PATH (manager review received, then the ACA Report)
+// ---------------------------------------------------------------------
+function acaReady() {
+  const a = S.aca;
+  const g0 = a.gaps[0];
+  return a.occ.trim().length >= 20 && a.immediate.trim().length >= 20 && a.cause.trim().length >= 20 &&
+    a.significance.trim().length >= 20 && a.staffing.trim().length >= 5 &&
+    g0.gap.trim().length >= 10 && g0.action.trim().length >= 10;
+}
+function renderACA() {
+  const dueOpts = `<option value="">Due date</option>` + DUE_OPTIONS.map(d => `<option value="${d}">${d}</option>`).join('');
+  const sig = S.aca.significance;
+  let sigFb = '';
+  if (S.acaCompared) {
+    sigFb = CASE.acaSigFb(sig);
+  }
+  const mgr = MANAGER_REVIEW.map((m, i) => `<p><strong>${i + 1}. ${esc(m.q)}</strong><br>${esc(m.a)}</p>`).join('');
+  const fields = ACA_FIELDS.map(f => `
+    <div class="question">${f.label}</div><div class="helper">${f.help}</div>
+    <textarea data-aca="${f.id}" aria-label="${esc(f.label)}">${esc(S.aca[f.id])}</textarea>
+    ${S.acaCompared ? `<div class="box"><strong>A model response:</strong> ${esc(ACA_MODEL[f.id])}</div>` : ''}
+    ${f.id === 'significance' ? sigFb : ''}`).join('');
+  const gapRows = [0, 1, 2].map(i => {
+    const g = S.aca.gaps[i];
+    return `<tr><td class="num">${i + 1}</td>
+      <td><textarea data-gap="${i}" data-gf="gap" aria-label="Gap ${i + 1}" style="min-height:60px;">${esc(g.gap)}</textarea></td>
+      <td><textarea data-gap="${i}" data-gf="action" aria-label="Action ${i + 1}" style="min-height:60px;">${esc(g.action)}</textarea></td>
+      <td><input type="text" data-gap="${i}" data-gf="owner" aria-label="Owner ${i + 1}" value="${esc(g.owner)}"></td>
+      <td><select data-gap="${i}" data-gf="due" aria-label="Due ${i + 1}">${dueOpts.replace(`value="${g.due}"`, `value="${g.due}" selected`)}</select></td></tr>`;
+  }).join('');
+  app.innerHTML = `
+  <div class="card">
+    <span class="step-label">Step 5: ACA Report</span>
+    <h2 class="title">Complete the Apparent Cause Analysis Report</h2>
+    <p>In an ACA, the unit manager completes a Manager Review form for the Safety Event Review Team, and the analyst turns it, along with a look at the record, into the ACA Report. Read the manager's review below, then complete the report. Keep your answers free of names and protected health information.</p>
+    <details class="reveal" open><summary class="hd" style="cursor:pointer;"><span>Manager Review received from the ${esc(CASE.managerRole)}</span><span class="tag">Six-question Manager Review Template</span></summary><div class="bd">${mgr}</div></details>
+    ${fields}
+    <div class="question">Gaps in Care or Issues Identified, and Actions to Prevent Recurrence</div>
+    <div class="helper">Enter up to three gaps. Complete at least the first row (the gap and its action).</div>
+    <div class="tbl-scroll"><table><tr><th style="width:44px">Gap #</th><th>Gap in care or issue identified</th><th>Action to prevent recurrence</th><th>Action owner</th><th>Due</th></tr>${gapRows}</table></div>
+    ${S.acaCompared ? `<div class="box"><strong>A model gap table:</strong><div class="tbl-scroll"><table><tr><th>Gap #</th><th>Gap</th><th>Action</th><th>Owner</th><th>Due</th></tr>${ACA_GAPS_MODEL.map((g, i) => `<tr><td class="num">${i + 1}</td><td>${esc(g.gap)}</td><td>${esc(g.action)}</td><td>${esc(g.owner)}</td><td>${g.due}</td></tr>`).join('')}</table></div></div>` : ''}
+    ${S.acaCompared ? fb(CASE.acaLimitsTitle, `<ul style="margin:6px 0 0;padding-left:20px;">${ACA_LIMITS.map(l => `<li>${l}</li>`).join('')}</ul>`) : ''}
+    ${nav(!S.acaCompared
+      ? `<button class="btn" id="cmp" ${acaReady() ? '' : 'disabled'}>Compare with a Model Report</button>`
+      : (CASE.expectedLevel === 'ACA'
+          ? `<button class="btn" id="toAct">Continue to Actions</button>`
+          : `<button class="btn" id="toRca">Continue to the RCA</button>`))}
+    ${!S.acaCompared && !acaReady() ? '<p class="small" style="text-align:right;" id="acaHint">Complete each section and the first gap row to compare.</p>' : ''}
+  </div>`;
+  app.querySelectorAll('[data-aca]').forEach(t => t.oninput = () => {
+    S.aca[t.dataset.aca] = t.value;
+    const c = document.getElementById('cmp'); if (c) c.disabled = !acaReady();
+  });
+  app.querySelectorAll('[data-gap]').forEach(el => {
+    const upd = () => { S.aca.gaps[+el.dataset.gap][el.dataset.gf] = el.value; const c = document.getElementById('cmp'); if (c) c.disabled = !acaReady(); };
+    el.oninput = upd; el.onchange = upd;
+  });
+  const cmp = document.getElementById('cmp'); if (cmp) cmp.onclick = () => { S.acaCompared = true; const y = window.scrollY; renderACA(); window.scrollTo(0, y); };
+  const toAct = document.getElementById('toAct'); if (toAct) toAct.onclick = () => go('actions');
+  const toRca = document.getElementById('toRca'); if (toRca) toRca.onclick = () => { S.level = 'RCA'; go('fishbone'); };
+}
+
+// ---------------------------------------------------------------------
+// STEP: FISHBONE (cause and effect diagram)
+// ---------------------------------------------------------------------
+function activeFindings() { return FINDINGS.filter(f => anyGathered(f.needs)); }
+function lockedCount() { return FINDINGS.length - activeFindings().length; }
+function rootsOf(c) { return Array.isArray(c.root) ? c.root : (c.root ? [c.root] : []); }
+function fishHTML(chains, ctx, team) {
+  chains = chains || S.chains; ctx = ctx || S.ctx;
+  const fobj = id => FINDINGS.find(f => f.id === id);
+  const lockChip = id => (team && !anyGathered(fobj(id).needs)) ? '<span class="chip lock">Not yet found</span>' : '';
+  const catChip = id => { const f = fobj(id); const c = team ? (f.sfm && f.sfm[0]) : S.cats[id]; return (c && f.type === 'root' && sfmObj(c)) ? `<span class="chip cat">${sfmObj(c).label}</span>` : ''; };
+  const itemHTML = (id, k) => `<div class="item"><span class="chip ${k}">${typeObj(k).short}</span>${catChip(id)}${lockChip(id)}${esc(fobj(id).text)}</div>`;
+  const tier = (k, head, sub, ids) => `<div class="link" aria-hidden="true">&#8595;</div><div class="tier ${k}"><h5>${head} <span class="small">(${sub})</span></h5>${ids.map(i => itemHTML(i, k)).join('')}</div>`;
+  const parts = [];
+  chains.forEach((c, n) => {
+    if (chains.length > 1) parts.push(`<div class="small" style="margin-top:14px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;">Chain ${n + 1}</div>`);
+    parts.push(tier('prox', 'What happened', 'Proximate cause', [c.prox]));
+    if (c.causal.length) parts.push(tier('causal', 'Conditions that shaped what happened', 'Causal factors', c.causal));
+    if (rootsOf(c).length) parts.push(tier('root', 'Which stem from', rootsOf(c).length > 1 ? 'Root causes' : 'Root cause', rootsOf(c)));
+  });
+  if (ctx.length) parts.push(tier('non', 'Also examined', 'Context, not causal', ctx));
+  const empty = parts.length ? '' : '<div class="link" aria-hidden="true">&#8595;</div><div class="small" style="text-align:center;">Your diagram will build here as you add each link.</div>';
+  return `<div class="fish chain"><div class="chain-head"><small>The event</small>${esc(CASE.eventName)}</div>${parts.join('')}${empty}</div>`;
+}
+function linkSet(chains) {
+  const set = new Set();
+  chains.forEach(c => {
+    const rs = rootsOf(c);
+    c.causal.forEach(x => { set.add(c.prox + '>' + x); rs.forEach(r => set.add(x + '>' + r)); });
+    if (!c.causal.length) rs.forEach(r => set.add(c.prox + '>' + r));
+  });
+  return set;
+}
+function linkText(k) { const [a, b] = k.split('>'); return `${esc(FINDINGS.find(f => f.id === a).text)} <strong>&#8594;</strong> ${esc(FINDINGS.find(f => f.id === b).text)}`; }
+function diffHTML() {
+  const mine = linkSet(S.chains), team = linkSet(TEAM_CHAINS);
+  const missing = [...team].filter(k => !mine.has(k));
+  const missingSeen = missing.filter(k => k.split('>').every(i => anyGathered(FINDINGS.find(f => f.id === i).needs)));
+  const missingUnseen = missing.filter(k => !missingSeen.includes(k));
+  const extra = [...mine].filter(k => !team.has(k));
+  const onMine = new Set(Object.keys(S.tags).filter(k => S.tags[k].type !== 'non'));
+  const teamCause = new Set(); TEAM_CHAINS.forEach(c => { teamCause.add(c.prox); c.causal.forEach(i => teamCause.add(i)); rootsOf(c).forEach(i => teamCause.add(i)); });
+  const notOnMine = [...teamCause].filter(i => !onMine.has(i) && anyGathered(FINDINGS.find(f => f.id === i).needs));
+  const lockedTeam = [...teamCause].filter(i => !anyGathered(FINDINGS.find(f => f.id === i).needs));
+  const ul = arr => `<ul style="margin:6px 0 10px;padding-left:20px;">${arr.map(x => `<li>${x}</li>`).join('')}</ul>`;
+  let h = '';
+  if (!missing.length && !extra.length && !notOnMine.length && !lockedTeam.length) h += '<p>Your diagram links the same findings in the same order as the review team\'s diagram.</p>';
+  if (notOnMine.length) h += `<p><strong>Findings the review team placed in the chain that are not in yours (you had the sources):</strong></p>${ul(notOnMine.map(i => `${esc(FINDINGS.find(f => f.id === i).text)} (the review team: ${typeObj(FINDINGS.find(f => f.id === i).type).label.toLowerCase()})`))}`;
+  if (lockedTeam.length) h += `<p><strong>Findings that need sources you have not gathered yet:</strong></p>${ul(lockedTeam.map(i => { const f = FINDINGS.find(x => x.id === i); return `${esc(f.text)} (${esc(f.needs.map(srcName).join('; '))})`; }))}`;
+  if (missingSeen.length) h += `<p><strong>Links the review team drew that are not on your diagram:</strong></p>${ul(missingSeen.map(linkText))}<p class="small">Have you thought about asking "why?" at each of these points to see whether the first finding contributed to the second?</p>`;
+  if (missingUnseen.length) h += `<p><strong>Links that depend on findings you have not reached:</strong></p>${ul(missingUnseen.map(linkText))}`;
+  if (extra.length) h += `<p><strong>Links on your diagram that the review team did not draw:</strong></p>${ul(extra.map(linkText))}<p class="small">That is one way to view this. Let's explore whether each link holds: if the first condition were fixed, would the second become less likely?</p>`;
+  return h;
+}
+function syncTags() {
+  S.tags = {};
+  S.chains.forEach(c => {
+    S.tags[c.prox] = { type: 'prox', cat: S.cats[c.prox] || '' };
+    c.causal.forEach(i => S.tags[i] = { type: 'causal', cat: S.cats[i] || '' });
+    rootsOf(c).forEach(i => S.tags[i] = { type: 'root', cat: S.cats[i] || '' });
+  });
+  S.ctx.forEach(i => S.tags[i] = { type: 'non', cat: '' });
+}
+function unassigned() {
+  return activeFindings().filter(f => !S.tags[f.id]).sort((a, b) => ((+a.id.slice(1)) * 7 % 15) - ((+b.id.slice(1)) * 7 % 15));
+}
+function pickNudge(phase, f) {
+  if (phase === 'prox' && f.type !== 'prox') return 'Let\'s explore this choice. A proximate cause begins with the role of the person who did or did not act (for example, "The resident did not..."). Does this finding describe a person\'s action, or a condition in the work system?';
+  if (phase === 'causal' && f.type === 'prox') return 'Have you thought about whether this finding names a person\'s action? A causal factor describes the condition that shaped what happened, not a person or a role.';
+  if (phase === 'causal' && f.type === 'root') return 'That is one way to view this. Have you thought about whether this condition sits underneath the others, so that fixing it would keep the whole chain from recurring? If so, it may belong at the end of the chain as a root cause.';
+  if (phase === 'root' && f.type === 'prox') return 'Have you thought about whether this finding names a person\'s action? A root cause describes a condition in the work system that leaders can change.';
+  if (phase === 'root' && f.type === 'causal') return 'Let\'s explore this choice. Try asking "why?" once more about this condition. Would fixing it keep the chain from recurring, or does it stem from something deeper?';
+  if ((phase === 'causal' || phase === 'root') && f.type === 'non') return 'Have you thought about whether this finding contributed to the event, or whether it describes background that did not shape what happened?';
+  return '';
+}
+function catGridHTML() {
+  const mine = id => S.tags[id] && S.tags[id].type === 'root' ? S.cats[id] : '';
+  const mineIds = Object.keys(S.tags).filter(id => S.tags[id].type === 'root');
+  const teamIds = FINDINGS.filter(f => f.type === 'root' && anyGathered(f.needs) || f.type === 'root').map(f => f.id);
+  const cell = (list) => list.length ? list.map(x => `<div class="item"><span class="chip root">${sfmObj(x.code).label}</span>${esc(FINDINGS.find(f => f.id === x.id).text)}</div>`).join('') : '<span class="small">None</span>';
+  const rows = SFM.map(g => {
+    const m = mineIds.filter(id => mine(id) && sfmObj(mine(id)).group === g.label).map(id => ({ id, code: mine(id) }));
+    const t = teamIds.filter(id => FINDINGS.find(f => f.id === id).sfm && sfmObj(FINDINGS.find(f => f.id === id).sfm[0]).group === g.label).map(id => ({ id, code: FINDINGS.find(f => f.id === id).sfm[0] }));
+    return `<tr><td><strong>${g.label}</strong></td><td>${cell(m)}</td><td>${cell(t)}</td></tr>`;
+  }).join('');
+  return `<div class="tbl-scroll"><table><tr><th style="width:22%">SFM category</th><th>Your root causes</th><th>Review team root causes</th></tr>${rows}</table></div>`;
+}
+function sfmHelpHTML(key) {
+  if (!key) return 'System failure mechanisms describe the type of weakness in the work system, and they apply to root causes. Choose a category to see what it can include.';
+  const g = sfmObj(key);
+  return `<strong>${g.label} can include:</strong> ${g.items.map(i => esc(i.label) + ' (' + esc(i.d) + ')').join('; ')}.`;
+}
+function teamChainFor(proxId) { return TEAM_CHAINS.find(t => t.prox === proxId); }
+function pickable(phase) {
+  if (phase !== 'root') return unassigned().filter(f => f.type === (phase === 'prox' ? 'prox' : 'causal'));
+  const cur = S.chains[S.chains.length - 1];
+  return activeFindings().filter(f => !cur.root.includes(f.id) && f.type === 'root' && (!S.tags[f.id] || S.tags[f.id].type === 'root'))
+    .sort((a, b) => ((+a.id.slice(1)) * 7 % 15) - ((+b.id.slice(1)) * 7 % 15));
+}
+function countWords(n, one, many) { return n === 1 ? `is one more ${one}` : `are ${n} more ${many}`; }
+function renderFishbone() {
+  const ph = S.bphase;
+  const cur = S.chains[S.chains.length - 1];
+  const n = S.chains.length;
+  const fobj = id => FINDINGS.find(f => f.id === id);
+  const tc = cur ? teamChainFor(cur.prox) : null;
+  const avail = pickable(ph);
+  const pickList = () => `<div class="picklist" role="radiogroup">${avail.map(f => `<label class="pick"><input type="radio" name="bp" value="${f.id}" ${S.pick === f.id ? 'checked' : ''}><span class="t" style="font-weight:400;">${esc(f.text)}</span></label>`).join('') || '<p class="small">Every available finding is already on your diagram.</p>'}</div>${(avail.length && ph === 'root') ? `<div class="fcard" style="margin-top:12px;"><label for="catsel">Which system failure mechanism (SFM) category best describes this root cause?</label><select id="catsel"><option value="">Choose a category</option>${SFM.map(g => `<option value="${g.key}" ${S.pickCat === g.key ? 'selected' : ''}>${g.label}</option>`).join('')}</select><div class="small" id="sfmhelp" style="margin-top:6px;">${sfmHelpHTML(S.pickCat)}</div></div>` : ''}<div id="nudge"></div>`;
+  const quote = (label, text) => `<div class="box"><strong>${label}</strong><br>${esc(text)}</div>`;
+  let panel = '', primary = '';
+  if (ph === 'prox') {
+    panel = `<h3>Chain ${n + 1}: Choose a proximate cause</h3><p>${n ? 'Choose the next action (or inaction) close to the event that you want to follow back to its root cause.' : 'Start with the action (or inaction) closest to the event. A proximate cause begins with the role of the person who did or did not act.'} Choose one finding from the list.</p>${pickList()}`;
+    primary = `<button class="btn" id="add" disabled>Add as Proximate Cause</button>`;
+  } else if (ph === 'causal') {
+    panel = `${quote('The proximate cause you chose', fobj(cur.prox).text)}<h3>${cur.causal.length ? 'What else led this person to act this way?' : 'What led this person to act this way?'}</h3><p>Think about what was in place (or missing) in the work system that shaped this action. A causal factor describes that condition; it is not a person or a role. Choose a condition from the list.</p>${pickList()}`;
+    primary = `<button class="btn" id="add" disabled>Add as Causal Factor</button>`;
+  } else if (ph === 'causalnext') {
+    const last = cur.causal[cur.causal.length - 1];
+    let body = '';
+    if (!tc) {
+      body = `<p>The review team did not treat your proximate cause as one of its proximate causes. Have you thought about whether it names a person's action? You can use Undo Last Step to go back and choose again, or you can keep building this chain.</p>`;
+      primary = `<button class="btn alt" id="moreCausal">Add Another Causal Factor</button><button class="btn" id="toRoot">Continue to the Root Cause</button>`;
+    } else {
+      const link = tc.causal.includes(last) ? 'The review team also linked this condition to this proximate cause.' : 'The review team did not link this condition to this proximate cause. Have you thought about asking again what led this person to act this way? You can use Undo Last Step to take it off the chain.';
+      const rem = tc.causal.filter(id => !cur.causal.includes(id));
+      const seen = rem.filter(id => anyGathered(fobj(id).needs));
+      body = `<p>${link}</p>`;
+      if (!rem.length) { body += '<p><strong>There are no more causal factors for this proximate cause.</strong> Let\'s move on to the root cause.</p>'; primary = `<button class="btn" id="toRoot">Continue to the Root Cause</button>`; }
+      else if (seen.length) { body += `<p><strong>There ${countWords(rem.length, 'causal factor', 'causal factors')} for this proximate cause.</strong> What else led this person to act this way?${seen.length < rem.length ? ' Some of them need sources you have not gathered yet.' : ''}</p>`; primary = `<button class="btn" id="moreCausal">Choose the Next Causal Factor</button>`; }
+      else { body += '<p><strong>There is another causal factor for this proximate cause</strong>, but the sources you have gathered do not show it yet. You can gather more information now, or continue to the root cause and return later.</p>'; primary = `<button class="btn" id="toRoot">Continue to the Root Cause</button>`; }
+    }
+    panel = `<h3>Chain ${n}: Another causal factor?</h3>${fb('Where this stands.', body)}`;
+  } else if (ph === 'root') {
+    panel = `${quote('The proximate cause', fobj(cur.prox).text)}${quote('The causal factors you found', cur.causal.map(i => fobj(i).text).join(' | '))}<h3>${cur.root.length ? 'What other root cause sits underneath?' : 'Why did those conditions exist?'}</h3><p>Choose the finding that sits underneath these conditions, so that changing it would keep this chain from recurring. A root cause has a proven cause and effect relationship, is within leaders' control to change, and is a good use of healthcare resources to correct. Each root cause is written as a causal statement: something (cause) led to something (effect), which increased the likelihood of the event.</p>${pickList()}`;
+    primary = `<button class="btn" id="add" disabled>Add as Root Cause</button>`;
+  } else if (ph === 'rules') {
+    const rid = cur.root[cur.root.length - 1];
+    const rules = S.rules[rid] = S.rules[rid] || [false, false, false, false, false];
+    panel = `<h3>Check the root cause statement</h3><div class="box"><strong>Your root cause statement</strong><br>${esc(fobj(rid).text)}</div><p>Check this statement against the Five Rules of Causation (RCA2 Appendix 6). Mark each rule that the statement meets.</p><div class="picklist">${FIVE_RULES.map((r, i) => `<label class="pick"><input type="checkbox" data-rule="${i}" ${rules[i] ? 'checked' : ''}><span class="t" style="font-weight:400;">${i + 1}. ${r}</span></label>`).join('')}</div><div id="rulesNote"></div>`;
+    primary = `<button class="btn" id="rulesGo">Continue</button>`;
+  } else if (ph === 'rootnext') {
+    const last = cur.root[cur.root.length - 1];
+    let body = '';
+    if (!tc) { body = '<p>Your chain does not match one of the review team\'s chains, so there is no count to share. You can add another root cause or finish this chain.</p>'; primary = `<button class="btn alt" id="nextRoot">Choose Another Root Cause</button><button class="btn" id="toMore">Finish This Chain</button>`; }
+    else {
+      const link = tc.root.includes(last) ? 'The review team also tied this root cause to this chain.' : 'The review team did not tie this finding to this chain as a root cause. Let\'s explore whether changing it would keep this chain from recurring. You can use Undo Last Step to take it off.';
+      const rem = tc.root.filter(id => !cur.root.includes(id));
+      const seen = rem.filter(id => anyGathered(fobj(id).needs));
+      const mySfm = S.cats[last]; const ts = fobj(last).sfm || [];
+      const sfmMsg = (mySfm && ts.length) ? (ts.includes(mySfm) ? ` The review team also classified it as ${sfmObj(ts[0]).label}.` : ` The review team classified it as ${ts.map(c => sfmObj(c).label).join(' or ')}. Let's explore what in the sources points to that mechanism.`) : '';
+      body = `<p>${link}${sfmMsg}</p>`;
+      if (!rem.length) { body += '<p><strong>There are no more root causes for this chain.</strong></p>'; primary = `<button class="btn" id="toMore">Finish This Chain</button>`; }
+      else if (seen.length) { body += `<p><strong>There ${countWords(rem.length, 'root cause', 'root causes')} for this chain.</strong> What else sits underneath the conditions you found?${seen.length < rem.length ? ' Some need sources you have not gathered yet.' : ''}</p>`; primary = `<button class="btn" id="nextRoot">Choose the Next Root Cause</button>`; }
+      else { body += '<p><strong>There is another root cause for this chain</strong>, but the sources you have gathered do not show it yet. You can gather more information now, or finish this chain and return later.</p>'; primary = `<button class="btn" id="toMore">Finish This Chain</button>`; }
+    }
+    panel = `<h3>Chain ${n}: Another root cause?</h3>${fb('Where this stands.', body)}`;
+  } else if (ph === 'more') {
+    const rem = TEAM_CHAINS.filter(t => !S.chains.some(c => c.prox === t.prox));
+    const seen = rem.filter(t => anyGathered(fobj(t.prox).needs));
+    let body = '<p>Read the chain from top to bottom: does each link lead to the next?</p>';
+    if (seen.length) { body += `<p><strong>There ${countWords(rem.length, 'proximate cause', 'proximate causes')} to follow.</strong> Which other action (or inaction) close to the event do you want to follow back to its root cause?${seen.length < rem.length ? ' Some need sources you have not gathered yet.' : ''}</p>`; primary = `<button class="btn" id="newChain">Start Chain ${n + 1}</button>`; }
+    else if (rem.length) { body += '<p><strong>There is another proximate cause to follow</strong>, but the sources you have gathered do not show it yet. You can gather more information now, or continue.</p>'; primary = `<button class="btn" id="toCtx">Continue</button>`; }
+    else { body += '<p><strong>There are no more proximate causes to follow.</strong></p>'; primary = `<button class="btn" id="toCtx">Continue</button>`; }
+    panel = `<h3>Chain ${n} is complete</h3>${fb('Where this stands.', body)}`;
+  } else {
+    panel = `<h3>Anything left over?</h3><p>These findings are not on your diagram yet. Mark any you consider context (background that did not shape what happened). Anything you leave unmarked stays off the diagram.</p><div class="picklist">${unassigned().map(f => `<label class="pick"><input type="checkbox" data-ctx="${f.id}" ${S.ctx.includes(f.id) ? 'checked' : ''}><span class="t" style="font-weight:400;">${esc(f.text)}</span></label>`).join('') || '<p class="small">Every available finding is already on your diagram.</p>'}</div>`;
+    primary = `<button class="btn" id="chk">Test My Root Causes</button>`;
+  }
+  const canUndo = !(ph === 'prox' && n === 0);
+  app.innerHTML = `
+  <div class="card">
+    <span class="step-label">Step 5</span>
+    <h2 class="title">Build the Cause and Effect Diagram</h2>
+    <p>We will build this one link at a time. Start with one proximate cause, ask what led to it, follow it back to a root cause, and then decide whether another chain is needed.</p>
+    <div class="box"><strong>How to tell the types apart</strong><ul>
+      <li><strong>Proximate causes</strong> begin with the role of the person who did or did not act (for example, "The resident did not...").</li>
+      <li><strong>Causal factors and root causes</strong> describe the condition or finding in the work system. They do not begin with a person or a role.</li></ul></div>
+    ${panel}
+    ${lockedCount() > 0 ? fb('Your sources may support more findings.', `Some possible findings are hidden because the sources that would support them have not been gathered. ${lockedCount()} finding${lockedCount() === 1 ? '' : 's'} remain locked. You can return to fact finding at any time.`) : ''}
+    <h3 style="margin-top:22px;">Your diagram so far (read from top to bottom)</h3>
+    <div id="fishPreview">${fishHTML()}</div>
+    ${nav(`<button class="btn alt" id="more">Gather More Information</button>${canUndo ? '<button class="btn alt" id="undo">Undo Last Step</button>' : ''}${primary}`)}
+  </div>`;
+  const add = document.getElementById('add');
+  app.querySelectorAll('input[name=bp]').forEach(r => r.onchange = () => {
+    S.pick = r.value; if (add) add.disabled = !(S.pick && (ph !== 'root' || S.pickCat));
+    const nd = pickNudge(ph, fobj(r.value));
+    document.getElementById('nudge').innerHTML = nd ? fb('Something to consider.', esc(nd)) : '';
+  });
+  const catsel = document.getElementById('catsel');
+  if (catsel) catsel.onchange = () => { S.pickCat = catsel.value; const hp = document.getElementById('sfmhelp'); if (hp) hp.innerHTML = sfmHelpHTML(S.pickCat); if (add) add.disabled = !(S.pick && (ph !== 'root' || S.pickCat)); };
+  if (add) add.disabled = !(S.pick && (ph !== 'root' || S.pickCat));
+  if (add) add.onclick = () => {
+    if (!S.pick || (ph === 'root' && !S.pickCat)) return;
+    if (ph === 'root') S.cats[S.pick] = S.pickCat;
+    if (ph === 'prox') { S.chains.push({ prox: S.pick, causal: [], root: [] }); S.bphase = 'causal'; }
+    else if (ph === 'causal') { cur.causal.push(S.pick); S.bphase = 'causalnext'; }
+    else if (ph === 'root') { cur.root.push(S.pick); S.bphase = 'rules'; }
+    S.pick = ''; S.pickCat = ''; syncTags(); renderFishbone(); window.scrollTo(0, 0);
+  };
+  const bind = (id, fn) => { const e = document.getElementById(id); if (e) e.onclick = () => { fn(); S.pick = ''; S.pickCat = ''; syncTags(); renderFishbone(); window.scrollTo(0, 0); }; };
+  bind('moreCausal', () => { S.bphase = 'causal'; });
+  bind('toRoot', () => { S.bphase = 'root'; });
+  bind('nextRoot', () => { S.bphase = 'root'; });
+  bind('toMore', () => { S.bphase = 'more'; });
+  bind('newChain', () => { S.bphase = 'prox'; });
+  bind('toCtx', () => { S.bphase = 'ctx'; });
+  bind('undo', () => {
+    if (ph === 'causal') { if (cur.causal.length) S.bphase = 'causalnext'; else { S.chains.pop(); S.bphase = S.chains.length ? 'more' : 'prox'; } }
+    else if (ph === 'causalnext') { cur.causal.pop(); S.bphase = cur.causal.length ? 'causalnext' : 'causal'; }
+    else if (ph === 'root') S.bphase = cur.root.length ? 'rootnext' : 'causalnext';
+    else if (ph === 'rules') { cur.root.pop(); S.bphase = cur.root.length ? 'rootnext' : 'root'; }
+    else if (ph === 'rootnext') { cur.root.pop(); S.bphase = cur.root.length ? 'rootnext' : 'root'; }
+    else if (ph === 'more') S.bphase = 'rootnext';
+    else if (ph === 'ctx') { S.ctx = []; S.bphase = 'more'; }
+    else if (ph === 'prox') S.bphase = 'more';
+  });
+  if (ph === 'rules') {
+    const rid = cur.root[cur.root.length - 1];
+    app.querySelectorAll('[data-rule]').forEach(cb => cb.onchange = () => { S.rules[rid][+cb.dataset.rule] = cb.checked; });
+    document.getElementById('rulesGo').onclick = () => {
+      const unmarked = S.rules[rid].map((v, i) => v ? -1 : i).filter(i => i >= 0);
+      const f = fobj(rid);
+      let msg = '';
+      if (unmarked.length && !S.rulesWarned[rid]) msg += `<p>Let's explore the rules you did not mark. Does this statement meet them?</p><ul style="margin:6px 0 0;padding-left:20px;">${unmarked.map(i => `<li>Rule ${i + 1}: ${esc(FIVE_RULES[i])}</li>`).join('')}</ul>`;
+      if (f.type !== 'root' && !S.rulesWarned[rid]) msg += `<p>The review team tagged this finding as ${typeObj(f.type).label.toLowerCase()}. Have you thought about whether it has a proven cause and effect relationship, is within leaders' control, and is a good use of resources to correct?</p>`;
+      if (msg && !S.rulesWarned[rid]) { S.rulesWarned[rid] = true; document.getElementById('rulesNote').innerHTML = fb('Something to consider.', msg); document.getElementById('rulesGo').textContent = 'Continue Anyway'; return; }
+      S.bphase = 'rootnext'; renderFishbone(); window.scrollTo(0, 0);
+    };
+  }
+  app.querySelectorAll('[data-ctx]').forEach(cb => cb.onchange = () => {
+    S.ctx = Array.from(app.querySelectorAll('[data-ctx]:checked')).map(x => x.dataset.ctx); syncTags();
+    document.getElementById('fishPreview').innerHTML = fishHTML();
+  });
+  document.getElementById('more').onclick = () => { S.returnTo = 'fishbone'; go('gather2'); };
+  const chk = document.getElementById('chk'); if (chk) chk.onclick = () => go('check');
+}
+
+// ---------------------------------------------------------------------
+// STEP: ROOT CAUSE CHECK AND CAUSAL STATEMENTS
+// ---------------------------------------------------------------------
+function renderCheck() {
+  const act = activeFindings();
+  const roots = FINDINGS.filter(f => f.type === 'root');
+  const rows = act.map(f => {
+    const mine = S.tags[f.id] || {};
+    const same = mine.type === f.type;
+    const tip = (!same && (mine.type === 'prox' || f.type === 'prox')) ? ' Tip: a proximate cause begins with the role of the person who did or did not act, and a causal factor or root cause describes the condition.' : '';
+    const mc = f.type === 'root' ? S.cats[f.id] : '';
+    const teamSfm = (f.sfm || []).map(c => sfmObj(c).label).join(' or ');
+    const catNote = (mc && f.sfm && !f.sfm.includes(mc)) ? ` The review team classified this root cause as ${teamSfm}. Let's explore what in the sources points to that category.` : '';
+    const note = (same ? 'Your tag matches the review team\'s tag.' : `The review team tagged this as ${typeObj(f.type).label.toLowerCase()}. ${f.why}${tip}`) + catNote;
+    return `<tr><td>${esc(f.text)}</td><td><span class="chip ${mine.type || 'none'}">${mine.type ? typeObj(mine.type).short : 'None'}</span></td><td><span class="chip ${f.type}">${typeObj(f.type).short}</span></td><td>${f.type === 'root' ? `${mc ? sfmObj(mc).label : 'None chosen'}<br><span class="small">Review team: ${teamSfm}</span>` : ''}</td><td>${esc(note)}</td></tr>`;
+  }).join('');
+  const found = roots.filter(f => anyGathered(f.needs) && S.tags[f.id] && S.tags[f.id].type === 'root');
+  const unseen = roots.filter(f => !anyGathered(f.needs));
+  const mistagged = act.filter(f => S.tags[f.id] && S.tags[f.id].type === 'root' && f.type !== 'root');
+  const missedTagged = roots.filter(f => anyGathered(f.needs) && !(S.tags[f.id] && S.tags[f.id].type === 'root'));
+  let summary = `<p>You tagged <strong>${found.length} of the ${roots.length}</strong> root causes that the review team identified.</p><ul style="margin:6px 0 0;padding-left:20px;">`;
+  if (found.length === roots.length) summary += '<li>You reached every root cause the review team identified.</li>';
+  missedTagged.forEach(f => summary += `<li>You had the evidence for this one but tagged it differently: ${esc(f.text)}</li>`);
+  unseen.forEach(f => summary += `<li>This root cause was not supported by the sources you gathered: ${esc(f.text)} It would have appeared with: ${esc(f.needs.map(srcName).join('; '))}.</li>`);
+  mistagged.forEach(f => summary += `<li>You tagged this as a root cause, and the review team tagged it as ${typeObj(f.type).label.toLowerCase()}: ${esc(f.text)}</li>`);
+  summary += '</ul>';
+  app.innerHTML = `
+  <div class="card">
+    <span class="step-label">Step 5</span>
+    <h2 class="title">Did You Reach the Root Causes?</h2>
+    ${fb('How your root causes compare.', summary, true)}
+    <h3 style="margin-top:22px;">Your Diagram and the Review Team's Diagram</h3>
+    <div class="cmp-grid">
+      <div><h4>Your diagram</h4>${fishHTML()}</div>
+      <div><h4>The review team's diagram</h4>${fishHTML(TEAM_CHAINS, TEAM_CTX, true)}</div>
+    </div>
+    ${fb('Where the two diagrams differ.', diffHTML())}
+    <h3 style="margin-top:22px;">Your Root Causes by System Failure Mechanism</h3>
+    ${catGridHTML()}
+    <h3 style="margin-top:22px;">Finding by Finding</h3>
+    <div class="tbl-scroll"><table><tr><th>Finding</th><th>Your tag</th><th>Review team</th><th>SFM (root causes)</th><th>Notes</th></tr>${rows}</table></div>
+    ${nav(`<button class="btn alt" id="more">Gather More Information</button><button class="btn" id="toAct">Continue to Actions</button>`)}
+  </div>`;
+  const toAct = document.getElementById('toAct'); if (toAct) toAct.onclick = () => go('actions');
+  document.getElementById('more').onclick = () => { S.returnTo = 'fishbone'; go('gather2'); };
+}
+
+// ---------------------------------------------------------------------
+// STEP: ACTIONS
+// ---------------------------------------------------------------------
+function newAction() {
+  S.actionSeq++;
+  return { id: 'ac' + S.actionSeq, text: '', rc: '', cat: '', owner: '', due: '', measure: '', sm: {} };
+}
+function acaMode() { return S.level === 'ACA' && CASE.expectedLevel === 'ACA'; }
+function causeNoun() { return acaMode() ? 'gap' : 'root cause'; }
+function studentRoots() {
+  if (acaMode()) return S.aca.gaps.map((g, i) => ({ id: 'gap' + (i + 1), text: g.gap })).filter(g => g.text.trim());
+  return FINDINGS.filter(f => anyGathered(f.needs) && S.tags[f.id] && S.tags[f.id].type === 'root');
+}
+function actionNotes(a) {
+  const n = [];
+  const st = strengthOf(a.cat);
+  if (a.text.trim().length < 30) n.push('Have you thought about describing what will change, where, and who will carry it out?');
+  if (!a.cat) n.push('Choose a category from the Action Hierarchy so the strength of this action can be ranked.');
+  else if (st === 'Weaker') n.push('This action falls in the weaker group. Weaker actions such as training and policy changes are often necessary to set expectations, but used alone they rarely sustain improvement. Is there a stronger or intermediate action alongside it?');
+  if (!a.owner.trim()) n.push('RCA2 suggests naming one responsible individual with the authority to act.');
+  else if (/committee|team\b|everyone|all staff|nursing$|leadership$/i.test(a.owner)) n.push('A committee or group is harder to hold to a date. Have you thought about naming a single role?');
+  if (!a.due) n.push('Choose a due date so the action can be tracked.');
+  if (!/\d/.test(a.measure)) n.push('A measure needs an expected level of compliance, such as a percentage or a count.');
+  if (!/(day|week|month|quarter|year)/i.test(a.measure)) n.push('Add how long the measure will be tracked, for example monthly for six months.');
+  if (!a.rc) n.push(`Link this action to a ${causeNoun()} so its relevance is clear.`);
+  // SMARTIES self-check consistency
+  const sm = a.sm;
+  if (sm.M && (!/\d/.test(a.measure) || !/(day|week|month|quarter|year)/i.test(a.measure))) n.push('You marked Measurable, and the measure still lacks a number or a time period.');
+  if (sm.T && !a.due) n.push('You marked Timely, and no due date is chosen.');
+  if (sm.R && !a.rc) n.push(`You marked Relevant, and no ${causeNoun()} is linked.`);
+  if (sm.S && (a.text.trim().length < 30 || !a.owner.trim())) n.push('You marked Specific, and the action text or the owner could say more.');
+  SMARTIES.filter(x => ['A', 'I', 'E', 'Sf'].indexOf(x.k) >= 0 && !sm[x.k]).forEach(x => n.push(`${x.name}: ${x.q}`));
+  return n;
+}
+function renderActions() {
+  if (S.actions.length === 0) S.actions.push(newAction());
+  const roots = studentRoots();
+  const rcList = a => `<label class="fl">${causeNoun() === 'gap' ? 'Gap it addresses (choose one)' : 'Root cause it addresses (choose one)'}</label><div class="picklist" role="radiogroup">${roots.map(r => `<label class="pick"><input type="radio" name="${a.id}_rcr" id="${a.id}_rc_${r.id}" value="${r.id}" data-af="rc" ${a.rc === r.id ? 'checked' : ''}><span class="t" style="font-weight:400;">${esc(r.text)}</span></label>`).join('')}<label class="pick"><input type="radio" name="${a.id}_rcr" id="${a.id}_rc_other" value="other" data-af="rc" ${a.rc === 'other' ? 'checked' : ''}><span class="t" style="font-weight:400;">${acaMode() ? 'A cause I did not list as a gap' : 'A cause I did not tag as a root cause'}</span></label></div>`;
+  const catOpts = `<option value="">Choose a category</option>` + HIERARCHY.map(g => `<optgroup label="${g.group}">${g.cats.map(c => `<option value="${esc(c)}">${esc(c)}</option>`).join('')}</optgroup>`).join('');
+  const dueOpts = `<option value="">Choose a due date</option>` + DUE_OPTIONS.map(d => `<option value="${d}">${d} after approval</option>`).join('');
+  const sel = (html, val) => html.replace(`value="${esc(val)}"`, `value="${esc(val)}" selected`);
+  const cards = S.actions.map((a, i) => `
+    <div class="acard" data-a="${a.id}">
+      ${S.actions.length > 1 ? `<button class="rm" data-rm="${a.id}" aria-label="Remove action ${i + 1}">Remove</button>` : ''}
+      <h4 style="margin:0 0 4px;">Action ${i + 1} ${a.cat ? `<span class="chip ${strengthOf(a.cat) === 'Stronger' ? 'root' : strengthOf(a.cat) === 'Intermediate' ? 'causal' : 'non'}">${strengthOf(a.cat)}</span>` : ''}</h4>
+      <label class="fl" for="${a.id}_t">What will change, where, and who will carry it out?</label>
+      <textarea id="${a.id}_t" data-af="text">${esc(a.text)}</textarea>
+      ${rcList(a)}
+      <div class="grid2">
+        <div><label class="fl" for="${a.id}_c">Action Hierarchy category</label><select id="${a.id}_c" data-af="cat">${sel(catOpts, a.cat)}</select></div>
+        <div><label class="fl" for="${a.id}_o">Responsible person (a role)</label><input type="text" id="${a.id}_o" data-af="owner" value="${esc(a.owner)}"></div>
+        <div><label class="fl" for="${a.id}_d">Due date</label><select id="${a.id}_d" data-af="due">${sel(dueOpts, a.due)}</select></div>
+      </div>
+      <label class="fl" for="${a.id}_m">Measure: what, for how long, and the expected compliance</label>
+      <textarea id="${a.id}_m" data-af="measure">${esc(a.measure)}</textarea>
+      <label class="fl">SMART(IES) self-check: mark each letter you believe this action meets</label>
+      <div class="smart">${SMARTIES.map(x => `<label title="${esc(x.q)}"><input type="checkbox" data-sm="${x.k}" ${a.sm[x.k] ? 'checked' : ''}> ${x.name}</label>`).join('')}</div>
+    </div>`).join('');
+  let result = '';
+  if (S.actionsChecked) {
+    const blocks = S.actions.map((a, i) => {
+      const n = actionNotes(a);
+      return `<li><strong>Action ${i + 1}${a.cat ? ' (' + strengthOf(a.cat) + ')' : ''}:</strong> ${n.length ? `<ul style="margin:4px 0 8px;padding-left:20px;">${n.map(x => `<li>${esc(x)}</li>`).join('')}</ul>` : 'Your entries meet each of the checks in this tool.'}</li>`;
+    }).join('');
+    const cov = roots.map(r => {
+      const linked = S.actions.filter(a => a.rc === r.id && ['Stronger', 'Intermediate'].indexOf(strengthOf(a.cat)) >= 0);
+      return linked.length ? '' : `<li>No stronger or intermediate action is linked to this ${causeNoun()}: ${esc(r.text)}</li>`;
+    }).join('');
+    result = fb('How your action plan reads.', `<ul style="margin:6px 0 0;padding-left:20px;">${blocks}</ul>${cov ? `<p style="margin:8px 0 0;"><strong>Coverage:</strong> RCA2 recommends at least one stronger or intermediate action for each ${causeNoun()}.</p><ul style="padding-left:20px;margin:4px 0 0;">${cov}</ul>` : (roots.length ? `<p style="margin:8px 0 0;"><strong>Coverage:</strong> every ${causeNoun()} you listed has at least one stronger or intermediate action.</p>` : `<p style="margin:8px 0 0;">${acaMode() ? 'List gaps in the ACA report so each action can be linked to one.' : 'Tag root causes on the diagram so each action can be linked to one.'}</p>`)}`, true);
+    result += `<h3 style="margin-top:22px;">The Review Team's Action Plan</h3><p class="small">Your plan does not need to match this one. Compare the strength of the actions, the owners, and the measures.</p>
+      <div class="tbl-scroll"><table><tr><th>${acaMode() ? 'Gap' : 'Root cause'}</th><th>Action</th><th>Strength</th><th>Owner and due</th><th>Measure</th></tr>${TEAM_ACTIONS.map(t => `<tr><td>${esc(t.rc)}</td><td>${esc(t.action)}</td><td>${t.strength}<br><span class="small">${esc(t.cat)}</span></td><td>${esc(t.owner)}<br><span class="small">${t.due} after approval</span></td><td>${esc(t.measure)}</td></tr>`).join('')}</table></div>
+      <div class="box"><strong>Also in the review team's plan.</strong> ${esc(CASE.teamActionsNote)} ${esc(IMMEDIATE_ACTIONS)}</div>`;
+  }
+  app.innerHTML = `
+  <div class="card">
+    <span class="step-label">Step 6</span>
+    <h2 class="title">Write the Actions and Check Them</h2>
+    <p>For each ${causeNoun()}, write an action that would prevent recurrence or reduce its effect. Rank each action with the RCA2 Action Hierarchy and check it against the SMART(IES) criteria: <strong>S</strong>pecific, <strong>M</strong>easurable, <strong>A</strong>ttainable, <strong>R</strong>elevant, <strong>T</strong>imely, <strong>I</strong>nclusive, <strong>E</strong>quitable, and <strong>S</strong>afe.</p>
+    <div class="box"><strong>The Action Hierarchy (RCA2)</strong><ul>${HIERARCHY.map(g => `<li><strong>${g.group}:</strong> ${g.cats.join('; ')}.</li>`).join('')}</ul></div>
+    <div id="acards">${cards}</div>
+    ${nav(`<button class="btn alt" id="add" ${S.actions.length >= 6 ? 'disabled' : ''}>Add Another Action</button><button class="btn dark" id="chk">Check My Plan</button>`)}
+    <div id="aresult">${result}</div>
+    ${S.actionsChecked ? nav(`<button class="btn" id="toSum">Continue to the Summary</button>`) : ''}
+  </div>`;
+  app.querySelectorAll('.acard').forEach(card => {
+    const a = S.actions.find(x => x.id === card.dataset.a);
+    card.querySelectorAll('[data-af]').forEach(el => {
+      const upd = () => {
+        a[el.dataset.af] = el.value;
+        if (el.dataset.af === 'cat') {
+          const chip = card.querySelector('h4'); const s = strengthOf(a.cat);
+          chip.innerHTML = `Action ${S.actions.indexOf(a) + 1} ` + (a.cat ? `<span class="chip ${s === 'Stronger' ? 'root' : s === 'Intermediate' ? 'causal' : 'non'}">${s}</span>` : '');
+        }
+      };
+      el.oninput = upd; el.onchange = upd;
+    });
+    card.querySelectorAll('[data-sm]').forEach(cb => cb.onchange = () => { a.sm[cb.dataset.sm] = cb.checked; });
+  });
+  app.querySelectorAll('[data-rm]').forEach(b => b.onclick = () => { S.actions = S.actions.filter(x => x.id !== b.dataset.rm); S.actionsChecked = false; renderActions(); });
+  document.getElementById('add').onclick = () => { S.actions.push(newAction()); S.actionsChecked = false; renderActions(); };
+  document.getElementById('chk').onclick = () => { S.actionsChecked = true; const y = window.scrollY; renderActions(); window.scrollTo(0, y); setTimeout(() => { const r = document.getElementById('aresult'); if (r) r.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 50); };
+  const toSum = document.getElementById('toSum'); if (toSum) toSum.onclick = () => go('summary');
+}
+
+// ---------------------------------------------------------------------
+// STEP: SUMMARY
+// ---------------------------------------------------------------------
+function elapsed() { const s = Math.round((Date.now() - S.start) / 1000); return Math.floor(s / 60) + ' min ' + (s % 60) + ' sec'; }
+function renderSummary() {
+  const roots = FINDINGS.filter(f => f.type === 'root');
+  const found = roots.filter(f => anyGathered(f.needs) && S.tags[f.id] && S.tags[f.id].type === 'root').length;
+  const recNames = RECORDS.filter(r => S.rec.has(r.id)).map(r => r.title);
+  const intNames = INTERVIEWS.filter(i => S.int.has(i.id)).map(i => i.role);
+  const levelLabel = CASE.expectedLevel === 'ACA' ? 'ACA (completed), compared with a model report' : S.level === 'ACA' ? 'ACA (completed), compared with a full analysis' : (S.triedACA ? 'ACA explored, then RCA' : 'RCA');
+  const actionRows = S.actions.filter(a => a.text.trim()).map((a, i) => {
+    const smChecked = SMARTIES.filter(x => a.sm[x.k]).map(x => x.name).join(', ') || 'None marked';
+    return `<tr><td>${i + 1}. ${esc(a.text)}</td><td>${a.cat ? strengthOf(a.cat) + '<br><span class="small">' + esc(a.cat) + '</span>' : ''}</td><td>${esc(a.owner)}<br><span class="small">${esc(a.due)}</span></td><td>${esc(a.measure)}</td><td class="small">${esc(smChecked)}</td></tr>`;
+  }).join('');
+  app.innerHTML = `
+  <div class="card">
+    <span class="step-label">Case ${CASE.num} Complete</span>
+    <h2 class="title">Comprehensive Safety Analysis Summary</h2>
+    <div class="nameline noprint"><label for="nm"><strong>Your name (for the printed summary):</strong></label><input type="text" id="nm" value="${esc(S.name)}"></div>
+    <p class="printonly"><strong>Student:</strong> <span id="nmPrint">${esc(S.name)}</span></p>
+    <p class="small">HCA 880: Patient Safety and Risk &middot; Case ${CASE.num}: ${CASE.title} &middot; Time on task: ${elapsed()} &middot; ${new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
+    <table>
+      <tr><th style="width:30%">Step</th><th>Your work</th></tr>
+      <tr><td>SAC score</td><td>${SAC[S.prob][S.sev]} (${SEVERITY.find(s => s.key === S.sev).label} severity, ${PROBABILITY.find(p => p.key === S.prob).label} probability)</td></tr>
+      <tr><td>Level of analysis</td><td>${levelLabel}</td></tr>
+      <tr><td>Chart review</td><td>${recNames.length ? esc(recNames.join('; ')) : 'None'}</td></tr>
+      <tr><td>Interviews</td><td>${intNames.length ? esc(intNames.join('; ')) : 'None'}</td></tr>
+      ${CASE.expectedLevel === 'ACA' ? '' : `<tr><td>Root causes</td><td>${found} of ${roots.length} root causes identified by the review team were tagged by you</td></tr>`}
+    </table>
+    <h3 style="margin-top:22px;">Timeline from Your Fact Finding</h3>${timelineHTML()}
+    ${activeFindings().some(f => S.tags[f.id] && S.tags[f.id].type) ? `<h3 style="margin-top:22px;">Your Cause and Effect Diagram (read from top to bottom)</h3>${fishHTML()}` : ''}
+    ${S.aca.occ.trim() ? `<h3 style="margin-top:22px;">Your ACA Report</h3><table>${ACA_FIELDS.map(f => `<tr><td style="width:30%">${esc(f.label)}</td><td>${esc(S.aca[f.id])}</td></tr>`).join('')}</table>${S.aca.gaps.some(g => g.gap.trim()) ? `<table><tr><th>Gap #</th><th>Gap</th><th>Action</th><th>Owner</th><th>Due</th></tr>${S.aca.gaps.map((g, i) => g.gap.trim() ? `<tr><td class="num">${i + 1}</td><td>${esc(g.gap)}</td><td>${esc(g.action)}</td><td>${esc(g.owner)}</td><td>${esc(g.due)}</td></tr>` : '').join('')}</table>` : ''}` : ''}
+    ${actionRows ? `<h3 style="margin-top:22px;">Your Action Plan</h3><div class="tbl-scroll"><table><tr><th>Action</th><th>Strength</th><th>Owner and due</th><th>Measure</th><th>SMART(IES) marked</th></tr>${actionRows}</table></div>` : ''}
+    ${fb('A note on the people involved.', CASE.peopleNote)}
+    ${nav(`<button class="btn dark" id="print">Print or Save as PDF</button><button class="btn alt" id="restart">Start Over</button>`)}
+    <p class="small noprint" style="text-align:right;">In the print dialog, choose "Save as PDF" to create the file you will submit to your instructor.</p>
+  </div>`;
+  const nm = document.getElementById('nm');
+  nm.oninput = () => { S.name = nm.value; document.getElementById('nmPrint').textContent = nm.value; };
+  document.getElementById('print').onclick = () => window.print();
+  document.getElementById('restart').onclick = () => { if (confirm('Start over? Your work in this session will be cleared.')) location.reload(); };
+  try { if (window.parent !== window) window.parent.postMessage({ type: 'csa-complete', caseNum: CASE.num }, '*'); } catch (e) {}
+}
+
+// ---------------------------------------------------------------------
+// ROUTER
+// ---------------------------------------------------------------------
+function render() {
+  const s = S.step;
+  if (s === 'intro') renderIntro();
+  else if (s === 'harm') renderHarm();
+  else if (s === 'level') renderLevel();
+  else if (s === 'gather') renderGather(1);
+  else if (s === 'gather2') renderGather(2);
+  else if (s === 'timeline') renderTimeline();
+  else if (s === 'aca') renderACA();
+  else if (s === 'fishbone') renderFishbone();
+  else if (s === 'check') renderCheck();
+  else if (s === 'actions') renderActions();
+  else if (s === 'summary') renderSummary();
+}
+renderStepper();
+render();
+</script>
+</body>
+</html>
