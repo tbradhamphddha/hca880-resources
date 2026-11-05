@@ -678,6 +678,156 @@ CASE.acaSigFb = function (sig) {
 CASE.acaLimitsTitle = "What an ACA is likely to leave unexamined in this case.";
 CASE.teamActionsNote = "Weaker supporting actions: update the escalation policy to the new time-based rule and educate staff on it, which sets expectations but does not sustain change alone.";
 CASE.peopleNote = "The resident and the nurse in this event will likely experience what researchers call second victim syndrome: guilt, self-doubt, and distress after an event on their watch. They came to work to provide safe care, and they made decisions inside a culture that narrowed their options. A strong organizational response includes attending to their wellbeing, in addition to analyzing the system. A just culture and psychological safety are preventive measures, and they are also part of how an organization cares for its people after harm occurs.";
+// ---------------------------------------------------------------------
+// GUIDED ACA (used when CASE.acaGuided is present)
+// Students judge strong versus weak statements instead of writing them
+// from a blank page: apparent cause statements, gaps, and actions.
+// ---------------------------------------------------------------------
+const RATE_LABELS = { strong: 'Strong', partial: 'Needs work', weak: 'Weak' };
+function agInit() {
+  if (S.acaPhase) return;
+  S.acaPhase = 'cause'; S.acaRate = {}; S.acaRateChecked = false; S.acaAdopt = '';
+  S.acaGapSel = new Set(); S.acaGapChecked = false; S.acaActPick = {};
+}
+function agMgrBox() {
+  const mgr = MANAGER_REVIEW.map((m, i) => `<p><strong>${i + 1}. ${esc(m.q)}</strong><br>${esc(m.a)}</p>`).join('');
+  return `<details class="reveal"><summary class="hd" style="cursor:pointer;"><span>Manager Review received from the ${esc(CASE.managerRole)}</span><span class="tag">Open to reread</span></summary><div class="bd">${mgr}</div></details>`;
+}
+function agHead(part, title, intro) {
+  return `<span class="step-label">Step 5: ACA Report, Part ${part} of 4</span><h2 class="title">${title}</h2><p>${intro}</p>${agMgrBox()}`;
+}
+function agSetGaps() {
+  const G = CASE.acaGuided;
+  const real = G.gapCands.filter(g => g.kind === 'real');
+  S.aca.gaps = [0, 1, 2].map(i => {
+    const g = real[i]; if (!g) return { gap: '', action: '', owner: '', due: '' };
+    const a = g.actions[S.acaActPick[g.id]];
+    return a ? { gap: g.text, action: a.text, owner: a.owner, due: a.due } : { gap: g.text, action: '', owner: '', due: '' };
+  });
+}
+function renderACAGuided() {
+  agInit();
+  const ph = S.acaPhase;
+  if (ph === 'cause') return agCause();
+  if (ph === 'gaps') return agGaps();
+  if (ph === 'acts') return agActs();
+  return agWrite();
+}
+
+// Part 1: rate apparent cause statements, then adopt one
+function agCause() {
+  const G = CASE.acaGuided;
+  const rows = G.causeStmts.map((c, i) => {
+    const r = S.acaRate[c.id];
+    const radios = ['strong', 'partial', 'weak'].map(k => `<label style="margin-right:14px;white-space:nowrap;"><input type="radio" name="rate_${c.id}" data-rate="${c.id}" value="${k}" ${r === k ? 'checked' : ''} ${S.acaRateChecked ? 'disabled' : ''}> ${RATE_LABELS[k]}</label>`).join('');
+    let f = '';
+    if (S.acaRateChecked) {
+      const ok = r === c.rating;
+      f = ok ? fb('Your rating matches.', c.why, true) : fb(`Let's look at this one again (rated ${RATE_LABELS[c.rating]}).`, c.why);
+    }
+    return `<div class="box" style="margin:12px 0;"><strong>Statement ${String.fromCharCode(65 + i)}</strong><p style="margin:6px 0 10px;">${esc(c.text)}</p><div>${radios}</div>${f}</div>`;
+  }).join('');
+  const allRated = G.causeStmts.every(c => S.acaRate[c.id]);
+  let adopt = '';
+  if (S.acaRateChecked) {
+    const opts = G.causeStmts.map((c, i) => `<label class="pick"><input type="radio" name="adopt" data-adopt="${c.id}" ${S.acaAdopt === c.id ? 'checked' : ''}><span><span class="t">Statement ${String.fromCharCode(65 + i)}</span><br><span class="d">${esc(c.text.slice(0, 90))}...</span></span></label>`).join('');
+    const chosen = G.causeStmts.find(c => c.id === S.acaAdopt);
+    adopt = `<div class="question">Which statement will you put in your ACA Report as the Apparent Cause Statement?</div><div class="picks">${opts}</div>`;
+    if (chosen) adopt += chosen.rating === 'strong'
+      ? fb('That is the statement a reviewer can act on.', 'It names system conditions (what), explains why they allowed the event, and does not depend on one person being more careful next time.', true)
+      : fb(`Have you thought about whether this is the strongest choice?`, `This statement was rated ${RATE_LABELS[chosen.rating]}. A leader looks for the statement that names what happened in the system and why, so that the actions that follow can change the system. Reread your ratings and choose again.`);
+  }
+  app.innerHTML = `<div class="card">${agHead(1, 'Judge the Apparent Cause Statements', 'An Apparent Cause Statement says what system issues were identified, because of WHAT, because WHY. Read the six statements below. Rate each as Strong, Needs work, or Weak. A quick test for a leader: Does it name the system and not just a person? Does it explain why? Is it supported by what the review found? Could actions change it?')}
+    ${rows}
+    ${S.acaRateChecked ? adopt : ''}
+    ${nav(!S.acaRateChecked
+      ? `<button class="btn" id="agChk" ${allRated ? '' : 'disabled'}>Check My Ratings</button>`
+      : `<button class="btn alt" id="agRedo">Rate Again</button><button class="btn" id="agNext" ${S.acaAdopt && G.causeStmts.find(c => c.id === S.acaAdopt).rating === 'strong' ? '' : 'disabled'}>Continue to Gaps</button>`)}
+  </div>`;
+  app.querySelectorAll('[data-rate]').forEach(el => el.onchange = () => { S.acaRate[el.dataset.rate] = el.value; const b = document.getElementById('agChk'); if (b) b.disabled = !G.causeStmts.every(c => S.acaRate[c.id]); });
+  app.querySelectorAll('[data-adopt]').forEach(el => el.onchange = () => { S.acaAdopt = el.dataset.adopt; const y = window.scrollY; renderACAGuided(); window.scrollTo(0, y); });
+  const c = document.getElementById('agChk'); if (c) c.onclick = () => { S.acaRateChecked = true; renderACAGuided(); };
+  const r = document.getElementById('agRedo'); if (r) r.onclick = () => { S.acaRate = {}; S.acaRateChecked = false; S.acaAdopt = ''; renderACAGuided(); };
+  const n = document.getElementById('agNext'); if (n) n.onclick = () => { S.aca.cause = G.causeStmts.find(x => x.id === S.acaAdopt).text; S.acaPhase = 'gaps'; renderACAGuided(); window.scrollTo(0, 0); };
+}
+
+// Part 2: choose the real gaps
+function agGaps() {
+  const G = CASE.acaGuided;
+  const items = G.gapCands.map(g => {
+    const sel = S.acaGapSel.has(g.id);
+    let f = '';
+    if (S.acaGapChecked) {
+      const real = g.kind === 'real';
+      if (real && sel) f = fb('A gap worth carrying forward.', g.why, true);
+      else if (real && !sel) f = fb('This one is missing from your list.', g.why);
+      else if (!real && sel) f = fb(`Let's look at this one again.`, g.why);
+      else f = fb('Left out, and that fits.', g.why, true);
+    }
+    return `<div style="margin:10px 0;"><label class="pick"><input type="checkbox" data-gap-sel="${g.id}" ${sel ? 'checked' : ''} ${S.acaGapChecked ? 'disabled' : ''}><span><span class="t">${esc(g.text)}</span></span></label>${f}</div>`;
+  }).join('');
+  const realSet = G.gapCands.filter(g => g.kind === 'real').map(g => g.id);
+  const match = realSet.length === S.acaGapSel.size && realSet.every(id => S.acaGapSel.has(id));
+  app.innerHTML = `<div class="card">${agHead(2, 'Choose the Gaps Worth Acting On', 'The gap table lists issues in the system that, if fixed, would reduce the chance of the event happening again. Select the statements below that belong in your gap table. Some describe system gaps. Others blame a person, are too vague to act on, or do not help explain how the event happened.')}
+    ${items}
+    ${S.acaGapChecked ? (match ? fb('Your list is ready.', 'You kept the gaps a leader can fix and left out the ones that blame people, stay vague, or do not explain the event.', true) : fb('Adjust your selection and check again.', 'Use the notes above to see which statements to add or remove.')) : ''}
+    ${nav(!S.acaGapChecked
+      ? `<button class="btn" id="agGChk" ${S.acaGapSel.size ? '' : 'disabled'}>Check My Gaps</button>`
+      : (match ? `<button class="btn" id="agGNext">Continue to Actions for Each Gap</button>` : `<button class="btn alt" id="agGRedo">Change My Selection</button>`))}
+  </div>`;
+  app.querySelectorAll('[data-gap-sel]').forEach(el => el.onchange = () => { el.checked ? S.acaGapSel.add(el.dataset.gapSel) : S.acaGapSel.delete(el.dataset.gapSel); const b = document.getElementById('agGChk'); if (b) b.disabled = !S.acaGapSel.size; });
+  const c = document.getElementById('agGChk'); if (c) c.onclick = () => { S.acaGapChecked = true; renderACAGuided(); };
+  const r = document.getElementById('agGRedo'); if (r) r.onclick = () => { S.acaGapChecked = false; renderACAGuided(); };
+  const n = document.getElementById('agGNext'); if (n) n.onclick = () => { S.acaPhase = 'acts'; renderACAGuided(); window.scrollTo(0, 0); };
+}
+
+// Part 3: pick the action that best closes each gap
+function agActs() {
+  const G = CASE.acaGuided;
+  const real = G.gapCands.filter(g => g.kind === 'real');
+  const blocks = real.map((g, gi) => {
+    const pick = S.acaActPick[g.id];
+    const opts = g.actions.map((a, ai) => `<label class="pick"><input type="radio" name="act_${g.id}" data-act="${g.id}" data-ai="${ai}" ${pick === ai ? 'checked' : ''}><span><span class="t">${esc(a.text)}</span></span></label>`).join('');
+    let f = '';
+    if (pick !== undefined) {
+      const a = g.actions[pick];
+      f = a.strength === 'Stronger'
+        ? fb('This is the strongest of these actions.', `${a.why} <em>Action Hierarchy: ${a.strength}.</em>`, true)
+        : fb(`This one is ${a.strength === 'Weaker' ? 'a weaker action' : 'an intermediate action'}.`, `${a.why} <em>Action Hierarchy: ${a.strength}.</em> A quick test for a leader: does the action still depend on someone remembering? If so, look for an option that changes the equipment or the process.`);
+    }
+    return `<div class="box" style="margin:14px 0;"><strong>Gap ${gi + 1}</strong><p style="margin:6px 0 10px;">${esc(g.text)}</p><div class="picks">${opts}</div>${f}</div>`;
+  }).join('');
+  const all = real.every(g => S.acaActPick[g.id] !== undefined);
+  app.innerHTML = `<div class="card">${agHead(3, 'Choose the Action for Each Gap', 'For each gap, choose the action you would put in the report. The options range from weaker to stronger on the RCA2 Action Hierarchy. As leaders, y\'all will not always have the strongest option available, but you should be able to tell the difference and know what you are accepting.')}
+    ${blocks}
+    ${nav(`<button class="btn" id="agAN" ${all ? '' : 'disabled'}>Continue to Write the Report</button>`)}
+  </div>`;
+  app.querySelectorAll('[data-act]').forEach(el => el.onchange = () => { S.acaActPick[el.dataset.act] = +el.dataset.ai; agSetGaps(); const y = window.scrollY; renderACAGuided(); window.scrollTo(0, y); });
+  const n = document.getElementById('agAN'); if (n) n.onclick = () => { agSetGaps(); S.acaPhase = 'write'; renderACAGuided(); window.scrollTo(0, 0); };
+}
+
+// Part 4: write the remaining narrative sections, then compare
+function agWrite() {
+  const free = ACA_FIELDS.filter(f => f.id !== 'cause');
+  const ready = () => free.every(f => S.aca[f.id].trim().length >= (f.id === 'staffing' ? 5 : 20));
+  const sig = S.aca.significance;
+  const fields = free.map(f => `
+    <div class="question">${f.label}</div><div class="helper">${f.help}</div>
+    <textarea data-aca="${f.id}" aria-label="${esc(f.label)}">${esc(S.aca[f.id])}</textarea>
+    ${S.acaCompared ? `<div class="box"><strong>A model response:</strong> ${esc(ACA_MODEL[f.id])}</div>` : ''}
+    ${S.acaCompared && f.id === 'significance' ? CASE.acaSigFb(sig) : ''}`).join('');
+  const rows = S.aca.gaps.map((g, i) => g.gap ? `<tr><td class="num">${i + 1}</td><td>${esc(g.gap)}</td><td>${esc(g.action)}</td><td>${esc(g.owner)}</td><td>${esc(g.due)}</td></tr>` : '').join('');
+  app.innerHTML = `<div class="card">${agHead(4, 'Write the Rest of the Report', 'You chose the Apparent Cause Statement, the gaps, and the actions. Now write the narrative sections in your own words. Keep your answers free of names and protected health information.')}
+    <div class="box"><strong>Your Apparent Cause Statement:</strong> ${esc(S.aca.cause)}</div>
+    <div class="tbl-scroll"><table><tr><th>Gap #</th><th>Gap</th><th>Action</th><th>Owner</th><th>Due</th></tr>${rows}</table></div>
+    ${fields}
+    ${S.acaCompared ? fb(CASE.acaLimitsTitle, `<ul style="margin:6px 0 0;padding-left:20px;">${ACA_LIMITS.map(l => `<li>${l}</li>`).join('')}</ul>`) : ''}
+    ${nav(!S.acaCompared ? `<button class="btn" id="cmp" ${ready() ? '' : 'disabled'}>Compare with a Model Report</button>` : `<button class="btn" id="toAct">Continue to Actions</button>`)}
+  </div>`;
+  app.querySelectorAll('[data-aca]').forEach(t => t.oninput = () => { S.aca[t.dataset.aca] = t.value; const c = document.getElementById('cmp'); if (c) c.disabled = !ready(); });
+  const cmp = document.getElementById('cmp'); if (cmp) cmp.onclick = () => { S.acaCompared = true; const y = window.scrollY; renderACAGuided(); window.scrollTo(0, y); };
+  const toAct = document.getElementById('toAct'); if (toAct) toAct.onclick = () => go('actions');
+}
 // =====================================================================
 // ENGINE
 // =====================================================================
@@ -989,6 +1139,7 @@ function acaReady() {
     g0.gap.trim().length >= 10 && g0.action.trim().length >= 10;
 }
 function renderACA() {
+  if (CASE.acaGuided) return renderACAGuided();
   const dueOpts = `<option value="">Due date</option>` + DUE_OPTIONS.map(d => `<option value="${d}">${d}</option>`).join('');
   const sig = S.aca.significance;
   let sigFb = '';
