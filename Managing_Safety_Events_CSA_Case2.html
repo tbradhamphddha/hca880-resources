@@ -1,0 +1,1459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Comprehensive Safety Analysis Workbench: Case 2</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&family=Spectral:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  /* Edgewood web palette: Edgewood Red, Black, White, Dark Gold, Medium Gold, Dark Web Grey, Warm Web Grey */
+  :root {
+    --red: #BB0000;
+    --red-dark: #930000;
+    --black: #000000;
+    --white: #FFFFFF;
+    --gold: #C8932B;
+    --gold-med: #CEB06A;
+    --grey: #58595B;
+    --warm: #F0EEEB;
+    --gold-wash: #FAF4E6;
+    --line: #D9D5CF;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Source Sans 3', 'Source Sans Pro', Arial, sans-serif;
+    background: var(--warm);
+    color: var(--black);
+    margin: 0;
+    line-height: 1.6;
+    font-size: 17px;
+  }
+  h1, h2, h3, h4 { font-family: 'Spectral', Georgia, serif; line-height: 1.25; }
+  .wrap { max-width: 920px; margin: 0 auto; padding: 0 20px 60px; }
+
+  /* Resource header (inside the constraining wrapper) */
+  .resource-header {
+    background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
+    color: var(--white);
+    padding: 0.8rem 1.5rem;
+    display: flex; align-items: center; gap: 1rem;
+    position: relative;
+    margin: 0 -20px;
+  }
+  .resource-header::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px;
+    background: linear-gradient(90deg, var(--red) 0%, var(--red) 33%, var(--gold) 33%, var(--gold) 66%, var(--gold-med) 66%, var(--gold-med) 100%);
+  }
+  .resource-header-logo { height: 40px; width: auto; border-radius: 4px; flex-shrink: 0; }
+  .resource-header-text { flex: 1; min-width: 0; }
+  .resource-header-course { font-size: 0.65rem; font-weight: 600; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold); line-height: 1.2; }
+  .resource-header-title { font-size: 1.05rem; font-weight: 600; color: var(--white); line-height: 1.3; }
+  .resource-header-back {
+    flex-shrink: 0; display: flex; align-items: center; gap: 0.3rem; font-size: 0.78rem;
+    color: #E6E3DE; text-decoration: none; padding: 0.35rem 0.7rem; border-radius: 4px; white-space: nowrap;
+  }
+  .resource-header-back:hover { color: var(--white); background: rgba(255,255,255,0.1); }
+  .resource-header-back svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2; }
+  @media (max-width: 600px) {
+    .resource-header { flex-wrap: wrap; padding: 0.7rem 1rem; gap: 0.6rem; }
+    .resource-header-back { order: -1; width: 100%; padding: 0.2rem 0; font-size: 0.72rem; }
+    .resource-header-title { font-size: 0.95rem; }
+  }
+  .accent-bar { height: 6px; background: var(--red); margin: 0 -20px; }
+
+  /* Stepper */
+  .stepper { display: flex; gap: 6px; margin: 22px 0 6px; flex-wrap: wrap; }
+  .stepper .st {
+    flex: 1 1 100px; font-size: 0.74rem; font-weight: 600; text-transform: uppercase; letter-spacing: .6px;
+    color: var(--grey); border-top: 4px solid var(--line); padding-top: 6px;
+  }
+  .stepper .st.done { border-top-color: var(--gold); color: var(--black); }
+  .stepper .st.now { border-top-color: var(--red); color: var(--red); }
+
+  .card {
+    background: var(--white); border: 1px solid var(--line); border-radius: 6px;
+    padding: 24px 26px; margin-top: 18px; box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  }
+  .step-label {
+    display: inline-block; background: var(--gold); color: var(--white); font-size: 0.78rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 1px; padding: 3px 10px; border-radius: 3px; margin-bottom: 10px;
+  }
+  .title { font-size: 1.45rem; margin: 0 0 12px; }
+  .lead { font-size: 1.05rem; }
+  .vignette {
+    background: var(--warm); border-left: 4px solid var(--gold); padding: 14px 18px; border-radius: 4px; margin: 14px 0 18px; font-size: 0.98rem;
+  }
+  .question { font-weight: 700; margin: 16px 0 4px; font-size: 1.05rem; }
+  .helper { font-size: 0.92rem; color: var(--grey); margin: 4px 0 12px; }
+  .box {
+    background: var(--warm); border: 1px solid var(--line); border-radius: 4px; padding: 12px 16px; margin: 14px 0; font-size: 0.92rem; color: var(--grey);
+  }
+  .box strong { color: var(--black); }
+  .box ul { margin: 6px 0 0; padding-left: 20px; }
+  .box li { margin-bottom: 3px; }
+  .pswp {
+    background: var(--gold-wash); border: 1px solid var(--gold-med); border-left: 4px solid var(--gold);
+    border-radius: 4px; padding: 10px 14px; font-size: 0.88rem; margin: 14px 0;
+  }
+
+  /* Option buttons */
+  .options { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; }
+  .opt {
+    flex: 1 1 200px; background: var(--white); border: 2px solid var(--grey); color: var(--black);
+    font-family: inherit; font-size: 0.97rem; font-weight: 600; padding: 12px 16px; border-radius: 5px;
+    cursor: pointer; text-align: left; transition: all .15s ease;
+  }
+  .opt small { display: block; font-weight: 400; color: var(--grey); margin-top: 2px; font-size: 0.82rem; }
+  .opt:hover:not(:disabled) { background: var(--black); color: var(--white); border-color: var(--black); }
+  .opt:hover:not(:disabled) small { color: #E6E3DE; }
+  .opt.chosen { background: var(--black); border-color: var(--black); color: var(--white); }
+  .opt.chosen small { color: #E6E3DE; }
+  .opt:disabled { cursor: default; }
+  .opt:disabled:not(.chosen) { opacity: .5; }
+  .opt:focus-visible, .btn:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, .pick:focus-within {
+    outline: 3px solid var(--gold); outline-offset: 2px;
+  }
+
+  .feedback {
+    margin-top: 16px; padding: 14px 18px; border-radius: 5px; font-size: 0.97rem;
+    background: var(--warm); border-left: 4px solid var(--gold); animation: fadein .25s ease;
+  }
+  .feedback.strong { border-left-color: var(--black); }
+  .feedback .lbl { font-weight: 700; display: block; margin-bottom: 4px; }
+  @keyframes fadein { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+  .nav { display: flex; justify-content: flex-end; gap: 10px; margin-top: 22px; flex-wrap: wrap; }
+  .btn {
+    background: var(--red); color: var(--white); border: none; font-family: inherit; font-size: 1rem; font-weight: 700;
+    padding: 11px 26px; border-radius: 5px; cursor: pointer;
+  }
+  .btn:hover:not(:disabled) { background: var(--red-dark); }
+  .btn:disabled { background: var(--line); color: var(--grey); cursor: not-allowed; }
+  .btn.alt { background: transparent; color: var(--grey); border: 2px solid var(--grey); padding: 9px 22px; }
+  .btn.alt:hover:not(:disabled) { background: var(--grey); color: var(--white); }
+  .btn.dark { background: var(--black); }
+  .btn.dark:hover:not(:disabled) { background: #333; }
+
+  /* Tables */
+  table { width: 100%; border-collapse: collapse; font-size: 0.9rem; margin-top: 10px; }
+  th, td { border: 1px solid var(--line); padding: 7px 10px; text-align: left; vertical-align: top; }
+  th { background: var(--black); color: var(--white); font-family: 'Spectral', Georgia, serif; font-weight: 600; }
+  tr:nth-child(even) td { background: var(--warm); }
+  td.num { text-align: center; font-weight: 700; }
+  td.hot { background: var(--gold-wash) !important; outline: 2px solid var(--red); outline-offset: -2px; font-weight: 700; }
+  .tbl-scroll { overflow-x: auto; }
+
+  /* Pick lists (records, interviews, gaps) */
+  .picklist { display: grid; gap: 8px; margin-top: 10px; }
+  .pick {
+    display: flex; gap: 12px; align-items: flex-start; border: 1px solid var(--line); border-radius: 5px; padding: 10px 14px;
+    background: var(--white); cursor: pointer;
+  }
+  .pick:hover { border-color: var(--grey); }
+  .pick input { margin-top: 5px; width: 18px; height: 18px; accent-color: var(--red); flex-shrink: 0; }
+  .pick .t { font-weight: 600; }
+  .pick .d { font-size: 0.85rem; color: var(--grey); }
+  .pick.disabled { opacity: .5; cursor: not-allowed; }
+  .counter { font-size: 0.9rem; font-weight: 700; color: var(--red); }
+
+  /* Reveal panels */
+  .reveal { border: 1px solid var(--line); border-radius: 5px; margin-top: 12px; overflow: hidden; background: var(--white); }
+  .reveal > .hd { background: var(--black); color: var(--white); padding: 8px 14px; font-weight: 600; font-size: 0.93rem; display: flex; justify-content: space-between; gap: 10px; }
+  .reveal > .hd .tag { color: var(--gold-med); font-weight: 400; font-size: 0.8rem; }
+  .reveal > .bd { padding: 12px 16px; font-size: 0.93rem; }
+  .reveal > .bd p { margin: 0 0 8px; }
+  .reveal .mono { font-family: Consolas, Menlo, monospace; font-size: 0.84rem; background: var(--warm); padding: 8px 10px; border-radius: 4px; display: block; margin: 6px 0; }
+  .reveal .quote { border-left: 3px solid var(--gold-med); padding-left: 12px; font-style: italic; }
+  .reveal .ynote { margin-top: 8px; font-size: 0.85rem; color: var(--grey); }
+
+  /* Timeline */
+  .tl { border-left: 3px solid var(--grey); margin: 12px 0 4px 8px; padding-left: 0; }
+  .tl .ev { position: relative; padding: 4px 0 10px 22px; }
+  .tl .ev::before { content: ''; position: absolute; left: -9px; top: 10px; width: 14px; height: 14px; border-radius: 50%; background: var(--white); border: 3px solid var(--black); }
+  .tl .ev.gap::before { border-color: var(--red); background: var(--red); }
+  .tl .ev .tm { font-weight: 700; font-family: 'Spectral', Georgia, serif; }
+  .tl .ev.gap { color: var(--red); font-weight: 600; }
+  .tl .ev .src { font-size: 0.78rem; color: var(--grey); }
+
+  /* Cause and effect chain (reads top to bottom) */
+  .chain { display: flex; flex-direction: column; align-items: stretch; }
+  .chain-head { background: var(--black); color: var(--white); border-radius: 6px; padding: 12px 16px; font-family: 'Spectral', Georgia, serif; font-size: 1rem; text-align: center; }
+  .chain-head small { display: block; font-family: 'Source Sans 3', 'Source Sans Pro', sans-serif; font-size: 0.7rem; letter-spacing: .12em; text-transform: uppercase; color: var(--gold-med); margin-bottom: 2px; }
+  .chain .link { text-align: center; font-size: 1.3rem; line-height: 1.1; color: var(--grey); padding: 4px 0; }
+  .tier { border: 1px solid var(--line); border-left: 6px solid var(--grey); border-radius: 4px; padding: 10px 14px; background: var(--warm); }
+  .tier.prox { border-left-color: var(--black); }
+  .tier.causal { border-left-color: var(--gold); }
+  .tier.root { border-left-color: var(--red); }
+  .tier h5 { margin: 0 0 8px; font-family: 'Spectral', Georgia, serif; font-size: 0.95rem; }
+  .tier .item { margin: 0 0 7px; line-height: 1.4; font-size: 0.93rem; }
+  .fish { margin-top: 14px; border: 1px solid var(--line); border-radius: 6px; background: var(--white); padding: 14px; }
+  .chip { display: inline-block; font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: .4px; padding: 1px 6px; border-radius: 3px; margin-right: 5px; vertical-align: 1px; }
+  .chip.root { background: var(--red); color: var(--white); }
+  .chip.causal { background: var(--gold); color: var(--white); }
+  .chip.prox { background: var(--black); color: var(--white); }
+  .chip.non { background: var(--line); color: var(--grey); }
+  .chip.none { background: var(--white); border: 1px dashed var(--grey); color: var(--grey); }
+  .chip.cat { background: var(--white); border: 1px solid var(--grey); color: var(--grey); }
+
+  .cmp-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; align-items: start; }
+  .cmp-grid h4 { margin: 16px 0 0; font-family: 'Spectral', Georgia, serif; font-size: 1.05rem; }
+  .cmp-grid .fish { margin-top: 8px; }
+  .chip.lock { background: var(--gold-wash); border: 1px dashed var(--gold); color: var(--black); }
+  /* Finding cards */
+  .fcard { border: 1px solid var(--line); border-radius: 5px; padding: 12px 14px; margin-top: 10px; background: var(--white); }
+  .fcard.locked { background: var(--warm); color: var(--grey); }
+  .fcard .ft { font-size: 0.97rem; margin-bottom: 8px; }
+  .fcard .row { display: flex; gap: 10px; flex-wrap: wrap; }
+  .fcard label { font-size: 0.78rem; font-weight: 700; color: var(--grey); text-transform: uppercase; letter-spacing: .4px; display: block; }
+  select, input[type=text], input[type=number], textarea {
+    font-family: inherit; font-size: 0.93rem; border: 2px solid var(--grey); border-radius: 4px; padding: 7px 9px; background: var(--white); color: var(--black); width: 100%;
+  }
+  textarea { min-height: 74px; resize: vertical; }
+  td select { min-width: 104px; }
+  .fcard .col { flex: 1 1 200px; }
+
+  /* Action cards */
+  .acard { border: 1px solid var(--line); border-top: 4px solid var(--red); border-radius: 5px; padding: 14px 16px; margin-top: 14px; background: var(--white); }
+  .acard .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 8px; }
+  @media (max-width: 640px) { .acard .grid2 { grid-template-columns: 1fr; } }
+  .acard label.fl { font-size: 0.78rem; font-weight: 700; color: var(--grey); text-transform: uppercase; letter-spacing: .4px; display: block; margin: 8px 0 3px; }
+  .smart { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-top: 8px; }
+  @media (max-width: 640px) { .smart { grid-template-columns: repeat(2, 1fr); } }
+  .smart label { font-size: 0.85rem; display: flex; gap: 6px; align-items: center; border: 1px solid var(--line); border-radius: 4px; padding: 5px 8px; cursor: pointer; background: var(--warm); }
+  .smart input { accent-color: var(--red); width: 16px; height: 16px; }
+  .rm { background: none; border: none; color: var(--red); font-weight: 700; cursor: pointer; float: right; font-family: inherit; }
+
+  .stat { display: inline-block; background: var(--red); color: var(--white); font-family: 'Spectral', Georgia, serif; font-size: 1.6rem; font-weight: 700; padding: 10px 26px; border-radius: 6px; margin: 8px 0; }
+  .small { font-size: 0.85rem; color: var(--grey); }
+  .printonly { display: none; }
+  .nameline { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin: 12px 0; }
+  .nameline input { max-width: 340px; }
+
+  .resource-footer { text-align: center; padding: 1.5rem; font-size: 0.75rem; color: var(--grey); border-top: 1px solid var(--line); background: var(--white); margin: 40px -20px -60px; }
+  .resource-footer a { color: var(--grey); text-decoration: underline; }
+
+  @media print {
+    body { background: #fff; font-size: 11pt; }
+    .resource-header, .accent-bar, .stepper, .nav, .noprint, .resource-footer, .btn, .rm { display: none !important; }
+    .card { box-shadow: none; border: none; padding: 0; margin-top: 10px; }
+    .printonly { display: block; }
+    .wrap { max-width: none; padding: 0; }
+    .reveal, .acard, .fish, .fcard, .tier { break-inside: avoid; }
+    th { background: #000 !important; color: #fff !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .chip, .chain-head, .stat { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="resource-header">
+    <img class="resource-header-logo" src="eu_logo_primary.jpg" alt="Edgewood University">
+    <div class="resource-header-text">
+      <div class="resource-header-course">HCA 880: Patient Safety and Risk</div>
+      <div class="resource-header-title">Comprehensive Safety Analysis Workbench: Case 2</div>
+    </div>
+    <a class="resource-header-back" href="index.html">
+      <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+      Course Home
+    </a>
+  </header>
+  <div class="accent-bar"></div>
+
+  <div id="stepper" class="stepper" aria-label="Progress"></div>
+  <div id="app" aria-live="polite"></div>
+
+  <footer class="resource-footer">
+    &copy; 2026 Edgewood University &middot; Henry Predolin College of Health Sciences<br>
+    <a href="https://www.edgewood.edu" target="_blank" rel="noopener">edgewood.edu</a>
+  </footer>
+</div>
+
+<script>
+// =====================================================================
+// CASE DATA: CASE 2 (STEMI: Delayed Escalation)
+// All chart entries and interview notes below are fictional teaching
+// material written to stay consistent with the Case 2 event description.
+// No real patients, staff, or organizations are represented.
+// =====================================================================
+const CASE = {
+  num: 2,
+  title: "STEMI: Delayed Escalation",
+  expectedLevel: "RCA",
+  vignette: `A 71-year-old patient with a history of hypertension and diabetes is admitted to the intensive care unit following an acute exacerbation of congestive heart failure. On the second day of admission, the patient reports new onset chest pressure radiating to the left arm, rated 7 out of 10. The bedside nurse administers acetaminophen per standing orders and reassesses 45 minutes later. The patient's pain has not improved and the nurse documents the complaint in the chart. A second-year resident reviews the chart remotely, orders a basic metabolic panel and cardiac enzymes, and notes the complaint. An EKG is obtained by the telemetry tech and transmitted to the system. The EKG reveals ST-elevation in leads II, III, and aVF, consistent with an acute inferior wall myocardial infarction. The result is available in the electronic health record for 38 minutes before anyone acts on it. The attending cardiologist is paged twice and does not respond. The resident does not attempt additional contact and does not activate the rapid response team or the facility's STEMI protocol. The nurse, aware that the cardiologist has not responded and that the patient's condition is worsening, does not escalate through available channels. The patient progresses to hemodynamic instability, a code blue is called, and the patient expires despite resuscitative efforts.`,
+  eventName: "38-minute delay in treating an acute inferior STEMI; patient death"
+};
+
+// ---------------------------------------------------------------------
+// SAC MATRIX (RCA2 Appendix 1)
+// ---------------------------------------------------------------------
+const SEVERITY = [
+  { key: "catastrophic", label: "Catastrophic", desc: "Death or major permanent loss of function not related to the natural course of the illness" },
+  { key: "major", label: "Major", desc: "Permanent lessening of function, disfigurement, or surgical intervention required" },
+  { key: "moderate", label: "Moderate", desc: "Increased length of stay or increased level of care for one or two patients" },
+  { key: "minor", label: "Minor", desc: "No injury, no increased length of stay, no increased level of care" }
+];
+const PROBABILITY = [
+  { key: "frequent", label: "Frequent", desc: "Likely to occur immediately or within a short period (several times in 1 year)" },
+  { key: "occasional", label: "Occasional", desc: "Probably will occur (several times in 1 to 2 years)" },
+  { key: "uncommon", label: "Uncommon", desc: "Possible to occur (sometime in 2 to 5 years)" },
+  { key: "remote", label: "Remote", desc: "Unlikely to occur (sometime in 5 to 30 years)" }
+];
+const SAC = {
+  frequent:   { catastrophic: 3, major: 3, moderate: 2, minor: 1 },
+  occasional: { catastrophic: 3, major: 2, moderate: 1, minor: 1 },
+  uncommon:   { catastrophic: 3, major: 2, moderate: 1, minor: 1 },
+  remote:     { catastrophic: 3, major: 2, moderate: 1, minor: 1 }
+};
+
+// ---------------------------------------------------------------------
+// LEVEL OF ANALYSIS
+// ---------------------------------------------------------------------
+const LEVELS = [
+  { key: "none", label: "No CSA needed", sub: "Track and trend the event" },
+  { key: "ACA", label: "Apparent Cause Analysis (ACA)", sub: "A less formal review for less significant events" },
+  { key: "CCA", label: "Common Cause Analysis (CCA)", sub: "A review across several similar events" },
+  { key: "RCA", label: "Root Cause Analysis (RCA)", sub: "A formal, in-depth review (RCA2)" }
+];
+
+// ---------------------------------------------------------------------
+// CHART REVIEW ITEMS
+// ---------------------------------------------------------------------
+const RECORDS = [
+  { id: "r_nursing", title: "Nursing notes and vital signs flowsheet", sub: "Night shift, 01:00 to 03:36",
+    body: `<span class="mono">01:50  Patient reports new chest pressure radiating to left arm, 7/10.<br>01:55  Acetaminophen 650 mg PO given per standing PRN pain order.<br>02:40  Reassessed. Pain unchanged at 7/10. HR 96, BP 148/88, RR 20, SpO2 94% on 2 L. Documented in chart.<br>03:20  Pain 8/10, diaphoretic. Resident aware, awaiting cardiology callback. HR 112, BP 112/70, RR 24, SpO2 92%.<br>03:33  HR 128, BP 78/40, SpO2 88%.</span><p>Observations: no provider notification is documented at 01:50 or 02:40 (documentation entries only). The flowsheet has no entries between 03:20 and 03:33.</p>` },
+  { id: "r_orders", title: "Physician orders and order audit trail", sub: "Resident and attending orders for this admission day",
+    body: `<span class="mono">02:46  Orders entered by PGY-2 (remote workstation): basic metabolic panel, troponin.<br>02:58  12-lead EKG performed by telemetry technician. Entered as "tech-initiated per unit practice, chest pain on board."</span><p>Observations: no provider entered an EKG order. No STEMI alert, rapid response activation, or cardiology consult order appears before the code blue at 03:36.</p>` },
+  { id: "r_ekg", title: "12-lead EKG tracing and result audit trail", sub: "Tracing, machine read, and who opened it",
+    body: `<span class="mono">02:58  Tracing acquired and filed to the EHR.<br>Machine read: ST elevation in II, III, aVF. Consider acute inferior MI.<br>Result opened: 03:02 (PGY-2); 03:08 (bedside RN).<br>Automated critical-result alert: not triggered (tracing filed without an ordering provider).</span><p>Observations: two clinicians opened the tracing within ten minutes of filing.</p>` },
+  { id: "r_paging", title: "Paging and secure messaging log", sub: "Hospital pager and secure chat, 02:45 to 03:45",
+    body: `<span class="mono">03:04  Page #1, PGY-2 to cardiology on-call attending (hospital pager). Delivered. No callback.<br>03:08  Secure message, RN to PGY-2: "EKG looks like a STEMI. Pain 8/10, sweaty. Any word from cards?"<br>03:09  PGY-2 reply: "Paged him, waiting for callback."<br>03:19  Page #2, PGY-2 to cardiology on-call attending. Delivered. No callback.<br>03:38  Charge RN calls attending's mobile phone (during code).<br>03:41  Attending returns the call.</span><p>Observations: no page or call to a backup cardiology contact, the STEMI line, the cath lab, or the rapid response line before 03:36. The attending's mobile number is on the unit's informal contact sheet but is not in the on-call directory.</p>` },
+  { id: "r_code", title: "Code blue record", sub: "Resuscitation details and outcome",
+    body: `<span class="mono">03:36  Code blue called. Rhythm: ventricular fibrillation.<br>ACLS per protocol, 3 defibrillations, epinephrine per protocol. Return of circulation not achieved.<br>04:12  Death pronounced.</span><p>This record documents the resuscitation and outcome. It does not add detail about the period before 03:36.</p>` },
+  { id: "r_stemi_policy", title: "STEMI protocol policy", sub: "Hospital-wide policy",
+    body: `<p><strong>Activation:</strong> Any licensed clinician (physician, advanced practice provider, or RN) who identifies ST elevation on a 12-lead EKG, or who has high clinical suspicion, may activate the STEMI alert by calling the operator (ext. 5-STEMI). Cardiology on-call and the cath lab team are notified at the same time. Activation does not require attending approval.</p><p><strong>Response:</strong> The cath lab team is expected to arrive within 30 minutes of activation.</p><p><strong>Protection:</strong> Staff who activate in good faith will not be subject to retaliation.</p>` },
+  { id: "r_rrt_policy", title: "Rapid Response Team (RRT) policy", sub: "Hospital-wide policy",
+    body: `<p>Any staff member may activate the RRT for patient deterioration, new chest pain with abnormal findings, or when concerned about a patient. Activation does not require physician approval. Good-faith activations are protected and will not result in adverse action.</p>` },
+  { id: "r_escalation", title: "Physician notification and chain of command policy", sub: "Hospital-wide policy",
+    body: `<p>Staff notify the attending of record of critical changes in a patient's condition. If the attending is unavailable, staff use the chain of command (resident, nursing supervisor, department chair).</p><p>Observations: the policy does not set a time limit for an unanswered page and does not name a backup on-call contact for cardiology.</p>` },
+  { id: "r_mar", title: "MAR and standing orders", sub: "Acetaminophen order and administration",
+    body: `<p>Standing order: acetaminophen 650 mg PO every 6 hours PRN pain. One dose given at 01:55, within the order and the labeled dose range.</p><p>Observations: the standing order contains no exclusion or prompt for chest pressure and is not linked to an EKG or a provider call.</p>` },
+  { id: "r_hp", title: "Admission history and physical, and problem list", sub: "Baseline clinical picture",
+    body: `<p>71-year-old admitted with an acute exacerbation of congestive heart failure. Hypertension and type 2 diabetes. Symptoms improving on diuresis. No prior myocardial infarction documented.</p>` },
+  { id: "r_staffing", title: "ICU staffing and assignment sheet", sub: "Night shift",
+    body: `<p>12 beds, 6 RNs (1:2 ratio, within unit target), 1 charge RN, 1 telemetry technician. The resident cross-covers the ICU and two floors from a remote workstation. At 03:00 the charge RN was receiving an admission from the ED in bed 8.</p>` },
+  { id: "r_prior", title: "Event reporting system: prior reports from this unit", sub: "Last 24 months, escalation and speaking up",
+    body: `<p>Two reports in the last 14 months describe a nurse or resident who "was told not to call rapid response on cardiology patients without calling the attending first," or who "was spoken to in front of colleagues after an activation."</p><p>Both are marked "Reviewed with department leadership; closed." No owner, action plan, or follow-up is documented for either report.</p>` },
+  { id: "r_face", title: "Registration and billing face sheet", sub: "Demographics and insurance",
+    body: `<p>Insurance carrier, contact information, and billing codes. This document contains no clinical information.</p>` }
+];
+
+// ---------------------------------------------------------------------
+// INTERVIEWS (paraphrased interview notes)
+// ---------------------------------------------------------------------
+const INTERVIEWS = [
+  { id: "i_rn", role: "Bedside RN", sub: "ICU nurse, 6 years on the unit",
+    body: `<p class="quote">I gave the Tylenol that was ordered and charted it, because that is what we do for a pain complaint, and I expected the resident to see the note. When it did not help, I charted again. The tech told me the EKG looked bad, so I opened it. It was a STEMI pattern and I knew it. I messaged the resident and he said he had paged cardiology.</p><p class="quote">I thought about calling a rapid response. Last spring a colleague called one on a cardiology patient and the attending told her in front of everyone that she should have called him first. She was talked to about "communication" afterward. I have never seen a nurse here activate the STEMI line.</p><p class="quote">I stayed in the room, put the pads on, and got the crash cart ready, so I did not chart between 3:20 and 3:33. I kept waiting for the callback.</p>` },
+  { id: "i_res", role: "Resident (PGY-2)", sub: "Covering the ICU and two floors",
+    body: `<p class="quote">I saw the chest pressure in the chart and ordered labs. I did not enter an EKG order because I assumed the tech would get one, since they usually do for chest pain. When the tracing came through I knew it was an inferior STEMI. I paged the attending at 3:04 and again at 3:19.</p><p class="quote">I did not call the STEMI line because I was not sure I should activate it on a cardiology attending's patient without his okay. A few weeks ago I called the interventional fellow directly about a different patient and was told to go through my attending. I thought about the STEMI line at 3:10 and again at 3:25 and talked myself out of it both times. I know the policy says I can. I did not feel that I could.</p>` },
+  { id: "i_att", role: "Cardiology attending", sub: "On call from home",
+    body: `<p class="quote">The hospital pager stays on the charger by my bed at night, and I did not hear either page. The unit has my mobile number and most people use it, but it is not in the on-call directory. The first I knew was the charge nurse calling me at 3:38.</p><p class="quote">I have never told anyone not to call a rapid response or the STEMI line. I do expect to be called first on my own patients, because I want to be the one deciding about the cath lab. I have said that out loud, and I can see how it might land differently with a junior nurse or resident.</p>` },
+  { id: "i_tech", role: "Telemetry technician", sub: "Obtained the 12-lead EKG",
+    body: `<p class="quote">I saw chest pain on the unit board and did a 12-lead, which is what I would want done. The machine read it as an inferior MI. I told the nurse in the room, "You need to look at this one," and filed it.</p><p class="quote">I do not know whom I am supposed to call about an EKG like that. Nothing in my job description covers it, and the tracing just goes to the chart. I heard nothing else until the code.</p>` },
+  { id: "i_charge", role: "Charge RN", sub: "Night shift",
+    body: `<p class="quote">I was in bed 8 taking an admission from the ED. No one told me about bed 4 until the code. If someone had, I would have called the rapid response; I have done it before. I am not sure the bedside nurses feel they can.</p><p class="quote">The charge nurse is not named anywhere in the chest pain or escalation steps, so nobody expects to call me.</p>` },
+  { id: "i_mgr", role: "ICU unit manager", sub: "Day shift manager for the unit",
+    body: `<p class="quote">I know about the two reports. Both times I took them to department leadership and was told it would be addressed with the individual. I never heard back, and I did not know who had the authority to act on it.</p><p class="quote">We do not have a process for what happens to those reports once they are closed. I do not think staff trust that escalating will be safe.</p>` },
+  { id: "i_peer", role: "Peer ICU RN (Substitution Test)", sub: "Asked what they would have done in the same situation",
+    body: `<p class="quote">I would probably have waited for the callback too. Most of us would. We have learned that calling a rapid response or the STEMI line on cardiology's patient without the attending's okay comes with a cost. Nobody has to say it out loud. We have all seen it.</p><p class="ynote">The reviewer asked several staff on this unit and an adjacent unit the same question. Almost all gave a similar answer, citing past experiences of negative repercussions from the cardiology attending.</p>` },
+  { id: "i_cath", role: "Cath lab on-call team lead", sub: "Interventional team that night",
+    body: `<p class="quote">We were on standby all night and had no STEMI activation. If the STEMI line had been called at 3:00 we would have had the team in the lab by 3:30. The line rings in three places at once, so no one has to wait on anyone else's callback.</p>` }
+];
+
+// ---------------------------------------------------------------------
+// TIMELINE (an entry appears once any of its sources has been gathered)
+// ---------------------------------------------------------------------
+const TIMELINE = [
+  { t: "01:50", text: "Patient reports new chest pressure radiating to the left arm, 7/10.", needs: ["r_nursing", "i_rn"] },
+  { t: "01:55", text: "RN gives acetaminophen 650 mg PO per the standing PRN pain order.", needs: ["r_nursing", "r_mar", "i_rn"] },
+  { t: "02:40", text: "RN reassesses: pain unchanged at 7/10; documents in the chart. No provider notification is documented.", needs: ["r_nursing"] },
+  { t: "02:46", text: "PGY-2 reviews the chart from a remote workstation and orders a basic metabolic panel and troponin. No provider enters an EKG order.", needs: ["r_orders", "i_res"] },
+  { t: "02:58", text: "Telemetry tech obtains a 12-lead EKG on unit practice; tracing is filed to the EHR; the machine read shows inferior ST elevation.", needs: ["r_ekg", "r_orders", "i_tech"] },
+  { t: "03:02", text: "PGY-2 opens the EKG.", needs: ["r_ekg"] },
+  { t: "03:04", text: "PGY-2 sends page #1 to the cardiology attending. No callback.", needs: ["r_paging", "i_res"] },
+  { t: "03:08", text: "RN opens the EKG and messages the PGY-2; the PGY-2 replies that cardiology is paged and he is waiting.", needs: ["r_paging", "r_ekg", "i_rn"] },
+  { t: "03:19", text: "PGY-2 sends page #2. No callback.", needs: ["r_paging", "i_res"] },
+  { t: "03:20", text: "RN charts pain 8/10, diaphoresis, HR 112, BP 112/70.", needs: ["r_nursing"] },
+  { t: "03:20 to 03:33", text: "No charted vital signs during this period.", needs: ["r_nursing"], gap: true },
+  { t: "03:33", text: "HR 128, BP 78/40, SpO2 88%.", needs: ["r_nursing"] },
+  { t: "03:36", text: "Code blue called. This is 38 minutes after the EKG was filed to the EHR.", needs: ["r_code", "r_paging", "r_nursing"] },
+  { t: "03:38 to 03:41", text: "Charge RN calls the attending's mobile phone; the attending returns the call.", needs: ["r_paging", "i_att", "i_charge"] },
+  { t: "04:12", text: "Death pronounced after resuscitation.", needs: ["r_code"] }
+];
+
+// ---------------------------------------------------------------------
+// GAP CANDIDATES (student marks which questions remain open)
+// resolvedBy: any one gathered source answers the question
+// ---------------------------------------------------------------------
+const GAPS = [
+  { id: "g1", text: "Whether the resident or the nurse had authority to activate the STEMI protocol or the rapid response team without the attending's approval.",
+    resolvedBy: ["r_stemi_policy", "r_rrt_policy", "i_cath", "i_charge"], answer: "Pull the STEMI protocol policy and the RRT policy." },
+  { id: "g2", text: "Why the attending did not answer two pages.",
+    resolvedBy: ["i_att"], answer: "Interview the cardiology attending; the paging log shows only that the pages were delivered." },
+  { id: "g3", text: "Whether staff on this unit had experienced consequences for escalating past an attending.",
+    resolvedBy: ["i_rn", "i_res", "i_peer", "i_mgr", "r_prior"], answer: "Interview frontline staff (bedside RN, resident, a peer) and review prior event reports." },
+  { id: "g4", text: "What was happening at the bedside between 03:20 and 03:33, when no vital signs were charted.",
+    resolvedBy: ["i_rn"], answer: "Interview the bedside RN." },
+  { id: "g5", text: "Whether a cath lab team was available overnight if the STEMI line had been called.",
+    resolvedBy: ["i_cath", "r_stemi_policy"], answer: "Interview the cath lab on-call team lead or pull the STEMI protocol policy." },
+  { id: "g6", text: "Why an EKG was done when no provider had ordered one.",
+    resolvedBy: ["i_tech"], answer: "Interview the telemetry technician." },
+  { id: "g7", text: "Whether staffing or workload on the unit contributed to the delay.",
+    resolvedBy: ["r_staffing"], answer: "Pull the ICU staffing and assignment sheet." },
+  { id: "g8", text: "Whether concerns about escalation had been reported before, and what happened to those reports.",
+    resolvedBy: ["r_prior", "i_mgr"], answer: "Review the event reporting system for prior reports and interview the unit manager." },
+  { id: "g9", text: "Whether the EKG result was visible to the team once it was filed.",
+    resolvedBy: ["r_ekg", "r_paging"], answer: "Pull the EKG result audit trail or the paging and secure messaging log." },
+  { id: "g10", text: "The patient's insurance carrier and billing history.", distractor: true,
+    why: "Billing information would not change how we understand the causes of this event." },
+  { id: "g11", text: "Whether the acetaminophen dose exceeded the maximum daily dose.", distractor: true,
+    why: "One 650 mg dose is well within labeled limits, so the dose itself does not help explain the delay." }
+];
+
+// ---------------------------------------------------------------------
+// FISHBONE: categories, types, and findings
+// ---------------------------------------------------------------------
+const CATS = [
+  { key: "comm", label: "Communication" },
+  { key: "policy", label: "Policies and Procedures" },
+  { key: "culture", label: "Culture and Leadership" },
+  { key: "training", label: "Training and Competency" },
+  { key: "staff", label: "Staffing and Workload" },
+  { key: "env", label: "Environment and Technology" }
+];
+// HPI Taxonomy of System Failure Mechanisms (SFM), Appendix F-2. Applies to root causes only.
+const SFM = [
+  { key: "P", label: "Process", items: [
+    { code: "P1", label: "Omitted Actions", d: "key activity is missing or incomplete" },
+    { code: "P2", label: "Excessive Actions", d: "contains low-value activities" },
+    { code: "P3", label: "Poorly Sequenced", d: "poor flow, excessive branching of work process activities" },
+    { code: "P4", label: "Inadequate Interface", d: "lack of or poorly designed handoffs of information, resources, or products" },
+    { code: "P5", label: "Inadequate Checks", d: "lack of or poorly designed checks, inspections, or reviews" } ] },
+  { key: "D", label: "Policy and Protocol", items: [
+    { code: "D1", label: "Lacking or Informal", d: "no policy or protocol" },
+    { code: "D2", label: "Usability", d: "poor presentation or information depiction, low credibility, poor access" },
+    { code: "D3", label: "Understandability", d: "difficult to comprehend because guidance detail is lacking or inadequate for the knowledge and skill level of the user" },
+    { code: "D4", label: "Knowledge in Environment", d: "inadequate or under-utilized job aids, forcing functions" } ] },
+  { key: "T", label: "Technology and Environment", items: [
+    { code: "T1", label: "Input / Output", d: "visual display, alarms, control configuration" },
+    { code: "T2", label: "Human Capability", d: "symbols, codes, anthropometry, devices, human control, physical work" },
+    { code: "T3", label: "Arrangement", d: "physical arrangement of work space, department, facility, or campus negatively impacting performance" },
+    { code: "T4", label: "Environment", d: "lighting, noise, climate, motion negatively impacting performance" } ] },
+  { key: "S", label: "Structure", items: [
+    { code: "S1", label: "Structure Model", d: "wrong model, incompatible missions" },
+    { code: "S2", label: "Inadequate Job Function", d: "overlap or gaps in roles, responsibilities, or expectations" },
+    { code: "S3", label: "Resource Allocation", d: "insufficient infrastructure, people, budget, equipment, or other resources" },
+    { code: "S4", label: "Collaboration Mechanisms", d: "wrong or inadequate collaboration mechanisms" },
+    { code: "S5", label: "Inadequate Structure", d: "span of control, levels of leadership, leveraging positions and experience" } ] },
+  { key: "C", label: "Culture", items: [
+    { code: "C1", label: "Inadequate Vision or Mission", d: "lacking or poorly executed mission" },
+    { code: "C2", label: "Operational Leadership", d: "lacking or inadequate command, prioritization, or assignment in response to emergent or emerging issues" },
+    { code: "C3", label: "Non-Collaboration", d: "disruptive competition, defensiveness, poor teamwork, low morale" },
+    { code: "C4", label: "High Reliability Environment", d: "setting does not incorporate error prevention expectations (consciousness, critical thinking, compliance, competency, communication)" } ] }
+];
+function sfmObj(key) { const g = SFM.find(x => x.key === key); return g ? { code: g.key, group: g.label, label: g.label, items: g.items, d: g.items.map(i => i.label + ' (' + i.d + ')').join('; ') } : null; }
+const TYPES = [
+  { key: "prox", label: "Proximate cause", short: "Proximate", help: "An action or happening that should not have occurred and that contributes directly to the event." },
+  { key: "causal", label: "Causal factor", short: "Causal factor", help: "A condition in the work system that shapes or contributes to a proximate cause." },
+  { key: "root", label: "Root cause", short: "Root cause", help: "The most significant causal factor that, if corrected, would prevent recurrence." },
+  { key: "non", label: "Not causal (context)", short: "Context", help: "Information that is true and worth knowing but does not explain the event." }
+];
+const FINDINGS = [
+  { id: "f1", flow: 2, text: "The resident did not activate the STEMI protocol or the rapid response team after two unanswered pages.",
+    needs: ["r_paging", "i_res", "r_orders"], type: "prox", cats: ["comm", "culture"],
+    why: "This is the act that sits closest to the outcome, so it explains what happened. The next question is what made waiting feel safer than activating." },
+  { id: "f2", flow: 3, text: "The bedside nurse did not activate the rapid response team.",
+    needs: ["r_nursing", "i_rn", "r_paging"], type: "prox", cats: ["comm", "culture"],
+    why: "Like the resident's choice, this is a proximate act. Rule 5 of the Five Rules of Causation reminds us that a failure to act is causal only when a duty to act existed, and here the policy gave the nurse that duty and the authority. The question is what stood between the policy and the action." },
+  { id: "f3", flow: 1, text: "The attending cardiologist did not answer two pages.",
+    needs: ["r_paging", "i_att"], type: "prox", cats: ["comm"],
+    why: "Not answering is a proximate event. Before settling on it, consider why the pages did not reach him (the pager was on a charger, and his mobile number was not in the directory) and why no backup contact existed." },
+  { id: "f4", sfm: ["C"], flow: 2, text: "A shared unit expectation, learned from past experiences, that escalating past the cardiology attending carries personal consequences led the resident and nurse to wait for a callback instead of activating the STEMI team, which increased the likelihood that a confirmed STEMI would go untreated.",
+    needs: ["i_rn", "i_res", "i_peer", "i_mgr", "r_prior"], type: "root", cats: ["culture"],
+    why: "Several independent sources point to the same pattern, it is within leaders' control to change, and it explains why two clinicians who knew the policy and saw the EKG still waited. In Westrum's terms, this is a culture that discourages messengers; in Edmondson's terms, psychological safety was absent." },
+  { id: "f5", sfm: ["C"], flow: 3, text: "Reports describing discouragement of escalation were closed without an owner, an action plan, or follow-up, so the unit expectation persisted and increased the likelihood that clinicians would hesitate to escalate during a STEMI.",
+    needs: ["r_prior", "i_mgr"], type: "root", cats: ["culture", "policy"],
+    why: "The organization had information about this pattern before the event and no process that turned it into action. That makes it a leadership-controlled condition that, if corrected, would reduce the chance of recurrence." },
+  { id: "f6", sfm: ["D"], flow: 1, text: "The escalation policy sets no time limit for an unanswered page and names no backup on-call cardiology contact, which left each clinician to decide how long to wait and increased the likelihood that a STEMI would go untreated while clinicians waited for a callback.",
+    needs: ["r_escalation", "r_paging", "i_res"], type: "root", cats: ["policy"],
+    why: "With no time limit and no backup, the decision about how long to wait fell to each clinician's judgment, and waiting became the default. The condition is proven by the policy text, and leaders can change it." },
+  { id: "f7", flow: 1, text: "The on-call directory lists the hospital pager only; the attending's mobile number was known informally.",
+    needs: ["i_att", "r_paging"], type: "causal", cats: ["comm"],
+    why: "This condition shaped the unanswered pages, which is a proximate cause. It is worth fixing, but a better directory alone would not have changed the staff expectation that kept the STEMI line from being called." },
+  { id: "f8", flow: 4, text: "The standing PRN pain order contains no prompt for chest pressure to trigger a 12-lead EKG or a provider call.",
+    needs: ["r_mar", "r_nursing"], type: "causal", cats: ["policy"],
+    why: "This condition increased the likelihood that new chest pressure would be handled as a pain complaint. It contributed to the early part of the timeline, though it does not explain the 38-minute delay after the EKG was available." },
+  { id: "f9", flow: 3, text: "No pathway exists for calling out a critical EKG; the tracing goes to the chart.",
+    needs: ["i_tech", "r_ekg"], type: "causal", cats: ["comm"],
+    why: "This is a communication condition that shaped how information moved. Both clinicians opened the tracing within ten minutes, so it did not prevent the information from arriving." },
+  { id: "f10", flow: 2, text: "The chest pain and escalation steps include no role for the charge nurse, so the charge nurse was not told about the patient.",
+    needs: ["i_charge"], type: "causal", cats: ["policy", "comm"],
+    why: "The charge nurse said she would have activated the rapid response, so her absence from the steps removed a person who felt able to escalate. That is a condition shaping the proximate causes." },
+  { id: "f11", flow: 1, text: "The patient was 71 with hypertension and diabetes and was admitted with heart failure.",
+    needs: ["r_hp"], type: "non", cats: ["env", "staff", "comm", "policy", "culture", "training"],
+    why: "These facts raise the patient's baseline risk and belong in the case description. They do not explain why treatment of a confirmed STEMI was delayed." },
+  { id: "f12", flow: 2, text: "Staffing met the unit's target ratios that night.",
+    needs: ["r_staffing"], type: "non", cats: ["staff"],
+    why: "Ruling out a hypothesis is useful work, and it belongs on the diagram so readers can see what was examined. Staffing met targets, and activating the STEMI line takes one phone call." },
+  { id: "f13", flow: 3, text: "The EKG was filed to the EHR and opened by two clinicians within ten minutes.",
+    needs: ["r_ekg", "r_paging"], type: "non", cats: ["env"],
+    why: "The technology worked and the information reached the people who needed it. The delay lay in what happened next, not in whether the result could be seen." },
+  { id: "f14", flow: 4, text: "The acetaminophen was given at a labeled dose and within the standing order.",
+    needs: ["r_mar"], type: "non", cats: ["policy", "env"],
+    why: "The dose and timing followed the order. The question about the order itself (no chest pressure prompt) is captured in a separate finding." },
+  { id: "f15", flow: 5, text: "A cath lab team was on standby and could have arrived within 30 minutes of a STEMI activation.",
+    needs: ["i_cath", "r_stemi_policy"], type: "non", cats: ["env", "policy"],
+    why: "This shows the barrier that was available and unused. It is context that makes the delay more significant, but it does not explain why the line was not called." }
+];
+
+// ---------------------------------------------------------------------
+// FIVE RULES OF CAUSATION (RCA2 Appendix 6)
+// ---------------------------------------------------------------------
+const FIVE_RULES = [
+  "Clearly shows the cause and effect relationship.",
+  "Uses specific and accurate descriptors, and avoids negative or vague words such as poor, inadequate, careless, or failed.",
+  "Treats any human error as having a preceding cause.",
+  "Treats any violation of procedure as having a preceding cause, and does not name the violation itself as a root cause.",
+  "Describes a failure to act only where a pre-existing duty to act existed."
+];
+const TEAM_STATEMENTS = [
+  { id: "rc1", cause: "A unit expectation, learned from past experiences, that escalating past the cardiology attending would bring a negative response",
+    effect: "led the resident and the nurse to wait for a callback instead of activating the STEMI line or the rapid response team, both of which policy allows without attending approval",
+    event: "increasing the likelihood that a confirmed STEMI would go untreated for an extended period." },
+  { id: "rc2", cause: "Reports describing discouragement of escalation were closed with no owner, action plan, or follow-up",
+    effect: "so the pattern continued and staff had no reason to expect that escalating would be safe",
+    event: "increasing the likelihood that clinicians would defer to the attending instead of escalating during a time-critical emergency." },
+  { id: "rc3", cause: "The escalation policy sets no time limit for an unanswered page and names no backup cardiology contact",
+    effect: "leaving the decision about how long to wait to each clinician's judgment and making waiting the default",
+    event: "increasing the likelihood that a critical result would sit while a page went unanswered." }
+];
+
+// ---------------------------------------------------------------------
+// ACA PATH: the unit manager's review (six-question Manager Review
+// Template) and the analyst's Apparent Cause Analysis Report
+// ---------------------------------------------------------------------
+const MANAGER_REVIEW = [
+  { q: "What happened? Tell me step by step what happened. The details help us understand exactly what happened.",
+    a: "Overnight, a 71-year-old ICU patient reported new chest pressure at about 01:50. The RN gave acetaminophen per the standing order and reassessed at 02:40 with no change. The resident reviewed the chart remotely and ordered labs. A telemetry tech obtained a 12-lead EKG at 02:58 that showed inferior ST elevation. The resident and the RN both opened it. The cardiology attending was paged at 03:04 and 03:19 with no callback. The STEMI line and the rapid response team were not called. The patient became unstable, a code blue was called at 03:36, and the patient died at 04:12." },
+  { q: "What should have happened? What should the process look like?",
+    a: "New chest pressure should lead to a 12-lead EKG and a call to the provider. Once ST elevation was seen, the STEMI line should have been called right away. Any staff member can call the STEMI line, and any staff member can call the rapid response team." },
+  { q: "Why did the expected process not occur? What was different this day?",
+    a: "The resident and the RN both said they were waiting for the attending to call back. The attending's pager was on a charger overnight and his mobile number is not in the on-call directory. The charge RN was admitting a patient in another room and was not told." },
+  { q: "What was implemented or done right after the event to assure safety?",
+    a: "Code blue and resuscitation. The family was told what happened. The unit held a debrief the next morning, and peer support was offered to the resident and the nurse." },
+  { q: "Please share your thoughts on why this event occurred and your ideas on how we can prevent recurrence.",
+    a: "I think the pages did not reach the attending. We could add his mobile number to the directory, add a backup cardiologist, and remind everyone that the STEMI line is open to all. I also hear staff say they do not feel they can call past an attending, and I am not sure what to do about that." },
+  { q: "Please provide staffing details: core, float, agency, staffed to grid, short staffed, or similar details.",
+    a: "Staffed to grid. Six RNs at 1:2, one charge RN, and one telemetry tech, all core staff. No float or agency. The resident cross-covered the ICU and two floors." }
+];
+
+const ACA_FIELDS = [
+  { id: "occ", label: "Description of Occurrence", help: "What happened? What was the outcome?" },
+  { id: "immediate", label: "Immediate and Remedial Actions Taken", help: "What actions were taken to address conditions adverse to quality?" },
+  { id: "cause", label: "Apparent Cause Statement", help: "What was included in the investigation? What system issues were identified, because of WHAT, because WHY?" },
+  { id: "significance", label: "Significance and Possible Extent of Condition", help: "What was the potential for harm? What is the extent of condition? Are there trends, or is this a repeat event? Was the level of analysis appropriate, or should this be escalated to a higher level of cause analysis?" },
+  { id: "staffing", label: "Staffing Details", help: "Core, float, agency, or contract staff." }
+];
+const ACA_MODEL = {
+  occ: "A 71-year-old ICU patient admitted with heart failure developed new chest pressure at 01:50. After acetaminophen, pain was unchanged at 02:40. A 12-lead EKG at 02:58 showed inferior ST elevation and was opened by the resident (03:02) and the RN (03:08). The cardiology attending was paged at 03:04 and 03:19 with no callback, and the STEMI line and rapid response team were not activated. The patient became unstable, a code blue was called at 03:36, and the patient died at 04:12.",
+  immediate: "Resuscitation per ACLS. Family communication began under the organization's CANDOR process. Records were secured as patient safety work product. Peer support was offered to the resident and the nurse. The unit held a debrief, and leaders reminded staff that any clinician may activate the STEMI line or the rapid response team.",
+  cause: "The investigation included the unit manager's review, the chart and order audit, the paging log, and the STEMI, rapid response, and escalation policies. Apparent cause: the attending's pager did not reach him (pager on a charger, mobile number not in the directory), and the escalation policy sets no time limit or backup, so the resident and the nurse waited for a callback instead of activating the STEMI line.",
+  significance: "Potential for harm: catastrophic (a death occurred). Extent of condition: staff report hesitation to call past an attending, and prior event reports describe the same pattern, so this is likely a repeat condition and may extend beyond this unit. The level of analysis was not appropriate. A death is a sentinel event with a SAC score of 3, and the evidence of a shared pattern calls for escalation to an RCA.",
+  staffing: "Staffed to grid with all core staff: 6 RNs at 1:2, 1 charge RN, 1 telemetry tech. The resident cross-covered the ICU and two floors."
+};
+const ACA_GAPS_MODEL = [
+  { gap: "The on-call directory lists the pager only, and no backup cardiology contact exists.", action: "Add the attending's mobile number and a backup cardiologist to the directory.", owner: "Cardiology Service Line Director", due: "30 days" },
+  { gap: "The escalation policy sets no time limit for an unanswered page.", action: "Revise the policy to a 10-minute rule with an automatic re-page.", owner: "Chief Medical Information Officer", due: "90 days" },
+  { gap: "Staff report not feeling able to call past an attending.", action: "Refer the event for a Root Cause Analysis to examine unit culture and prior reports.", owner: "Patient Safety Manager", due: "30 days" }
+];
+const ACA_LIMITS = [
+  "The shared expectation across the unit surfaced only because several independent staff were interviewed and prior reports were reviewed. An ACA built on one manager review is likely to stop at the unanswered pages.",
+  "The leadership gap (reports closed with no action) appears only when prior event reports are examined.",
+  "The actions that follow an apparent cause tend to be weaker (directory updates and reminders) and leave the underlying expectation in place.",
+  "A death is a sentinel event with a SAC score of 3, and accreditation requirements call for a comprehensive systematic analysis. The Significance and Possible Extent of Condition section of the ACA Report is where an analyst recommends escalation."
+];
+
+// ---------------------------------------------------------------------
+// ACTION HIERARCHY (RCA2 Action Hierarchy)
+// ---------------------------------------------------------------------
+const HIERARCHY = [
+  { group: "Stronger", cats: ["Architectural or physical plant change", "Forcing function or engineering control", "Simplify the process or remove unnecessary steps", "Standardize equipment or process", "Tangible involvement by leadership"] },
+  { group: "Intermediate", cats: ["Redundancy", "Increase staffing or decrease workload", "Software enhancement or modification", "Eliminate or reduce distractions", "Simulation-based training with periodic refreshers", "Checklist or cognitive aid", "Eliminate look-alikes and sound-alikes", "Standardized communication tool", "Enhanced documentation or communication"] },
+  { group: "Weaker", cats: ["Double check", "Warning", "New procedure, memorandum, or policy", "Training"] }
+];
+function strengthOf(cat) {
+  for (const g of HIERARCHY) if (g.cats.indexOf(cat) >= 0) return g.group;
+  return "";
+}
+const DUE_OPTIONS = ["30 days", "60 days", "90 days", "120 days", "180 days"];
+
+const SMARTIES = [
+  { k: "S", name: "Specific", q: "Does the action say what will change, where, and who is responsible?" },
+  { k: "M", name: "Measurable", q: "Does the measure state what will be measured, for how long, and the expected level of compliance?" },
+  { k: "A", name: "Attainable", q: "Can the organization carry this out with the resources, authority, and time available?" },
+  { k: "R", name: "Relevant", q: "Does the action connect directly to a root cause you identified?" },
+  { k: "T", name: "Timely", q: "Does the action have a due date, and is there a date when it will be measured?" },
+  { k: "I", name: "Inclusive", q: "Were frontline staff, patients or families, and the people who do the work involved in shaping it?" },
+  { k: "E", name: "Equitable", q: "Does it work across shifts, roles, and abilities, and does it avoid shifting burden onto the people with the least power?" },
+  { k: "Sf", name: "Safe", q: "Could the action create new hazards or burdens, and have you looked for them?" }
+];
+
+const TEAM_ACTIONS = [
+  { rc: "A unit expectation that escalating past the attending brings a negative response",
+    action: "Add automatic STEMI activation: any 12-lead EKG with a machine-read acute STEMI pattern pages the STEMI team and cardiology on-call at once, so activation no longer depends on one person's decision to escalate.",
+    cat: "Forcing function or engineering control", strength: "Stronger", owner: "Cardiology Service Line Director", due: "90 days",
+    measure: "In testing, 100% of EKGs with a STEMI pattern generate an automatic alert. For 6 months, audit monthly: at least 95% of STEMI EKGs reach the STEMI team within 5 minutes." },
+  { rc: "A unit expectation that escalating past the attending brings a negative response",
+    action: "Executive leaders (CMO and CNO) round weekly on the ICU for 12 weeks, ask staff about their experiences escalating, and return a documented response to each concern within 7 days.",
+    cat: "Tangible involvement by leadership", strength: "Stronger", owner: "Chief Medical Officer", due: "30 days",
+    measure: "12 of 12 weekly rounds completed; 100% of concerns have a documented response within 7 days; staff speaking-up survey item repeated at 6 months with an agreed target." },
+  { rc: "Reports about discouraging escalation were closed with no owner or follow-up",
+    action: "Standardize the response to every speaking-up or retaliation report: a named senior leader reviews within 14 days, assigns an owner and action plan, and returns the outcome to the reporter.",
+    cat: "Standardize equipment or process", strength: "Stronger", owner: "Chief Medical Officer", due: "60 days",
+    measure: "100% of speaking-up reports reviewed within 14 days with a documented owner, tracked monthly for 12 months and reported to the Quality Committee." },
+  { rc: "The escalation policy sets no time limit and names no backup",
+    action: "Build time-based escalation into the paging system: an unanswered critical page automatically re-pages after 10 minutes and then alerts the backup on-call cardiologist.",
+    cat: "Forcing function or engineering control", strength: "Stronger", owner: "Chief Medical Information Officer", due: "120 days",
+    measure: "In testing, 100% of simulated unanswered critical pages escalate to the backup at 10 minutes. Review monthly for 6 months: at least 95% of unanswered critical pages escalate on time." },
+  { rc: "Staff expectation and escalation steps (supporting action)",
+    action: "Run quarterly simulation drills on a STEMI scenario with an unresponsive attending, using a shared escalation script, with all ICU nurses, residents, and charge nurses.",
+    cat: "Simulation-based training with periodic refreshers", strength: "Intermediate", owner: "ICU Nurse Educator", due: "90 days",
+    measure: "At least 90% of ICU nurses, residents, and charge nurses complete a drill each quarter for 4 quarters; drill debriefs show activation within the target time." }
+];
+const IMMEDIATE_ACTIONS = "Immediate actions taken (before the analysis): resuscitation and disclosure to the family under the organization's CANDOR process; records secured as patient safety work product; peer support offered to the resident and nurse (second victim support); unit huddle to reinforce that any clinician may activate the STEMI line or rapid response team.";
+
+// Review team's cause and effect diagram (chains read: proximate cause, causal factors, root causes)
+const TEAM_CHAINS = [
+  { prox: 'f3', causal: ['f7'], root: ['f6'] },
+  { prox: 'f1', causal: ['f10'], root: ['f4', 'f5'] },
+  { prox: 'f2', causal: ['f9', 'f8'], root: ['f4'] }
+];
+const TEAM_CTX = ['f11', 'f12', 'f13', 'f14', 'f15'];
+// =====================================================================
+// ENGINE
+// =====================================================================
+const app = document.getElementById('app');
+const stepperEl = document.getElementById('stepper');
+
+const S = {
+  step: 'intro',
+  start: Date.now(),
+  sev: null, prob: null,
+  level: null, triedACA: false, levelTried: [],
+  rec: new Set(), int: new Set(),
+  pending: { rec: new Set(), int: new Set() },
+  gapsMarked: new Set(), gapsChecked: false,
+  tags: {}, chains: [], ctx: [], bphase: 'prox', pick: '', rules: {}, rulesWarned: {}, cats: {}, pickCat: '',
+  stmt: { cause: '', effect: '', event: '', rules: [false, false, false, false, false] }, stmtCompared: false,
+  aca: { occ: '', immediate: '', cause: '', significance: '', staffing: '', gaps: [{gap:'',action:'',owner:'',due:''},{gap:'',action:'',owner:'',due:''},{gap:'',action:'',owner:'',due:''}] }, acaCompared: false,
+  actions: [], actionsChecked: false, actionSeq: 0,
+  name: ''
+};
+
+const SECTIONS = [
+  { label: "Harm score", steps: ["harm"] },
+  { label: "Level of analysis", steps: ["level"] },
+  { label: "Fact finding", steps: ["gather", "timeline", "gather2"] },
+  { label: "Cause analysis", steps: ["aca", "fishbone", "check"] },
+  { label: "Actions", steps: ["actions"] },
+  { label: "Summary", steps: ["summary"] }
+];
+
+function esc(s) {
+  return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+function byId(list, id) { return list.find(x => x.id === id); }
+function gathered(id) { return S.rec.has(id) || S.int.has(id); }
+function anyGathered(ids) { return ids.some(gathered); }
+function srcName(id) { const r = byId(RECORDS, id) || byId(INTERVIEWS, id); return r ? (r.title || r.role) : id; }
+function typeObj(k) { return TYPES.find(t => t.key === k); }
+function catObj(k) { return CATS.find(c => c.key === k); }
+
+function renderStepper() {
+  let cur = SECTIONS.findIndex(s => s.steps.indexOf(S.step) >= 0);
+  if (S.step === 'intro') cur = -1;
+  stepperEl.innerHTML = SECTIONS.map((s, i) => {
+    const cls = i < cur ? 'done' : i === cur ? 'now' : '';
+    return `<div class="st ${cls}">${i + 1}. ${s.label}</div>`;
+  }).join('');
+}
+function go(step) {
+  S.step = step;
+  renderStepper();
+  render();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+function fb(label, body, strong) {
+  return `<div class="feedback${strong ? ' strong' : ''}"><span class="lbl">${label}</span>${body}</div>`;
+}
+function vignetteBox() { return `<div class="vignette"><strong>The Event:</strong> ${CASE.vignette}</div>`; }
+function nav(buttons) { return `<div class="nav">${buttons}</div>`; }
+
+// ---------------------------------------------------------------------
+// STEP: INTRO
+// ---------------------------------------------------------------------
+function renderIntro() {
+  app.innerHTML = `
+  <div class="card">
+    <span class="step-label">Case ${CASE.num}: ${CASE.title}</span>
+    <h2 class="title">Comprehensive Safety Analysis Workbench</h2>
+    <p class="lead">You are the patient safety manager. An event report has just reached your desk. In this workbench you decide how deeply to analyze it, gather the facts the way a review team would, work out the causes, and build an action plan.</p>
+    ${vignetteBox()}
+    <div class="box"><strong>What you will do</strong>
+      <ul>
+        <li>Score the level of harm with the SAC Matrix.</li>
+        <li>Decide whether a Comprehensive Safety Analysis (CSA) is needed, and at what level: ACA, CCA, or RCA.</li>
+        <li>Review the chart and interview staff, then build the timeline and identify gaps.</li>
+        <li>Complete an ACA template, or build a cause and effect diagram and test your root causes.</li>
+        <li>Write actions, rank their strength, and check them against the SMART(IES) criteria.</li>
+      </ul>
+    </div>
+    <div class="pswp"><strong>Confidential work product.</strong> In a real review, your documents are patient safety work product. Do not include protected health information or staff names in anything you write. All records and interviews here are fictional teaching material.</div>
+    <div class="pswp"><strong>Save your work before you close this page.</strong> Your responses live in your browser session only. At the end you will print or save a summary as a PDF to submit to your instructor.</div>
+    ${nav(`<button class="btn" id="go">Begin</button>`)}
+  </div>`;
+  document.getElementById('go').onclick = () => go('harm');
+}
+
+// ---------------------------------------------------------------------
+// STEP: HARM (SAC)
+// ---------------------------------------------------------------------
+function matrixHTML() {
+  const sevs = SEVERITY.map(s => s.key);
+  let rows = PROBABILITY.map(p => {
+    return `<tr><td><strong>${p.label}</strong></td>` + sevs.map(sv => {
+      const hot = S.prob === p.key && S.sev === sv;
+      return `<td class="num${hot ? ' hot' : ''}">${SAC[p.key][sv]}</td>`;
+    }).join('') + `</tr>`;
+  }).join('');
+  return `<div class="tbl-scroll"><table><tr><th>Probability</th>${SEVERITY.map(s => `<th>${s.label}</th>`).join('')}</tr>${rows}</table></div>`;
+}
+function renderHarm() {
+  const sevDone = !!S.sev, probDone = !!S.prob;
+  const sevOpts = SEVERITY.map(o => `<button class="opt${S.sev === o.key ? ' chosen' : ''}" data-sev="${o.key}" ${sevDone ? 'disabled' : ''}>${o.label}<small>${o.desc}</small></button>`).join('');
+  const probOpts = PROBABILITY.map(o => `<button class="opt${S.prob === o.key ? ' chosen' : ''}" data-prob="${o.key}" ${probDone ? 'disabled' : ''}>${o.label}<small>${o.desc}</small></button>`).join('');
+  let sevFb = '';
+  if (sevDone) {
+    sevFb = S.sev === 'catastrophic'
+      ? fb('That aligns with the SAC definition.', 'The SAC Matrix scores actual events by the patient\'s actual condition. A death that is not related to the natural course of the illness falls in the Catastrophic category.', true)
+      : fb('Let\'s look at the severity definitions together.', 'The SAC Matrix assigns severity from the patient\'s actual outcome. Reread the event: the patient died despite resuscitation, and the death followed a treatable condition that went untreated for 38 minutes. Which category describes an outcome like that?');
+  }
+  let probFb = '';
+  if (probDone) {
+    probFb = fb('Probability noted.', 'At Catastrophic severity, every probability category produces a SAC score of 3, so the score does not change here. Probability still matters for lower-severity events, and for deciding where else a similar event could occur.', true);
+  }
+  app.innerHTML = `
+  <div class="card">
+    <span class="step-label">Step 1</span>
+    <h2 class="title">Score the Level of Harm</h2>
+    ${vignetteBox()}
+    <div class="question">What is the severity of this event?</div>
+    <div class="helper">Use the Safety Assessment Code (SAC) Matrix from RCA2 Appendix 1. For actual events, assign severity from the patient's actual condition.</div>
+    <div class="options" id="sevOpts">${sevOpts}</div>
+    ${sevFb}
+    ${sevDone && S.sev !== 'catastrophic' ? nav(`<button class="btn alt" id="sevRetry">Try again</button>`) : ''}
+    ${sevDone && S.sev === 'catastrophic' ? `
+      <div class="question">How probable is a similar event at your organization?</div>
+      <div class="helper">If you do not have tracking data, the SAC guidance suggests asking the staff most familiar with the process for an informed estimate.</div>
+      <div class="options">${probOpts}</div>${probFb}` : ''}
+    ${probDone ? `
+      <h3 style="margin-top:22px;">SAC Matrix Result: ${SAC[S.prob][S.sev]} (highest risk)</h3>
+      ${matrixHTML()}
+      ${fb('One more dimension to keep in mind.', 'The SAC Matrix guides how you spend your analysis resources, and your accrediting body and organizational policy operate alongside it. A patient death that is not related to the natural course of the illness is also a sentinel event, which carries its own requirement for a comprehensive systematic analysis.')}
+      ${nav(`<button class="btn" id="next">Decide the Level of Analysis</button>`)}` : ''}
+  </div>`;
+  app.querySelectorAll('[data-sev]').forEach(b => b.onclick = () => { S.sev = b.dataset.sev; renderHarm(); });
+  app.querySelectorAll('[data-prob]').forEach(b => b.onclick = () => { S.prob = b.dataset.prob; renderHarm(); });
+  const retry = document.getElementById('sevRetry'); if (retry) retry.onclick = () => { S.sev = null; renderHarm(); };
+  const next = document.getElementById('next'); if (next) next.onclick = () => go('level');
+}
+
+// ---------------------------------------------------------------------
+// STEP: LEVEL OF ANALYSIS
+// ---------------------------------------------------------------------
+function levelFeedback(key) {
+  if (key === 'none') return fb('Let\'s explore that more.', 'Tracking and trending suits events with a low SAC score and no unanswered question about cause. This event scored 3, and a death is a sentinel event. Without an analysis, the conditions that allowed the delay would stay in place. Have you thought about what the organization would learn, and what it would miss, if it only counted this event?');
+  if (key === 'ACA') return fb('That is one way to view this.', 'An Apparent Cause Analysis is a less formal process used for less significant events. It asks what happened, what should have happened, and why the expected process did not occur, usually from a few conversations. Consider the SAC score and the sentinel event status: would a less formal review satisfy the organization and its accrediting body? You can reconsider, or complete an ACA to see what it surfaces and compare it with a full analysis.');
+  if (key === 'CCA') return fb('Let\'s think about what a CCA needs.', 'A Common Cause Analysis looks across several similar events to find the causes they share. You have one event in hand. The Substitution Test pattern suggests this condition may exist beyond this unit, so a CCA could be a useful follow-up across units, which links to the idea of transportability. For this event, though, you need a deeper look at a single death first. Which level fits that?');
+  return fb('Your choice aligns with the evidence.', 'A SAC score of 3 and a sentinel event call for a comprehensive systematic analysis. An RCA (RCA2) is a formal process that asks what happened, why it happened, and what to do to prevent recurrence, and it focuses on system causes instead of individual blame. A CCA can follow later to look for the same pattern elsewhere.', true);
+}
+function renderLevel() {
+  const chosen = S.levelTried.length ? S.levelTried[S.levelTried.length - 1] : null;
+  const opts = LEVELS.map(o => `<button class="opt${chosen === o.key ? ' chosen' : ''}" data-lv="${o.key}" ${chosen ? 'disabled' : ''}>${o.label}<small>${o.sub}</small></button>`).join('');
+  let after = '';
+  if (chosen) {
+    after = levelFeedback(chosen);
+    if (chosen === 'RCA') after += nav(`<button class="btn" id="goGather">Begin Fact Finding</button>`);
+    else if (chosen === 'ACA') after += nav(`<button class="btn alt" id="again">Reconsider the level</button><button class="btn dark" id="tryAca">Complete an ACA to compare</button>`);
+    else after += nav(`<button class="btn alt" id="again">Choose again</button>`);
+  }
+  app.innerHTML = `
+  <div class="card">
+    <span class="step-label">Step 2</span>
+    <h2 class="title">Is a CSA Needed, and at What Level?</h2>
+    <div class="reference-box box"><strong>Reference: the levels of analysis</strong>
+      <ul>
+        <li><strong>ACA:</strong> a less formal problem-solving process that asks what happened, why, and how to prevent recurrence; often used for less significant events.</li>
+        <li><strong>CCA:</strong> an analysis across several similar events to find the causes they share.</li>
+        <li><strong>RCA:</strong> a formal problem-solving process that provides the best recurrence control and is used for the most significant events.</li>
+      </ul>
+    </div>
+    <div class="question">Your SAC score is ${SAC[S.prob][S.sev]}. Do you need a Comprehensive Safety Analysis, and if so, which level?</div>
+    <div class="options">${opts}</div>
+    ${after}
+  </div>`;
+  app.querySelectorAll('[data-lv]').forEach(b => b.onclick = () => { S.levelTried.push(b.dataset.lv); renderLevel(); });
+  const g = document.getElementById('goGather'); if (g) g.onclick = () => { S.level = 'RCA'; go('gather'); };
+  const a = document.getElementById('again'); if (a) a.onclick = () => { S.levelTried.push(null); S.levelTried = S.levelTried.filter(x => x !== null); S.levelTried.length = 0; renderLevel(); };
+  const t = document.getElementById('tryAca'); if (t) t.onclick = () => { S.level = 'ACA'; S.triedACA = true; go('gather'); };
+}
+
+// ---------------------------------------------------------------------
+// STEP: GATHER (chart review and interviews)
+// ---------------------------------------------------------------------
+const BUDGET = { rec: 6, int: 4 };
+function revealHTML(list, kind) {
+  const items = list.filter(x => gathered(x.id));
+  return items.map(x => `<div class="reveal"><div class="hd"><span>${esc(x.title || x.role)}</span><span class="tag">${esc(x.sub)}</span></div><div class="bd">${x.body}</div></div>`).join('');
+}
+function renderGather(round) {
+  const unlimited = round === 2;
+  const recList = unlimited ? RECORDS.filter(r => !S.rec.has(r.id)) : RECORDS;
+  const intList = unlimited ? INTERVIEWS.filter(i => !S.int.has(i.id)) : INTERVIEWS;
+  const p = S.pending;
+  const recFull = !unlimited && p.rec.size >= BUDGET.rec;
+  const intFull = !unlimited && p.int.size >= BUDGET.int;
+  const mk = (x, kind, full, set) => {
+    const checked = set.has(x.id);
+    const dis = !checked && full;
+    return `<label class="pick${dis ? ' disabled' : ''}"><input type="checkbox" data-kind="${kind}" data-id="${x.id}" ${checked ? 'checked' : ''} ${dis ? 'disabled' : ''}><span><span class="t">${esc(x.title || x.role)}</span><br><span class="d">${esc(x.sub)}</span></span></label>`;
+  };
+  const alreadyRec = !unlimited && S.rec.size > 0;
+  if (alreadyRec) {
+    // Round one results view
+    app.innerHTML = `
+    <div class="card">
+      <span class="step-label">Step 3</span>
+      <h2 class="title">What You Gathered</h2>
+      <p class="helper">Read each source and note what it tells you and what it leaves open. Compare accounts: expect differences between what different people describe.</p>
+      <h3>Chart review</h3>${revealHTML(RECORDS, 'rec') || '<p class="helper">No records selected.</p>'}
+      <h3 style="margin-top:20px;">Interviews</h3>${revealHTML(INTERVIEWS, 'int') || '<p class="helper">No interviews selected.</p>'}
+      ${fb('A thought before you build the timeline.', 'Some records add context without changing the sequence of events, and some interviews carry details that only one person holds. In the next step you will turn what you have into a timeline and decide which questions remain open.')}
+      ${nav(`<button class="btn" id="toTl">Build the Timeline</button>`)}
+    </div>`;
+    document.getElementById('toTl').onclick = () => go('timeline');
+    return;
+  }
+  app.innerHTML = `
+  <div class="card">
+    <span class="step-label">${unlimited ? 'Step 3: More Information' : 'Step 3'}</span>
+    <h2 class="title">${unlimited ? 'Request Additional Information' : 'Chart Review and Interviews'}</h2>
+    <p>${unlimited ? 'Choose any further records or interviews you want. The review team can ask for what it needs; there is no limit in this round.' : 'The review team meets soon, so you have time to pull a limited number of records and hold a limited number of interviews before your first pass. Choose the ones you think will tell you the most about what happened and why.'}</p>
+    ${unlimited ? '' : `<div class="box"><strong>Interviewing tips (RCA2 Appendix 3)</strong><ul>
+      <li>Interview one person at a time, and expect their accounts to differ.</li>
+      <li>The guiding question is not "where did people go wrong?" but "why did their action make sense to them at the time?"</li>
+      <li>Explain that the review seeks system issues and does not assign blame.</li></ul></div>`}
+    <h3>Chart review ${unlimited ? '' : `<span class="counter" id="recCt">(${p.rec.size} of ${BUDGET.rec})</span>`}</h3>
+    <div class="picklist" id="recList">${recList.map(x => mk(x, 'rec', recFull, p.rec)).join('') || '<p class="helper">You have reviewed every record.</p>'}</div>
+    <h3 style="margin-top:22px;">Interviews ${unlimited ? '' : `<span class="counter" id="intCt">(${p.int.size} of ${BUDGET.int})</span>`}</h3>
+    <div class="picklist" id="intList">${intList.map(x => mk(x, 'int', intFull, p.int)).join('') || '<p class="helper">You have held every interview.</p>'}</div>
+    ${nav(`${unlimited ? `<button class="btn alt" id="back">${S.returnTo ? 'Back to the analysis' : 'Back to the timeline'}</button>` : ''}<button class="btn" id="pull" ${p.rec.size + p.int.size === 0 ? 'disabled' : ''}>${unlimited ? 'Add to My Fact Finding' : 'Review What I Selected'}</button>`)}
+  </div>`;
+  app.querySelectorAll('input[type=checkbox][data-id]').forEach(cb => cb.onchange = () => {
+    const set = cb.dataset.kind === 'rec' ? p.rec : p.int;
+    if (cb.checked) set.add(cb.dataset.id); else set.delete(cb.dataset.id);
+    renderGather(round);
+  });
+  const pull = document.getElementById('pull');
+  pull.onclick = () => {
+    p.rec.forEach(id => S.rec.add(id)); p.int.forEach(id => S.int.add(id));
+    p.rec.clear(); p.int.clear();
+    if (unlimited) {
+      app.innerHTML = `<div class="card"><span class="step-label">Step 3: More Information</span><h2 class="title">What You Added</h2>
+        ${revealHTML(RECORDS.filter(r => S.rec.has(r.id)), 'rec')}${revealHTML(INTERVIEWS.filter(i => S.int.has(i.id)), 'int')}
+        ${nav(`<button class="btn alt" id="more">Request more</button><button class="btn" id="toTl2">${S.returnTo ? 'Return to the Analysis' : 'Update the Timeline'}</button>`)}</div>`;
+      document.getElementById('toTl2').onclick = () => { const t = S.returnTo; S.returnTo = null; go(t || 'timeline'); };
+      document.getElementById('more').onclick = () => renderGather(2);
+    } else { renderGather(1); }
+  };
+  const back = document.getElementById('back'); if (back) back.onclick = () => { const t = S.returnTo; S.returnTo = null; go(t || 'timeline'); };
+}
+
+// ---------------------------------------------------------------------
+// STEP: TIMELINE AND GAPS
+// ---------------------------------------------------------------------
+function timelineHTML(forPrint) {
+  const vis = TIMELINE.filter(e => anyGathered(e.needs));
+  const rows = vis.map(e => `<div class="ev${e.gap ? ' gap' : ''}"><span class="tm">${e.t}</span> &nbsp;${e.text}</div>`).join('');
+  return `<div class="tl">${rows || '<div class="ev">No timeline entries are supported yet.</div>'}</div><p class="small">${vis.length} of ${TIMELINE.length} timeline entries documented from your fact finding.</p>`;
+}
+function gapState(g) {
+  if (g.distractor) return 'distractor';
+  return anyGathered(g.resolvedBy) ? 'resolved' : 'open';
+}
+function renderTimeline() {
+  const gapList = GAPS.map(g => `<label class="pick"><input type="checkbox" data-gap="${g.id}" ${S.gapsMarked.has(g.id) ? 'checked' : ''}><span class="t" style="font-weight:400;">${esc(g.text)}</span></label>`).join('');
+  let result = '';
+  if (S.gapsChecked) {
+    const lines = [];
+    GAPS.forEach(g => {
+      const st = gapState(g), marked = S.gapsMarked.has(g.id);
+      if (marked && st === 'open') lines.push(`<li><strong>Still open:</strong> ${esc(g.text)} To close it: ${esc(g.answer)}</li>`);
+      else if (marked && st === 'resolved') {
+        const srcs = g.resolvedBy.filter(gathered).map(srcName).join('; ');
+        lines.push(`<li><strong>Your fact finding already speaks to this:</strong> ${esc(g.text)} See: ${esc(srcs)}.</li>`);
+      } else if (marked && st === 'distractor') lines.push(`<li><strong>Let's test this one:</strong> ${esc(g.text)} ${esc(g.why)}</li>`);
+      else if (!marked && st === 'open') lines.push(`<li><strong>Have you thought about this question?</strong> ${esc(g.text)} To close it: ${esc(g.answer)}</li>`);
+    });
+    const openCount = GAPS.filter(g => gapState(g) === 'open').length;
+    result = fb(lines.length ? 'Here is how your gap list compares with what remains open.' : 'Your marked gaps line up with what remains open.',
+      lines.length ? `<ul style="margin:6px 0 0;padding-left:20px;">${lines.join('')}</ul>` : 'Nothing further stands out from the sources you have gathered.') +
+      `<p class="small">${openCount} question${openCount === 1 ? '' : 's'} about causes remain open based on what you have gathered.</p>`;
+  }
+  app.innerHTML = `
+  <div class="card">
+    <span class="step-label">Step 4</span>
+    <h2 class="title">Build the Timeline and Identify the Gaps</h2>
+    <p>This sequence of events is built from the sources you gathered. Red entries mark periods with no documentation.</p>
+    ${timelineHTML()}
+    <div class="question" style="margin-top:22px;">Which questions about this event are still unanswered?</div>
+    <div class="helper">Check the questions that you believe remain open after your fact finding. A question can be answered by a source you already pulled, so read your sources again if you are unsure.</div>
+    <div class="picklist" id="gapList">${gapList}</div>
+    ${nav(`<button class="btn dark" id="chk">Check My Gap List</button>`)}
+    ${result}
+    ${S.gapsChecked ? nav(`<button class="btn alt" id="more">Gather More Information</button><button class="btn" id="cont">${S.level === 'ACA' ? 'Continue to the ACA Template' : 'Continue to Cause Analysis'}</button>`) : ''}
+  </div>`;
+  app.querySelectorAll('[data-gap]').forEach(cb => cb.onchange = () => { cb.checked ? S.gapsMarked.add(cb.dataset.gap) : S.gapsMarked.delete(cb.dataset.gap); S.gapsChecked = false; renderTimelineKeepScroll(); });
+  document.getElementById('chk').onclick = () => { S.gapsChecked = true; renderTimelineKeepScroll(); };
+  const more = document.getElementById('more'); if (more) more.onclick = () => { S.gapsChecked = false; S.returnTo = null; go('gather2'); };
+  const cont = document.getElementById('cont'); if (cont) cont.onclick = () => go(S.level === 'ACA' ? 'aca' : 'fishbone');
+}
+function renderTimelineKeepScroll() { const y = window.scrollY; renderTimeline(); window.scrollTo(0, y); }
+
+// ---------------------------------------------------------------------
+// STEP: ACA PATH (manager review received, then the ACA Report)
+// ---------------------------------------------------------------------
+function acaReady() {
+  const a = S.aca;
+  const g0 = a.gaps[0];
+  return a.occ.trim().length >= 20 && a.immediate.trim().length >= 20 && a.cause.trim().length >= 20 &&
+    a.significance.trim().length >= 20 && a.staffing.trim().length >= 5 &&
+    g0.gap.trim().length >= 10 && g0.action.trim().length >= 10;
+}
+function renderACA() {
+  const dueOpts = `<option value="">Due date</option>` + DUE_OPTIONS.map(d => `<option value="${d}">${d}</option>`).join('');
+  const sig = S.aca.significance;
+  let sigFb = '';
+  if (S.acaCompared) {
+    sigFb = /escalat|RCA|root cause|higher level|comprehensive/i.test(sig)
+      ? fb('You raised escalation.', 'The Significance section is where an analyst recommends a higher level of analysis when the event calls for one. Your note points the report in that direction, and this event does call for it.', true)
+      : fb('Have you thought about the escalation question?', 'The Significance section asks directly whether the level of analysis was appropriate or whether the event should move to a higher level of cause analysis. Consider the SAC score, the sentinel event status, and the pattern of hesitation the manager described.');
+  }
+  const mgr = MANAGER_REVIEW.map((m, i) => `<p><strong>${i + 1}. ${esc(m.q)}</strong><br>${esc(m.a)}</p>`).join('');
+  const fields = ACA_FIELDS.map(f => `
+    <div class="question">${f.label}</div><div class="helper">${f.help}</div>
+    <textarea data-aca="${f.id}" aria-label="${esc(f.label)}">${esc(S.aca[f.id])}</textarea>
+    ${S.acaCompared ? `<div class="box"><strong>A model response:</strong> ${esc(ACA_MODEL[f.id])}</div>` : ''}
+    ${f.id === 'significance' ? sigFb : ''}`).join('');
+  const gapRows = [0, 1, 2].map(i => {
+    const g = S.aca.gaps[i];
+    return `<tr><td class="num">${i + 1}</td>
+      <td><textarea data-gap="${i}" data-gf="gap" aria-label="Gap ${i + 1}" style="min-height:60px;">${esc(g.gap)}</textarea></td>
+      <td><textarea data-gap="${i}" data-gf="action" aria-label="Action ${i + 1}" style="min-height:60px;">${esc(g.action)}</textarea></td>
+      <td><input type="text" data-gap="${i}" data-gf="owner" aria-label="Owner ${i + 1}" value="${esc(g.owner)}"></td>
+      <td><select data-gap="${i}" data-gf="due" aria-label="Due ${i + 1}">${dueOpts.replace(`value="${g.due}"`, `value="${g.due}" selected`)}</select></td></tr>`;
+  }).join('');
+  app.innerHTML = `
+  <div class="card">
+    <span class="step-label">Step 5: ACA Report</span>
+    <h2 class="title">Complete the Apparent Cause Analysis Report</h2>
+    <p>In an ACA, the unit manager completes a Manager Review form for the Safety Event Review Team, and the analyst turns it, along with a look at the record, into the ACA Report. Read the manager's review below, then complete the report. Keep your answers free of names and protected health information.</p>
+    <details class="reveal" open><summary class="hd" style="cursor:pointer;"><span>Manager Review received from the ICU unit manager</span><span class="tag">Six-question Manager Review Template</span></summary><div class="bd">${mgr}</div></details>
+    ${fields}
+    <div class="question">Gaps in Care or Issues Identified, and Actions to Prevent Recurrence</div>
+    <div class="helper">Enter up to three gaps. Complete at least the first row (the gap and its action).</div>
+    <div class="tbl-scroll"><table><tr><th style="width:44px">Gap #</th><th>Gap in care or issue identified</th><th>Action to prevent recurrence</th><th>Action owner</th><th>Due</th></tr>${gapRows}</table></div>
+    ${S.acaCompared ? `<div class="box"><strong>A model gap table:</strong><div class="tbl-scroll"><table><tr><th>Gap #</th><th>Gap</th><th>Action</th><th>Owner</th><th>Due</th></tr>${ACA_GAPS_MODEL.map((g, i) => `<tr><td class="num">${i + 1}</td><td>${esc(g.gap)}</td><td>${esc(g.action)}</td><td>${esc(g.owner)}</td><td>${g.due}</td></tr>`).join('')}</table></div></div>` : ''}
+    ${S.acaCompared ? fb('What an ACA is likely to leave unexamined in this case.', `<ul style="margin:6px 0 0;padding-left:20px;">${ACA_LIMITS.map(l => `<li>${l}</li>`).join('')}</ul>`) : ''}
+    ${nav(!S.acaCompared
+      ? `<button class="btn" id="cmp" ${acaReady() ? '' : 'disabled'}>Compare with a Model Report</button>`
+      : (CASE.expectedLevel === 'ACA'
+          ? `<button class="btn" id="toAct">Continue to Actions</button>`
+          : `<button class="btn" id="toRca">Continue to the RCA</button>`))}
+    ${!S.acaCompared && !acaReady() ? '<p class="small" style="text-align:right;" id="acaHint">Complete each section and the first gap row to compare.</p>' : ''}
+  </div>`;
+  app.querySelectorAll('[data-aca]').forEach(t => t.oninput = () => {
+    S.aca[t.dataset.aca] = t.value;
+    const c = document.getElementById('cmp'); if (c) c.disabled = !acaReady();
+  });
+  app.querySelectorAll('[data-gap]').forEach(el => {
+    const upd = () => { S.aca.gaps[+el.dataset.gap][el.dataset.gf] = el.value; const c = document.getElementById('cmp'); if (c) c.disabled = !acaReady(); };
+    el.oninput = upd; el.onchange = upd;
+  });
+  const cmp = document.getElementById('cmp'); if (cmp) cmp.onclick = () => { S.acaCompared = true; const y = window.scrollY; renderACA(); window.scrollTo(0, y); };
+  const toAct = document.getElementById('toAct'); if (toAct) toAct.onclick = () => go('actions');
+  const toRca = document.getElementById('toRca'); if (toRca) toRca.onclick = () => { S.level = 'RCA'; go('fishbone'); };
+}
+
+// ---------------------------------------------------------------------
+// STEP: FISHBONE (cause and effect diagram)
+// ---------------------------------------------------------------------
+function activeFindings() { return FINDINGS.filter(f => anyGathered(f.needs)); }
+function lockedCount() { return FINDINGS.length - activeFindings().length; }
+function rootsOf(c) { return Array.isArray(c.root) ? c.root : (c.root ? [c.root] : []); }
+function fishHTML(chains, ctx, team) {
+  chains = chains || S.chains; ctx = ctx || S.ctx;
+  const fobj = id => FINDINGS.find(f => f.id === id);
+  const lockChip = id => (team && !anyGathered(fobj(id).needs)) ? '<span class="chip lock">Not yet found</span>' : '';
+  const catChip = id => { const f = fobj(id); const c = team ? (f.sfm && f.sfm[0]) : S.cats[id]; return (c && f.type === 'root' && sfmObj(c)) ? `<span class="chip cat">${sfmObj(c).label}</span>` : ''; };
+  const itemHTML = (id, k) => `<div class="item"><span class="chip ${k}">${typeObj(k).short}</span>${catChip(id)}${lockChip(id)}${esc(fobj(id).text)}</div>`;
+  const tier = (k, head, sub, ids) => `<div class="link" aria-hidden="true">&#8595;</div><div class="tier ${k}"><h5>${head} <span class="small">(${sub})</span></h5>${ids.map(i => itemHTML(i, k)).join('')}</div>`;
+  const parts = [];
+  chains.forEach((c, n) => {
+    if (chains.length > 1) parts.push(`<div class="small" style="margin-top:14px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;">Chain ${n + 1}</div>`);
+    parts.push(tier('prox', 'What happened', 'Proximate cause', [c.prox]));
+    if (c.causal.length) parts.push(tier('causal', 'Conditions that shaped what happened', 'Causal factors', c.causal));
+    if (rootsOf(c).length) parts.push(tier('root', 'Which stem from', rootsOf(c).length > 1 ? 'Root causes' : 'Root cause', rootsOf(c)));
+  });
+  if (ctx.length) parts.push(tier('non', 'Also examined', 'Context, not causal', ctx));
+  const empty = parts.length ? '' : '<div class="link" aria-hidden="true">&#8595;</div><div class="small" style="text-align:center;">Your diagram will build here as you add each link.</div>';
+  return `<div class="fish chain"><div class="chain-head"><small>The event</small>${esc(CASE.eventName)}</div>${parts.join('')}${empty}</div>`;
+}
+function linkSet(chains) {
+  const set = new Set();
+  chains.forEach(c => {
+    const rs = rootsOf(c);
+    c.causal.forEach(x => { set.add(c.prox + '>' + x); rs.forEach(r => set.add(x + '>' + r)); });
+    if (!c.causal.length) rs.forEach(r => set.add(c.prox + '>' + r));
+  });
+  return set;
+}
+function linkText(k) { const [a, b] = k.split('>'); return `${esc(FINDINGS.find(f => f.id === a).text)} <strong>&#8594;</strong> ${esc(FINDINGS.find(f => f.id === b).text)}`; }
+function diffHTML() {
+  const mine = linkSet(S.chains), team = linkSet(TEAM_CHAINS);
+  const missing = [...team].filter(k => !mine.has(k));
+  const missingSeen = missing.filter(k => k.split('>').every(i => anyGathered(FINDINGS.find(f => f.id === i).needs)));
+  const missingUnseen = missing.filter(k => !missingSeen.includes(k));
+  const extra = [...mine].filter(k => !team.has(k));
+  const onMine = new Set(Object.keys(S.tags).filter(k => S.tags[k].type !== 'non'));
+  const teamCause = new Set(); TEAM_CHAINS.forEach(c => { teamCause.add(c.prox); c.causal.forEach(i => teamCause.add(i)); rootsOf(c).forEach(i => teamCause.add(i)); });
+  const notOnMine = [...teamCause].filter(i => !onMine.has(i) && anyGathered(FINDINGS.find(f => f.id === i).needs));
+  const lockedTeam = [...teamCause].filter(i => !anyGathered(FINDINGS.find(f => f.id === i).needs));
+  const ul = arr => `<ul style="margin:6px 0 10px;padding-left:20px;">${arr.map(x => `<li>${x}</li>`).join('')}</ul>`;
+  let h = '';
+  if (!missing.length && !extra.length && !notOnMine.length && !lockedTeam.length) h += '<p>Your diagram links the same findings in the same order as the review team\'s diagram.</p>';
+  if (notOnMine.length) h += `<p><strong>Findings the review team placed in the chain that are not in yours (you had the sources):</strong></p>${ul(notOnMine.map(i => `${esc(FINDINGS.find(f => f.id === i).text)} (the review team: ${typeObj(FINDINGS.find(f => f.id === i).type).label.toLowerCase()})`))}`;
+  if (lockedTeam.length) h += `<p><strong>Findings that need sources you have not gathered yet:</strong></p>${ul(lockedTeam.map(i => { const f = FINDINGS.find(x => x.id === i); return `${esc(f.text)} (${esc(f.needs.map(srcName).join('; '))})`; }))}`;
+  if (missingSeen.length) h += `<p><strong>Links the review team drew that are not on your diagram:</strong></p>${ul(missingSeen.map(linkText))}<p class="small">Have you thought about asking "why?" at each of these points to see whether the first finding contributed to the second?</p>`;
+  if (missingUnseen.length) h += `<p><strong>Links that depend on findings you have not reached:</strong></p>${ul(missingUnseen.map(linkText))}`;
+  if (extra.length) h += `<p><strong>Links on your diagram that the review team did not draw:</strong></p>${ul(extra.map(linkText))}<p class="small">That is one way to view this. Let's explore whether each link holds: if the first condition were fixed, would the second become less likely?</p>`;
+  return h;
+}
+function syncTags() {
+  S.tags = {};
+  S.chains.forEach(c => {
+    S.tags[c.prox] = { type: 'prox', cat: S.cats[c.prox] || '' };
+    c.causal.forEach(i => S.tags[i] = { type: 'causal', cat: S.cats[i] || '' });
+    rootsOf(c).forEach(i => S.tags[i] = { type: 'root', cat: S.cats[i] || '' });
+  });
+  S.ctx.forEach(i => S.tags[i] = { type: 'non', cat: '' });
+}
+function unassigned() {
+  return activeFindings().filter(f => !S.tags[f.id]).sort((a, b) => ((+a.id.slice(1)) * 7 % 15) - ((+b.id.slice(1)) * 7 % 15));
+}
+function pickNudge(phase, f) {
+  if (phase === 'prox' && f.type !== 'prox') return 'Let\'s explore this choice. A proximate cause begins with the role of the person who did or did not act (for example, "The resident did not..."). Does this finding describe a person\'s action, or a condition in the work system?';
+  if (phase === 'causal' && f.type === 'prox') return 'Have you thought about whether this finding names a person\'s action? A causal factor describes the condition that shaped what happened, not a person or a role.';
+  if (phase === 'causal' && f.type === 'root') return 'That is one way to view this. Have you thought about whether this condition sits underneath the others, so that fixing it would keep the whole chain from recurring? If so, it may belong at the end of the chain as a root cause.';
+  if (phase === 'root' && f.type === 'prox') return 'Have you thought about whether this finding names a person\'s action? A root cause describes a condition in the work system that leaders can change.';
+  if (phase === 'root' && f.type === 'causal') return 'Let\'s explore this choice. Try asking "why?" once more about this condition. Would fixing it keep the chain from recurring, or does it stem from something deeper?';
+  if ((phase === 'causal' || phase === 'root') && f.type === 'non') return 'Have you thought about whether this finding contributed to the event, or whether it describes background that did not shape what happened?';
+  return '';
+}
+function catGridHTML() {
+  const mine = id => S.tags[id] && S.tags[id].type === 'root' ? S.cats[id] : '';
+  const mineIds = Object.keys(S.tags).filter(id => S.tags[id].type === 'root');
+  const teamIds = FINDINGS.filter(f => f.type === 'root' && anyGathered(f.needs) || f.type === 'root').map(f => f.id);
+  const cell = (list) => list.length ? list.map(x => `<div class="item"><span class="chip root">${sfmObj(x.code).label}</span>${esc(FINDINGS.find(f => f.id === x.id).text)}</div>`).join('') : '<span class="small">None</span>';
+  const rows = SFM.map(g => {
+    const m = mineIds.filter(id => mine(id) && sfmObj(mine(id)).group === g.label).map(id => ({ id, code: mine(id) }));
+    const t = teamIds.filter(id => FINDINGS.find(f => f.id === id).sfm && sfmObj(FINDINGS.find(f => f.id === id).sfm[0]).group === g.label).map(id => ({ id, code: FINDINGS.find(f => f.id === id).sfm[0] }));
+    return `<tr><td><strong>${g.label}</strong></td><td>${cell(m)}</td><td>${cell(t)}</td></tr>`;
+  }).join('');
+  return `<div class="tbl-scroll"><table><tr><th style="width:22%">SFM category</th><th>Your root causes</th><th>Review team root causes</th></tr>${rows}</table></div>`;
+}
+function sfmHelpHTML(key) {
+  if (!key) return 'System failure mechanisms describe the type of weakness in the work system, and they apply to root causes. Choose a category to see what it can include.';
+  const g = sfmObj(key);
+  return `<strong>${g.label} can include:</strong> ${g.items.map(i => esc(i.label) + ' (' + esc(i.d) + ')').join('; ')}.`;
+}
+function teamChainFor(proxId) { return TEAM_CHAINS.find(t => t.prox === proxId); }
+function pickable(phase) {
+  if (phase !== 'root') return unassigned().filter(f => f.type === (phase === 'prox' ? 'prox' : 'causal'));
+  const cur = S.chains[S.chains.length - 1];
+  return activeFindings().filter(f => !cur.root.includes(f.id) && f.type === 'root' && (!S.tags[f.id] || S.tags[f.id].type === 'root'))
+    .sort((a, b) => ((+a.id.slice(1)) * 7 % 15) - ((+b.id.slice(1)) * 7 % 15));
+}
+function countWords(n, one, many) { return n === 1 ? `is one more ${one}` : `are ${n} more ${many}`; }
+function renderFishbone() {
+  const ph = S.bphase;
+  const cur = S.chains[S.chains.length - 1];
+  const n = S.chains.length;
+  const fobj = id => FINDINGS.find(f => f.id === id);
+  const tc = cur ? teamChainFor(cur.prox) : null;
+  const avail = pickable(ph);
+  const pickList = () => `<div class="picklist" role="radiogroup">${avail.map(f => `<label class="pick"><input type="radio" name="bp" value="${f.id}" ${S.pick === f.id ? 'checked' : ''}><span class="t" style="font-weight:400;">${esc(f.text)}</span></label>`).join('') || '<p class="small">Every available finding is already on your diagram.</p>'}</div>${(avail.length && ph === 'root') ? `<div class="fcard" style="margin-top:12px;"><label for="catsel">Which system failure mechanism (SFM) category best describes this root cause?</label><select id="catsel"><option value="">Choose a category</option>${SFM.map(g => `<option value="${g.key}" ${S.pickCat === g.key ? 'selected' : ''}>${g.label}</option>`).join('')}</select><div class="small" id="sfmhelp" style="margin-top:6px;">${sfmHelpHTML(S.pickCat)}</div></div>` : ''}<div id="nudge"></div>`;
+  const quote = (label, text) => `<div class="box"><strong>${label}</strong><br>${esc(text)}</div>`;
+  let panel = '', primary = '';
+  if (ph === 'prox') {
+    panel = `<h3>Chain ${n + 1}: Choose a proximate cause</h3><p>${n ? 'Choose the next action (or inaction) close to the event that you want to follow back to its root cause.' : 'Start with the action (or inaction) closest to the event. A proximate cause begins with the role of the person who did or did not act.'} Choose one finding from the list.</p>${pickList()}`;
+    primary = `<button class="btn" id="add" disabled>Add as Proximate Cause</button>`;
+  } else if (ph === 'causal') {
+    panel = `${quote('The proximate cause you chose', fobj(cur.prox).text)}<h3>${cur.causal.length ? 'What else led this person to act this way?' : 'What led this person to act this way?'}</h3><p>Think about what was in place (or missing) in the work system that shaped this action. A causal factor describes that condition; it is not a person or a role. Choose a condition from the list.</p>${pickList()}`;
+    primary = `<button class="btn" id="add" disabled>Add as Causal Factor</button>`;
+  } else if (ph === 'causalnext') {
+    const last = cur.causal[cur.causal.length - 1];
+    let body = '';
+    if (!tc) {
+      body = `<p>The review team did not treat your proximate cause as one of its proximate causes. Have you thought about whether it names a person's action? You can use Undo Last Step to go back and choose again, or you can keep building this chain.</p>`;
+      primary = `<button class="btn alt" id="moreCausal">Add Another Causal Factor</button><button class="btn" id="toRoot">Continue to the Root Cause</button>`;
+    } else {
+      const link = tc.causal.includes(last) ? 'The review team also linked this condition to this proximate cause.' : 'The review team did not link this condition to this proximate cause. Have you thought about asking again what led this person to act this way? You can use Undo Last Step to take it off the chain.';
+      const rem = tc.causal.filter(id => !cur.causal.includes(id));
+      const seen = rem.filter(id => anyGathered(fobj(id).needs));
+      body = `<p>${link}</p>`;
+      if (!rem.length) { body += '<p><strong>There are no more causal factors for this proximate cause.</strong> Let\'s move on to the root cause.</p>'; primary = `<button class="btn" id="toRoot">Continue to the Root Cause</button>`; }
+      else if (seen.length) { body += `<p><strong>There ${countWords(rem.length, 'causal factor', 'causal factors')} for this proximate cause.</strong> What else led this person to act this way?${seen.length < rem.length ? ' Some of them need sources you have not gathered yet.' : ''}</p>`; primary = `<button class="btn" id="moreCausal">Choose the Next Causal Factor</button>`; }
+      else { body += '<p><strong>There is another causal factor for this proximate cause</strong>, but the sources you have gathered do not show it yet. You can gather more information now, or continue to the root cause and return later.</p>'; primary = `<button class="btn" id="toRoot">Continue to the Root Cause</button>`; }
+    }
+    panel = `<h3>Chain ${n}: Another causal factor?</h3>${fb('Where this stands.', body)}`;
+  } else if (ph === 'root') {
+    panel = `${quote('The proximate cause', fobj(cur.prox).text)}${quote('The causal factors you found', cur.causal.map(i => fobj(i).text).join(' | '))}<h3>${cur.root.length ? 'What other root cause sits underneath?' : 'Why did those conditions exist?'}</h3><p>Choose the finding that sits underneath these conditions, so that changing it would keep this chain from recurring. A root cause has a proven cause and effect relationship, is within leaders' control to change, and is a good use of healthcare resources to correct. Each root cause is written as a causal statement: something (cause) led to something (effect), which increased the likelihood of the event.</p>${pickList()}`;
+    primary = `<button class="btn" id="add" disabled>Add as Root Cause</button>`;
+  } else if (ph === 'rules') {
+    const rid = cur.root[cur.root.length - 1];
+    const rules = S.rules[rid] = S.rules[rid] || [false, false, false, false, false];
+    panel = `<h3>Check the root cause statement</h3><div class="box"><strong>Your root cause statement</strong><br>${esc(fobj(rid).text)}</div><p>Check this statement against the Five Rules of Causation (RCA2 Appendix 6). Mark each rule that the statement meets.</p><div class="picklist">${FIVE_RULES.map((r, i) => `<label class="pick"><input type="checkbox" data-rule="${i}" ${rules[i] ? 'checked' : ''}><span class="t" style="font-weight:400;">${i + 1}. ${r}</span></label>`).join('')}</div><div id="rulesNote"></div>`;
+    primary = `<button class="btn" id="rulesGo">Continue</button>`;
+  } else if (ph === 'rootnext') {
+    const last = cur.root[cur.root.length - 1];
+    let body = '';
+    if (!tc) { body = '<p>Your chain does not match one of the review team\'s chains, so there is no count to share. You can add another root cause or finish this chain.</p>'; primary = `<button class="btn alt" id="nextRoot">Choose Another Root Cause</button><button class="btn" id="toMore">Finish This Chain</button>`; }
+    else {
+      const link = tc.root.includes(last) ? 'The review team also tied this root cause to this chain.' : 'The review team did not tie this finding to this chain as a root cause. Let\'s explore whether changing it would keep this chain from recurring. You can use Undo Last Step to take it off.';
+      const rem = tc.root.filter(id => !cur.root.includes(id));
+      const seen = rem.filter(id => anyGathered(fobj(id).needs));
+      const mySfm = S.cats[last]; const ts = fobj(last).sfm || [];
+      const sfmMsg = (mySfm && ts.length) ? (ts.includes(mySfm) ? ` The review team also classified it as ${sfmObj(ts[0]).label}.` : ` The review team classified it as ${ts.map(c => sfmObj(c).label).join(' or ')}. Let's explore what in the sources points to that mechanism.`) : '';
+      body = `<p>${link}${sfmMsg}</p>`;
+      if (!rem.length) { body += '<p><strong>There are no more root causes for this chain.</strong></p>'; primary = `<button class="btn" id="toMore">Finish This Chain</button>`; }
+      else if (seen.length) { body += `<p><strong>There ${countWords(rem.length, 'root cause', 'root causes')} for this chain.</strong> What else sits underneath the conditions you found?${seen.length < rem.length ? ' Some need sources you have not gathered yet.' : ''}</p>`; primary = `<button class="btn" id="nextRoot">Choose the Next Root Cause</button>`; }
+      else { body += '<p><strong>There is another root cause for this chain</strong>, but the sources you have gathered do not show it yet. You can gather more information now, or finish this chain and return later.</p>'; primary = `<button class="btn" id="toMore">Finish This Chain</button>`; }
+    }
+    panel = `<h3>Chain ${n}: Another root cause?</h3>${fb('Where this stands.', body)}`;
+  } else if (ph === 'more') {
+    const rem = TEAM_CHAINS.filter(t => !S.chains.some(c => c.prox === t.prox));
+    const seen = rem.filter(t => anyGathered(fobj(t.prox).needs));
+    let body = '<p>Read the chain from top to bottom: does each link lead to the next?</p>';
+    if (seen.length) { body += `<p><strong>There ${countWords(rem.length, 'proximate cause', 'proximate causes')} to follow.</strong> Which other action (or inaction) close to the event do you want to follow back to its root cause?${seen.length < rem.length ? ' Some need sources you have not gathered yet.' : ''}</p>`; primary = `<button class="btn" id="newChain">Start Chain ${n + 1}</button>`; }
+    else if (rem.length) { body += '<p><strong>There is another proximate cause to follow</strong>, but the sources you have gathered do not show it yet. You can gather more information now, or continue.</p>'; primary = `<button class="btn" id="toCtx">Continue</button>`; }
+    else { body += '<p><strong>There are no more proximate causes to follow.</strong></p>'; primary = `<button class="btn" id="toCtx">Continue</button>`; }
+    panel = `<h3>Chain ${n} is complete</h3>${fb('Where this stands.', body)}`;
+  } else {
+    panel = `<h3>Anything left over?</h3><p>These findings are not on your diagram yet. Mark any you consider context (background that did not shape what happened). Anything you leave unmarked stays off the diagram.</p><div class="picklist">${unassigned().map(f => `<label class="pick"><input type="checkbox" data-ctx="${f.id}" ${S.ctx.includes(f.id) ? 'checked' : ''}><span class="t" style="font-weight:400;">${esc(f.text)}</span></label>`).join('') || '<p class="small">Every available finding is already on your diagram.</p>'}</div>`;
+    primary = `<button class="btn" id="chk">Test My Root Causes</button>`;
+  }
+  const canUndo = !(ph === 'prox' && n === 0);
+  app.innerHTML = `
+  <div class="card">
+    <span class="step-label">Step 5</span>
+    <h2 class="title">Build the Cause and Effect Diagram</h2>
+    <p>We will build this one link at a time. Start with one proximate cause, ask what led to it, follow it back to a root cause, and then decide whether another chain is needed.</p>
+    <div class="box"><strong>How to tell the types apart</strong><ul>
+      <li><strong>Proximate causes</strong> begin with the role of the person who did or did not act (for example, "The resident did not...").</li>
+      <li><strong>Causal factors and root causes</strong> describe the condition or finding in the work system. They do not begin with a person or a role.</li></ul></div>
+    ${panel}
+    ${lockedCount() > 0 ? fb('Your sources may support more findings.', `Some possible findings are hidden because the sources that would support them have not been gathered. ${lockedCount()} finding${lockedCount() === 1 ? '' : 's'} remain locked. You can return to fact finding at any time.`) : ''}
+    <h3 style="margin-top:22px;">Your diagram so far (read from top to bottom)</h3>
+    <div id="fishPreview">${fishHTML()}</div>
+    ${nav(`<button class="btn alt" id="more">Gather More Information</button>${canUndo ? '<button class="btn alt" id="undo">Undo Last Step</button>' : ''}${primary}`)}
+  </div>`;
+  const add = document.getElementById('add');
+  app.querySelectorAll('input[name=bp]').forEach(r => r.onchange = () => {
+    S.pick = r.value; if (add) add.disabled = !(S.pick && (ph !== 'root' || S.pickCat));
+    const nd = pickNudge(ph, fobj(r.value));
+    document.getElementById('nudge').innerHTML = nd ? fb('Something to consider.', esc(nd)) : '';
+  });
+  const catsel = document.getElementById('catsel');
+  if (catsel) catsel.onchange = () => { S.pickCat = catsel.value; const hp = document.getElementById('sfmhelp'); if (hp) hp.innerHTML = sfmHelpHTML(S.pickCat); if (add) add.disabled = !(S.pick && (ph !== 'root' || S.pickCat)); };
+  if (add) add.disabled = !(S.pick && (ph !== 'root' || S.pickCat));
+  if (add) add.onclick = () => {
+    if (!S.pick || (ph === 'root' && !S.pickCat)) return;
+    if (ph === 'root') S.cats[S.pick] = S.pickCat;
+    if (ph === 'prox') { S.chains.push({ prox: S.pick, causal: [], root: [] }); S.bphase = 'causal'; }
+    else if (ph === 'causal') { cur.causal.push(S.pick); S.bphase = 'causalnext'; }
+    else if (ph === 'root') { cur.root.push(S.pick); S.bphase = 'rules'; }
+    S.pick = ''; S.pickCat = ''; syncTags(); renderFishbone(); window.scrollTo(0, 0);
+  };
+  const bind = (id, fn) => { const e = document.getElementById(id); if (e) e.onclick = () => { fn(); S.pick = ''; S.pickCat = ''; syncTags(); renderFishbone(); window.scrollTo(0, 0); }; };
+  bind('moreCausal', () => { S.bphase = 'causal'; });
+  bind('toRoot', () => { S.bphase = 'root'; });
+  bind('nextRoot', () => { S.bphase = 'root'; });
+  bind('toMore', () => { S.bphase = 'more'; });
+  bind('newChain', () => { S.bphase = 'prox'; });
+  bind('toCtx', () => { S.bphase = 'ctx'; });
+  bind('undo', () => {
+    if (ph === 'causal') { if (cur.causal.length) S.bphase = 'causalnext'; else { S.chains.pop(); S.bphase = S.chains.length ? 'more' : 'prox'; } }
+    else if (ph === 'causalnext') { cur.causal.pop(); S.bphase = cur.causal.length ? 'causalnext' : 'causal'; }
+    else if (ph === 'root') S.bphase = cur.root.length ? 'rootnext' : 'causalnext';
+    else if (ph === 'rules') { cur.root.pop(); S.bphase = cur.root.length ? 'rootnext' : 'root'; }
+    else if (ph === 'rootnext') { cur.root.pop(); S.bphase = cur.root.length ? 'rootnext' : 'root'; }
+    else if (ph === 'more') S.bphase = 'rootnext';
+    else if (ph === 'ctx') { S.ctx = []; S.bphase = 'more'; }
+    else if (ph === 'prox') S.bphase = 'more';
+  });
+  if (ph === 'rules') {
+    const rid = cur.root[cur.root.length - 1];
+    app.querySelectorAll('[data-rule]').forEach(cb => cb.onchange = () => { S.rules[rid][+cb.dataset.rule] = cb.checked; });
+    document.getElementById('rulesGo').onclick = () => {
+      const unmarked = S.rules[rid].map((v, i) => v ? -1 : i).filter(i => i >= 0);
+      const f = fobj(rid);
+      let msg = '';
+      if (unmarked.length && !S.rulesWarned[rid]) msg += `<p>Let's explore the rules you did not mark. Does this statement meet them?</p><ul style="margin:6px 0 0;padding-left:20px;">${unmarked.map(i => `<li>Rule ${i + 1}: ${esc(FIVE_RULES[i])}</li>`).join('')}</ul>`;
+      if (f.type !== 'root' && !S.rulesWarned[rid]) msg += `<p>The review team tagged this finding as ${typeObj(f.type).label.toLowerCase()}. Have you thought about whether it has a proven cause and effect relationship, is within leaders' control, and is a good use of resources to correct?</p>`;
+      if (msg && !S.rulesWarned[rid]) { S.rulesWarned[rid] = true; document.getElementById('rulesNote').innerHTML = fb('Something to consider.', msg); document.getElementById('rulesGo').textContent = 'Continue Anyway'; return; }
+      S.bphase = 'rootnext'; renderFishbone(); window.scrollTo(0, 0);
+    };
+  }
+  app.querySelectorAll('[data-ctx]').forEach(cb => cb.onchange = () => {
+    S.ctx = Array.from(app.querySelectorAll('[data-ctx]:checked')).map(x => x.dataset.ctx); syncTags();
+    document.getElementById('fishPreview').innerHTML = fishHTML();
+  });
+  document.getElementById('more').onclick = () => { S.returnTo = 'fishbone'; go('gather2'); };
+  const chk = document.getElementById('chk'); if (chk) chk.onclick = () => go('check');
+}
+
+// ---------------------------------------------------------------------
+// STEP: ROOT CAUSE CHECK AND CAUSAL STATEMENTS
+// ---------------------------------------------------------------------
+function renderCheck() {
+  const act = activeFindings();
+  const roots = FINDINGS.filter(f => f.type === 'root');
+  const rows = act.map(f => {
+    const mine = S.tags[f.id] || {};
+    const same = mine.type === f.type;
+    const tip = (!same && (mine.type === 'prox' || f.type === 'prox')) ? ' Tip: a proximate cause begins with the role of the person who did or did not act, and a causal factor or root cause describes the condition.' : '';
+    const mc = f.type === 'root' ? S.cats[f.id] : '';
+    const teamSfm = (f.sfm || []).map(c => sfmObj(c).label).join(' or ');
+    const catNote = (mc && f.sfm && !f.sfm.includes(mc)) ? ` The review team classified this root cause as ${teamSfm}. Let's explore what in the sources points to that category.` : '';
+    const note = (same ? 'Your tag matches the review team\'s tag.' : `The review team tagged this as ${typeObj(f.type).label.toLowerCase()}. ${f.why}${tip}`) + catNote;
+    return `<tr><td>${esc(f.text)}</td><td><span class="chip ${mine.type || 'none'}">${mine.type ? typeObj(mine.type).short : 'None'}</span></td><td><span class="chip ${f.type}">${typeObj(f.type).short}</span></td><td>${f.type === 'root' ? `${mc ? sfmObj(mc).label : 'None chosen'}<br><span class="small">Review team: ${teamSfm}</span>` : ''}</td><td>${esc(note)}</td></tr>`;
+  }).join('');
+  const found = roots.filter(f => anyGathered(f.needs) && S.tags[f.id] && S.tags[f.id].type === 'root');
+  const unseen = roots.filter(f => !anyGathered(f.needs));
+  const mistagged = act.filter(f => S.tags[f.id] && S.tags[f.id].type === 'root' && f.type !== 'root');
+  const missedTagged = roots.filter(f => anyGathered(f.needs) && !(S.tags[f.id] && S.tags[f.id].type === 'root'));
+  let summary = `<p>You tagged <strong>${found.length} of the ${roots.length}</strong> root causes that the review team identified.</p><ul style="margin:6px 0 0;padding-left:20px;">`;
+  if (found.length === roots.length) summary += '<li>You reached every root cause the review team identified.</li>';
+  missedTagged.forEach(f => summary += `<li>You had the evidence for this one but tagged it differently: ${esc(f.text)}</li>`);
+  unseen.forEach(f => summary += `<li>This root cause was not supported by the sources you gathered: ${esc(f.text)} It would have appeared with: ${esc(f.needs.map(srcName).join('; '))}.</li>`);
+  mistagged.forEach(f => summary += `<li>You tagged this as a root cause, and the review team tagged it as ${typeObj(f.type).label.toLowerCase()}: ${esc(f.text)}</li>`);
+  summary += '</ul>';
+  app.innerHTML = `
+  <div class="card">
+    <span class="step-label">Step 5</span>
+    <h2 class="title">Did You Reach the Root Causes?</h2>
+    ${fb('How your root causes compare.', summary, true)}
+    <h3 style="margin-top:22px;">Your Diagram and the Review Team's Diagram</h3>
+    <div class="cmp-grid">
+      <div><h4>Your diagram</h4>${fishHTML()}</div>
+      <div><h4>The review team's diagram</h4>${fishHTML(TEAM_CHAINS, TEAM_CTX, true)}</div>
+    </div>
+    ${fb('Where the two diagrams differ.', diffHTML())}
+    <h3 style="margin-top:22px;">Your Root Causes by System Failure Mechanism</h3>
+    ${catGridHTML()}
+    <h3 style="margin-top:22px;">Finding by Finding</h3>
+    <div class="tbl-scroll"><table><tr><th>Finding</th><th>Your tag</th><th>Review team</th><th>SFM (root causes)</th><th>Notes</th></tr>${rows}</table></div>
+    ${nav(`<button class="btn alt" id="more">Gather More Information</button><button class="btn" id="toAct">Continue to Actions</button>`)}
+  </div>`;
+  const toAct = document.getElementById('toAct'); if (toAct) toAct.onclick = () => go('actions');
+  document.getElementById('more').onclick = () => { S.returnTo = 'fishbone'; go('gather2'); };
+}
+
+// ---------------------------------------------------------------------
+// STEP: ACTIONS
+// ---------------------------------------------------------------------
+function newAction() {
+  S.actionSeq++;
+  return { id: 'ac' + S.actionSeq, text: '', rc: '', cat: '', owner: '', due: '', measure: '', sm: {} };
+}
+function studentRoots() { return FINDINGS.filter(f => anyGathered(f.needs) && S.tags[f.id] && S.tags[f.id].type === 'root'); }
+function actionNotes(a) {
+  const n = [];
+  const st = strengthOf(a.cat);
+  if (a.text.trim().length < 30) n.push('Have you thought about describing what will change, where, and who will carry it out?');
+  if (!a.cat) n.push('Choose a category from the Action Hierarchy so the strength of this action can be ranked.');
+  else if (st === 'Weaker') n.push('This action falls in the weaker group. Weaker actions such as training and policy changes are often necessary to set expectations, but used alone they rarely sustain improvement. Is there a stronger or intermediate action alongside it?');
+  if (!a.owner.trim()) n.push('RCA2 suggests naming one responsible individual with the authority to act.');
+  else if (/committee|team\b|everyone|all staff|nursing$|leadership$/i.test(a.owner)) n.push('A committee or group is harder to hold to a date. Have you thought about naming a single role?');
+  if (!a.due) n.push('Choose a due date so the action can be tracked.');
+  if (!/\d/.test(a.measure)) n.push('A measure needs an expected level of compliance, such as a percentage or a count.');
+  if (!/(day|week|month|quarter|year)/i.test(a.measure)) n.push('Add how long the measure will be tracked, for example monthly for six months.');
+  if (!a.rc) n.push('Link this action to a root cause so its relevance is clear.');
+  // SMARTIES self-check consistency
+  const sm = a.sm;
+  if (sm.M && (!/\d/.test(a.measure) || !/(day|week|month|quarter|year)/i.test(a.measure))) n.push('You marked Measurable, and the measure still lacks a number or a time period.');
+  if (sm.T && !a.due) n.push('You marked Timely, and no due date is chosen.');
+  if (sm.R && !a.rc) n.push('You marked Relevant, and no root cause is linked.');
+  if (sm.S && (a.text.trim().length < 30 || !a.owner.trim())) n.push('You marked Specific, and the action text or the owner could say more.');
+  SMARTIES.filter(x => ['A', 'I', 'E', 'Sf'].indexOf(x.k) >= 0 && !sm[x.k]).forEach(x => n.push(`${x.name}: ${x.q}`));
+  return n;
+}
+function renderActions() {
+  if (S.actions.length === 0) S.actions.push(newAction());
+  const roots = studentRoots();
+  const rcList = a => `<label class="fl">Root cause it addresses (choose one)</label><div class="picklist" role="radiogroup">${roots.map(r => `<label class="pick"><input type="radio" name="${a.id}_rcr" id="${a.id}_rc_${r.id}" value="${r.id}" data-af="rc" ${a.rc === r.id ? 'checked' : ''}><span class="t" style="font-weight:400;">${esc(r.text)}</span></label>`).join('')}<label class="pick"><input type="radio" name="${a.id}_rcr" id="${a.id}_rc_other" value="other" data-af="rc" ${a.rc === 'other' ? 'checked' : ''}><span class="t" style="font-weight:400;">A cause I did not tag as a root cause</span></label></div>`;
+  const catOpts = `<option value="">Choose a category</option>` + HIERARCHY.map(g => `<optgroup label="${g.group}">${g.cats.map(c => `<option value="${esc(c)}">${esc(c)}</option>`).join('')}</optgroup>`).join('');
+  const dueOpts = `<option value="">Choose a due date</option>` + DUE_OPTIONS.map(d => `<option value="${d}">${d} after approval</option>`).join('');
+  const sel = (html, val) => html.replace(`value="${esc(val)}"`, `value="${esc(val)}" selected`);
+  const cards = S.actions.map((a, i) => `
+    <div class="acard" data-a="${a.id}">
+      ${S.actions.length > 1 ? `<button class="rm" data-rm="${a.id}" aria-label="Remove action ${i + 1}">Remove</button>` : ''}
+      <h4 style="margin:0 0 4px;">Action ${i + 1} ${a.cat ? `<span class="chip ${strengthOf(a.cat) === 'Stronger' ? 'root' : strengthOf(a.cat) === 'Intermediate' ? 'causal' : 'non'}">${strengthOf(a.cat)}</span>` : ''}</h4>
+      <label class="fl" for="${a.id}_t">What will change, where, and who will carry it out?</label>
+      <textarea id="${a.id}_t" data-af="text">${esc(a.text)}</textarea>
+      ${rcList(a)}
+      <div class="grid2">
+        <div><label class="fl" for="${a.id}_c">Action Hierarchy category</label><select id="${a.id}_c" data-af="cat">${sel(catOpts, a.cat)}</select></div>
+        <div><label class="fl" for="${a.id}_o">Responsible person (a role)</label><input type="text" id="${a.id}_o" data-af="owner" value="${esc(a.owner)}"></div>
+        <div><label class="fl" for="${a.id}_d">Due date</label><select id="${a.id}_d" data-af="due">${sel(dueOpts, a.due)}</select></div>
+      </div>
+      <label class="fl" for="${a.id}_m">Measure: what, for how long, and the expected compliance</label>
+      <textarea id="${a.id}_m" data-af="measure">${esc(a.measure)}</textarea>
+      <label class="fl">SMART(IES) self-check: mark each letter you believe this action meets</label>
+      <div class="smart">${SMARTIES.map(x => `<label title="${esc(x.q)}"><input type="checkbox" data-sm="${x.k}" ${a.sm[x.k] ? 'checked' : ''}> ${x.name}</label>`).join('')}</div>
+    </div>`).join('');
+  let result = '';
+  if (S.actionsChecked) {
+    const blocks = S.actions.map((a, i) => {
+      const n = actionNotes(a);
+      return `<li><strong>Action ${i + 1}${a.cat ? ' (' + strengthOf(a.cat) + ')' : ''}:</strong> ${n.length ? `<ul style="margin:4px 0 8px;padding-left:20px;">${n.map(x => `<li>${esc(x)}</li>`).join('')}</ul>` : 'Your entries meet each of the checks in this tool.'}</li>`;
+    }).join('');
+    const cov = roots.map(r => {
+      const linked = S.actions.filter(a => a.rc === r.id && ['Stronger', 'Intermediate'].indexOf(strengthOf(a.cat)) >= 0);
+      return linked.length ? '' : `<li>No stronger or intermediate action is linked to this root cause: ${esc(r.text)}</li>`;
+    }).join('');
+    result = fb('How your action plan reads.', `<ul style="margin:6px 0 0;padding-left:20px;">${blocks}</ul>${cov ? `<p style="margin:8px 0 0;"><strong>Coverage:</strong> RCA2 recommends at least one stronger or intermediate action for each root cause.</p><ul style="padding-left:20px;margin:4px 0 0;">${cov}</ul>` : (roots.length ? '<p style="margin:8px 0 0;"><strong>Coverage:</strong> every root cause you tagged has at least one stronger or intermediate action.</p>' : '<p style="margin:8px 0 0;">Tag root causes on the diagram so each action can be linked to one.</p>')}`, true);
+    result += `<h3 style="margin-top:22px;">The Review Team's Action Plan</h3><p class="small">Your plan does not need to match this one. Compare the strength of the actions, the owners, and the measures.</p>
+      <div class="tbl-scroll"><table><tr><th>Root cause</th><th>Action</th><th>Strength</th><th>Owner and due</th><th>Measure</th></tr>${TEAM_ACTIONS.map(t => `<tr><td>${esc(t.rc)}</td><td>${esc(t.action)}</td><td>${t.strength}<br><span class="small">${esc(t.cat)}</span></td><td>${esc(t.owner)}<br><span class="small">${t.due} after approval</span></td><td>${esc(t.measure)}</td></tr>`).join('')}</table></div>
+      <div class="box"><strong>Also in the review team's plan.</strong> Weaker supporting actions: update the escalation policy to the new time-based rule and educate staff on it, which sets expectations but does not sustain change alone. ${esc(IMMEDIATE_ACTIONS)}</div>`;
+  }
+  app.innerHTML = `
+  <div class="card">
+    <span class="step-label">Step 6</span>
+    <h2 class="title">Write the Actions and Check Them</h2>
+    <p>For each root cause, write an action that would prevent recurrence or reduce its effect. Rank each action with the RCA2 Action Hierarchy and check it against the SMART(IES) criteria: <strong>S</strong>pecific, <strong>M</strong>easurable, <strong>A</strong>ttainable, <strong>R</strong>elevant, <strong>T</strong>imely, <strong>I</strong>nclusive, <strong>E</strong>quitable, and <strong>S</strong>afe.</p>
+    <div class="box"><strong>The Action Hierarchy (RCA2)</strong><ul>${HIERARCHY.map(g => `<li><strong>${g.group}:</strong> ${g.cats.join('; ')}.</li>`).join('')}</ul></div>
+    <div id="acards">${cards}</div>
+    ${nav(`<button class="btn alt" id="add" ${S.actions.length >= 6 ? 'disabled' : ''}>Add Another Action</button><button class="btn dark" id="chk">Check My Plan</button>`)}
+    <div id="aresult">${result}</div>
+    ${S.actionsChecked ? nav(`<button class="btn" id="toSum">Continue to the Summary</button>`) : ''}
+  </div>`;
+  app.querySelectorAll('.acard').forEach(card => {
+    const a = S.actions.find(x => x.id === card.dataset.a);
+    card.querySelectorAll('[data-af]').forEach(el => {
+      const upd = () => {
+        a[el.dataset.af] = el.value;
+        if (el.dataset.af === 'cat') {
+          const chip = card.querySelector('h4'); const s = strengthOf(a.cat);
+          chip.innerHTML = `Action ${S.actions.indexOf(a) + 1} ` + (a.cat ? `<span class="chip ${s === 'Stronger' ? 'root' : s === 'Intermediate' ? 'causal' : 'non'}">${s}</span>` : '');
+        }
+      };
+      el.oninput = upd; el.onchange = upd;
+    });
+    card.querySelectorAll('[data-sm]').forEach(cb => cb.onchange = () => { a.sm[cb.dataset.sm] = cb.checked; });
+  });
+  app.querySelectorAll('[data-rm]').forEach(b => b.onclick = () => { S.actions = S.actions.filter(x => x.id !== b.dataset.rm); S.actionsChecked = false; renderActions(); });
+  document.getElementById('add').onclick = () => { S.actions.push(newAction()); S.actionsChecked = false; renderActions(); };
+  document.getElementById('chk').onclick = () => { S.actionsChecked = true; const y = window.scrollY; renderActions(); window.scrollTo(0, y); setTimeout(() => { const r = document.getElementById('aresult'); if (r) r.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 50); };
+  const toSum = document.getElementById('toSum'); if (toSum) toSum.onclick = () => go('summary');
+}
+
+// ---------------------------------------------------------------------
+// STEP: SUMMARY
+// ---------------------------------------------------------------------
+function elapsed() { const s = Math.round((Date.now() - S.start) / 1000); return Math.floor(s / 60) + ' min ' + (s % 60) + ' sec'; }
+function renderSummary() {
+  const roots = FINDINGS.filter(f => f.type === 'root');
+  const found = roots.filter(f => anyGathered(f.needs) && S.tags[f.id] && S.tags[f.id].type === 'root').length;
+  const recNames = RECORDS.filter(r => S.rec.has(r.id)).map(r => r.title);
+  const intNames = INTERVIEWS.filter(i => S.int.has(i.id)).map(i => i.role);
+  const levelLabel = S.level === 'ACA' ? 'ACA (completed), compared with a full analysis' : (S.triedACA ? 'ACA explored, then RCA' : 'RCA');
+  const actionRows = S.actions.filter(a => a.text.trim()).map((a, i) => {
+    const smChecked = SMARTIES.filter(x => a.sm[x.k]).map(x => x.name).join(', ') || 'None marked';
+    return `<tr><td>${i + 1}. ${esc(a.text)}</td><td>${a.cat ? strengthOf(a.cat) + '<br><span class="small">' + esc(a.cat) + '</span>' : ''}</td><td>${esc(a.owner)}<br><span class="small">${esc(a.due)}</span></td><td>${esc(a.measure)}</td><td class="small">${esc(smChecked)}</td></tr>`;
+  }).join('');
+  app.innerHTML = `
+  <div class="card">
+    <span class="step-label">Case ${CASE.num} Complete</span>
+    <h2 class="title">Comprehensive Safety Analysis Summary</h2>
+    <div class="nameline noprint"><label for="nm"><strong>Your name (for the printed summary):</strong></label><input type="text" id="nm" value="${esc(S.name)}"></div>
+    <p class="printonly"><strong>Student:</strong> <span id="nmPrint">${esc(S.name)}</span></p>
+    <p class="small">HCA 880: Patient Safety and Risk &middot; Case ${CASE.num}: ${CASE.title} &middot; Time on task: ${elapsed()} &middot; ${new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
+    <table>
+      <tr><th style="width:30%">Step</th><th>Your work</th></tr>
+      <tr><td>SAC score</td><td>${SAC[S.prob][S.sev]} (${SEVERITY.find(s => s.key === S.sev).label} severity, ${PROBABILITY.find(p => p.key === S.prob).label} probability)</td></tr>
+      <tr><td>Level of analysis</td><td>${levelLabel}</td></tr>
+      <tr><td>Chart review</td><td>${recNames.length ? esc(recNames.join('; ')) : 'None'}</td></tr>
+      <tr><td>Interviews</td><td>${intNames.length ? esc(intNames.join('; ')) : 'None'}</td></tr>
+      <tr><td>Root causes</td><td>${found} of ${roots.length} root causes identified by the review team were tagged by you</td></tr>
+    </table>
+    <h3 style="margin-top:22px;">Timeline from Your Fact Finding</h3>${timelineHTML()}
+    ${activeFindings().some(f => S.tags[f.id] && S.tags[f.id].type) ? `<h3 style="margin-top:22px;">Your Cause and Effect Diagram (read from top to bottom)</h3>${fishHTML()}` : ''}
+    ${S.aca.occ.trim() ? `<h3 style="margin-top:22px;">Your ACA Report</h3><table>${ACA_FIELDS.map(f => `<tr><td style="width:30%">${esc(f.label)}</td><td>${esc(S.aca[f.id])}</td></tr>`).join('')}</table>${S.aca.gaps.some(g => g.gap.trim()) ? `<table><tr><th>Gap #</th><th>Gap</th><th>Action</th><th>Owner</th><th>Due</th></tr>${S.aca.gaps.map((g, i) => g.gap.trim() ? `<tr><td class="num">${i + 1}</td><td>${esc(g.gap)}</td><td>${esc(g.action)}</td><td>${esc(g.owner)}</td><td>${esc(g.due)}</td></tr>` : '').join('')}</table>` : ''}` : ''}
+    ${actionRows ? `<h3 style="margin-top:22px;">Your Action Plan</h3><div class="tbl-scroll"><table><tr><th>Action</th><th>Strength</th><th>Owner and due</th><th>Measure</th><th>SMART(IES) marked</th></tr>${actionRows}</table></div>` : ''}
+    ${fb('A note on the people involved.', 'The resident and the nurse in this event will likely experience what researchers call second victim syndrome: guilt, self-doubt, and distress after an event on their watch. They came to work to provide safe care, and they made decisions inside a culture that narrowed their options. A strong organizational response includes attending to their wellbeing, in addition to analyzing the system. A just culture and psychological safety are preventive measures, and they are also part of how an organization cares for its people after harm occurs.')}
+    ${nav(`<button class="btn dark" id="print">Print or Save as PDF</button><button class="btn alt" id="restart">Start Over</button>`)}
+    <p class="small noprint" style="text-align:right;">In the print dialog, choose "Save as PDF" to create the file you will submit to your instructor.</p>
+  </div>`;
+  const nm = document.getElementById('nm');
+  nm.oninput = () => { S.name = nm.value; document.getElementById('nmPrint').textContent = nm.value; };
+  document.getElementById('print').onclick = () => window.print();
+  document.getElementById('restart').onclick = () => { if (confirm('Start over? Your work in this session will be cleared.')) location.reload(); };
+  try { if (window.parent !== window) window.parent.postMessage({ type: 'csa-complete', caseNum: CASE.num }, '*'); } catch (e) {}
+}
+
+// ---------------------------------------------------------------------
+// ROUTER
+// ---------------------------------------------------------------------
+function render() {
+  const s = S.step;
+  if (s === 'intro') renderIntro();
+  else if (s === 'harm') renderHarm();
+  else if (s === 'level') renderLevel();
+  else if (s === 'gather') renderGather(1);
+  else if (s === 'gather2') renderGather(2);
+  else if (s === 'timeline') renderTimeline();
+  else if (s === 'aca') renderACA();
+  else if (s === 'fishbone') renderFishbone();
+  else if (s === 'check') renderCheck();
+  else if (s === 'actions') renderActions();
+  else if (s === 'summary') renderSummary();
+}
+renderStepper();
+render();
+</script>
+</body>
+</html>
