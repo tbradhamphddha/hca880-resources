@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FMEA Workbench</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&family=Spectral:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  /* Edgewood web palette: Edgewood Red, Black, White, Dark Gold, Medium Gold, Dark Web Grey, Warm Web Grey */
+  :root {
+    --red: #BB0000;
+    --red-dark: #930000;
+    --black: #000000;
+    --white: #FFFFFF;
+    --gold: #C8932B;
+    --gold-med: #CEB06A;
+    --grey: #58595B;
+    --warm: #F0EEEB;
+    --gold-wash: #FAF4E6;
+    --line: #D9D5CF;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Source Sans 3', 'Source Sans Pro', Arial, sans-serif;
+    background: var(--warm);
+    color: var(--black);
+    margin: 0;
+    line-height: 1.6;
+    font-size: 17px;
+  }
+  h1, h2, h3, h4 { font-family: 'Spectral', Georgia, serif; line-height: 1.25; }
+  .wrap { max-width: 920px; margin: 0 auto; padding: 0 20px 60px; }
+
+  /* Resource header (inside the constraining wrapper) */
+  .resource-header {
+    background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
+    color: var(--white);
+    padding: 0.8rem 1.5rem;
+    display: flex; align-items: center; gap: 1rem;
+    position: relative;
+    margin: 0 -20px;
+  }
+  .resource-header::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px;
+    background: linear-gradient(90deg, var(--red) 0%, var(--red) 33%, var(--gold) 33%, var(--gold) 66%, var(--gold-med) 66%, var(--gold-med) 100%);
+  }
+  .resource-header-logo { height: 40px; width: auto; border-radius: 4px; flex-shrink: 0; }
+  .resource-header-text { flex: 1; min-width: 0; }
+  .resource-header-course { font-size: 0.65rem; font-weight: 600; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold); line-height: 1.2; }
+  .resource-header-title { font-size: 1.05rem; font-weight: 600; color: var(--white); line-height: 1.3; }
+  .resource-header-back {
+    flex-shrink: 0; display: flex; align-items: center; gap: 0.3rem; font-size: 0.78rem;
+    color: #E6E3DE; text-decoration: none; padding: 0.35rem 0.7rem; border-radius: 4px; white-space: nowrap;
+  }
+  .resource-header-links { display: flex; align-items: center; gap: 0.25rem; flex-shrink: 0; }
+  .resource-header-back:hover { color: var(--white); background: rgba(255,255,255,0.1); }
+  .resource-header-back svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2; }
+  @media (max-width: 600px) {
+    .resource-header { flex-wrap: wrap; padding: 0.7rem 1rem; gap: 0.6rem; }
+    .resource-header-links { order: -1; width: 100%; }
+    .resource-header-back { padding: 0.2rem 0.4rem; font-size: 0.72rem; }
+    .resource-header-title { font-size: 0.95rem; }
+  }
+  .accent-bar { height: 6px; background: var(--red); margin: 0 -20px; }
+
+  /* Stepper */
+  .stepper { display: flex; gap: 6px; margin: 22px 0 6px; flex-wrap: wrap; }
+  .stepper .st {
+    flex: 1 1 100px; font-size: 0.74rem; font-weight: 600; text-transform: uppercase; letter-spacing: .6px;
+    color: var(--grey); border-top: 4px solid var(--line); padding-top: 6px;
+  }
+  .stepper .st.done { border-top-color: var(--gold); color: var(--black); }
+  .stepper .st.now { border-top-color: var(--red); color: var(--red); }
+
+  .card {
+    background: var(--white); border: 1px solid var(--line); border-radius: 6px;
+    padding: 24px 26px; margin-top: 18px; box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  }
+  .step-label {
+    display: inline-block; background: var(--gold); color: var(--white); font-size: 0.78rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 1px; padding: 3px 10px; border-radius: 3px; margin-bottom: 10px;
+  }
+  .title { font-size: 1.45rem; margin: 0 0 12px; }
+  .lead { font-size: 1.05rem; }
+  .vignette {
+    background: var(--warm); border-left: 4px solid var(--gold); padding: 14px 18px; border-radius: 4px; margin: 14px 0 18px; font-size: 0.98rem;
+  }
+  .question { font-weight: 700; margin: 16px 0 4px; font-size: 1.05rem; }
+  .helper { font-size: 0.92rem; color: var(--grey); margin: 4px 0 12px; }
+  .box {
+    background: var(--warm); border: 1px solid var(--line); border-radius: 4px; padding: 12px 16px; margin: 14px 0; font-size: 0.92rem; color: var(--grey);
+  }
+  .box strong { color: var(--black); }
+  .box ul { margin: 6px 0 0; padding-left: 20px; }
+  .box li { margin-bottom: 3px; }
+  .pswp {
+    background: var(--gold-wash); border: 1px solid var(--gold-med); border-left: 4px solid var(--gold);
+    border-radius: 4px; padding: 10px 14px; font-size: 0.88rem; margin: 14px 0;
+  }
+
+  /* Option buttons */
+  .options { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; }
+  .opt {
+    flex: 1 1 200px; background: var(--white); border: 2px solid var(--grey); color: var(--black);
+    font-family: inherit; font-size: 0.97rem; font-weight: 600; padding: 12px 16px; border-radius: 5px;
+    cursor: pointer; text-align: left; transition: all .15s ease;
+  }
+  .opt small { display: block; font-weight: 400; color: var(--grey); margin-top: 2px; font-size: 0.82rem; }
+  .opt:hover:not(:disabled) { background: var(--black); color: var(--white); border-color: var(--black); }
+  .opt:hover:not(:disabled) small { color: #E6E3DE; }
+  .opt.chosen { background: var(--black); border-color: var(--black); color: var(--white); }
+  .opt.chosen small { color: #E6E3DE; }
+  .opt:disabled { cursor: default; }
+  .opt:disabled:not(.chosen) { opacity: .5; }
+  .opt:focus-visible, .btn:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, .pick:focus-within {
+    outline: 3px solid var(--gold); outline-offset: 2px;
+  }
+
+  .feedback {
+    margin-top: 16px; padding: 14px 18px; border-radius: 5px; font-size: 0.97rem;
+    background: var(--warm); border-left: 4px solid var(--gold); animation: fadein .25s ease;
+  }
+  .feedback.strong { border-left-color: var(--black); }
+  .feedback .lbl { font-weight: 700; display: block; margin-bottom: 4px; }
+  @keyframes fadein { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+  .nav { display: flex; justify-content: flex-end; gap: 10px; margin-top: 22px; flex-wrap: wrap; }
+  .btn {
+    background: var(--red); color: var(--white); border: none; font-family: inherit; font-size: 1rem; font-weight: 700;
+    padding: 11px 26px; border-radius: 5px; cursor: pointer;
+  }
+  .btn:hover:not(:disabled) { background: var(--red-dark); }
+  .btn:disabled { background: var(--line); color: var(--grey); cursor: not-allowed; }
+  .btn.alt { background: transparent; color: var(--grey); border: 2px solid var(--grey); padding: 9px 22px; }
+  .btn.alt:hover:not(:disabled) { background: var(--grey); color: var(--white); }
+  .btn.dark { background: var(--black); }
+  .btn.dark:hover:not(:disabled) { background: #333; }
+
+  /* Tables */
+  table { width: 100%; border-collapse: collapse; font-size: 0.9rem; margin-top: 10px; }
+  th, td { border: 1px solid var(--line); padding: 7px 10px; text-align: left; vertical-align: top; }
+  th { background: var(--black); color: var(--white); font-family: 'Spectral', Georgia, serif; font-weight: 600; }
+  tr:nth-child(even) td { background: var(--warm); }
+  td.num { text-align: center; font-weight: 700; }
+  td.hot { background: var(--gold-wash) !important; outline: 2px solid var(--red); outline-offset: -2px; font-weight: 700; }
+  .tbl-scroll { overflow-x: auto; }
+
+  /* Pick lists (records, interviews, gaps) */
+  .picklist { display: grid; gap: 8px; margin-top: 10px; }
+  .pick {
+    display: flex; gap: 12px; align-items: flex-start; border: 1px solid var(--line); border-radius: 5px; padding: 10px 14px;
+    background: var(--white); cursor: pointer;
+  }
+  .pick:hover { border-color: var(--grey); }
+  .pick input { margin-top: 5px; width: 18px; height: 18px; accent-color: var(--red); flex-shrink: 0; }
+  .pick .t { font-weight: 600; }
+  .pick .d { font-size: 0.85rem; color: var(--grey); }
+  .pick.disabled { opacity: .5; cursor: not-allowed; }
+  .counter { font-size: 0.9rem; font-weight: 700; color: var(--red); }
+
+  /* Reveal panels */
+  .reveal { border: 1px solid var(--line); border-radius: 5px; margin-top: 12px; overflow: hidden; background: var(--white); }
+  .reveal > .hd { background: var(--black); color: var(--white); padding: 8px 14px; font-weight: 600; font-size: 0.93rem; display: flex; justify-content: space-between; gap: 10px; }
+  .reveal > .hd .tag { color: var(--gold-med); font-weight: 400; font-size: 0.8rem; }
+  .reveal > .bd { padding: 12px 16px; font-size: 0.93rem; }
+  .reveal > .bd p { margin: 0 0 8px; }
+  .reveal .mono { font-family: Consolas, Menlo, monospace; font-size: 0.84rem; background: var(--warm); padding: 8px 10px; border-radius: 4px; display: block; margin: 6px 0; }
+  .reveal .quote { border-left: 3px solid var(--gold-med); padding-left: 12px; font-style: italic; }
+  .reveal .ynote { margin-top: 8px; font-size: 0.85rem; color: var(--grey); }
+
+  /* Timeline */
+  .tl { border-left: 3px solid var(--grey); margin: 12px 0 4px 8px; padding-left: 0; }
+  .tl .ev { position: relative; padding: 4px 0 10px 22px; }
+  .tl .ev::before { content: ''; position: absolute; left: -9px; top: 10px; width: 14px; height: 14px; border-radius: 50%; background: var(--white); border: 3px solid var(--black); }
+  .tl .ev.gap::before { border-color: var(--red); background: var(--red); }
+  .tl .ev .tm { font-weight: 700; font-family: 'Spectral', Georgia, serif; }
+  .tl .ev.gap { color: var(--red); font-weight: 600; }
+  .tl .ev .src { font-size: 0.78rem; color: var(--grey); }
+
+  /* Cause and effect chain (reads top to bottom) */
+  .chain { display: flex; flex-direction: column; align-items: stretch; }
+  .chain-head { background: var(--black); color: var(--white); border-radius: 6px; padding: 12px 16px; font-family: 'Spectral', Georgia, serif; font-size: 1rem; text-align: center; }
+  .chain-head small { display: block; font-family: 'Source Sans 3', 'Source Sans Pro', sans-serif; font-size: 0.7rem; letter-spacing: .12em; text-transform: uppercase; color: var(--gold-med); margin-bottom: 2px; }
+  .chain .link { text-align: center; font-size: 1.3rem; line-height: 1.1; color: var(--grey); padding: 4px 0; }
+  .tier { border: 1px solid var(--line); border-left: 6px solid var(--grey); border-radius: 4px; padding: 10px 14px; background: var(--warm); }
+  .tier.prox { border-left-color: var(--black); }
+  .tier.causal { border-left-color: var(--gold); }
+  .tier.root { border-left-color: var(--red); }
+  .tier h5 { margin: 0 0 8px; font-family: 'Spectral', Georgia, serif; font-size: 0.95rem; }
+  .tier .item { margin: 0 0 7px; line-height: 1.4; font-size: 0.93rem; }
+  .fish { margin-top: 14px; border: 1px solid var(--line); border-radius: 6px; background: var(--white); padding: 14px; }
+  .chip { display: inline-block; font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: .4px; padding: 1px 6px; border-radius: 3px; margin-right: 5px; vertical-align: 1px; }
+  .chip.root { background: var(--red); color: var(--white); }
+  .chip.causal { background: var(--gold); color: var(--white); }
+  .chip.prox { background: var(--black); color: var(--white); }
+  .chip.non { background: var(--line); color: var(--grey); }
+  .chip.none { background: var(--white); border: 1px dashed var(--grey); color: var(--grey); }
+  .chip.cat { background: var(--white); border: 1px solid var(--grey); color: var(--grey); }
+
+  .cmp-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; align-items: start; }
+  .cmp-grid h4 { margin: 16px 0 0; font-family: 'Spectral', Georgia, serif; font-size: 1.05rem; }
+  .cmp-grid .fish { margin-top: 8px; }
+  .chip.lock { background: var(--gold-wash); border: 1px dashed var(--gold); color: var(--black); }
+  /* Finding cards */
+  .fcard { border: 1px solid var(--line); border-radius: 5px; padding: 12px 14px; margin-top: 10px; background: var(--white); }
+  .fcard.locked { background: var(--warm); color: var(--grey); }
+  .fcard .ft { font-size: 0.97rem; margin-bottom: 8px; }
+  .fcard .row { display: flex; gap: 10px; flex-wrap: wrap; }
+  .fcard label { font-size: 0.78rem; font-weight: 700; color: var(--grey); text-transform: uppercase; letter-spacing: .4px; display: block; }
+  select, input[type=text], input[type=number], textarea {
+    font-family: inherit; font-size: 0.93rem; border: 2px solid var(--grey); border-radius: 4px; padding: 7px 9px; background: var(--white); color: var(--black); width: 100%;
+  }
+  textarea { min-height: 74px; resize: vertical; }
+  td select { min-width: 104px; }
+  .fcard .col { flex: 1 1 200px; }
+
+  /* Action cards */
+  .acard { border: 1px solid var(--line); border-top: 4px solid var(--red); border-radius: 5px; padding: 14px 16px; margin-top: 14px; background: var(--white); }
+  .acard .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 8px; }
+  @media (max-width: 640px) { .acard .grid2 { grid-template-columns: 1fr; } }
+  .acard label.fl { font-size: 0.78rem; font-weight: 700; color: var(--grey); text-transform: uppercase; letter-spacing: .4px; display: block; margin: 8px 0 3px; }
+  .smart { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-top: 8px; }
+  @media (max-width: 640px) { .smart { grid-template-columns: repeat(2, 1fr); } }
+  .smart label { font-size: 0.85rem; display: flex; gap: 6px; align-items: center; border: 1px solid var(--line); border-radius: 4px; padding: 5px 8px; cursor: pointer; background: var(--warm); }
+  .smart input { accent-color: var(--red); width: 16px; height: 16px; }
+  .rm { background: none; border: none; color: var(--red); font-weight: 700; cursor: pointer; float: right; font-family: inherit; }
+
+  .stat { display: inline-block; background: var(--red); color: var(--white); font-family: 'Spectral', Georgia, serif; font-size: 1.6rem; font-weight: 700; padding: 10px 26px; border-radius: 6px; margin: 8px 0; }
+  .small { font-size: 0.85rem; color: var(--grey); }
+  .printonly { display: none; }
+  .nameline { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin: 12px 0; }
+  .nameline input { max-width: 340px; }
+
+  .resource-footer { text-align: center; padding: 1.5rem; font-size: 0.75rem; color: var(--grey); border-top: 1px solid var(--line); background: var(--white); margin: 40px -20px -60px; }
+  .resource-footer a { color: var(--grey); text-decoration: underline; }
+
+  @media print {
+    body { background: #fff; font-size: 11pt; }
+    .resource-header, .accent-bar, .stepper, .nav, .noprint, .resource-footer, .btn, .rm { display: none !important; }
+    .card { box-shadow: none; border: none; padding: 0; margin-top: 10px; }
+    .printonly { display: block; }
+    .wrap { max-width: none; padding: 0; }
+    .reveal, .acard, .fish, .fcard, .tier { break-inside: avoid; }
+    th { background: #000 !important; color: #fff !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .chip, .chain-head, .stat { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="resource-header">
+    <img class="resource-header-logo" src="eu_logo_primary.jpg" alt="Edgewood University">
+    <div class="resource-header-text">
+      <div class="resource-header-course">HCA 880: Patient Safety and Risk</div>
+      <div class="resource-header-title">FMEA Workbench</div>
+    </div>
+    <div class="resource-header-links">
+      
+      <a class="resource-header-back" href="index.html">Course Home</a>
+    </div>
+  </header>
+  <div class="accent-bar"></div>
+
+  <div id="stepper" class="stepper" aria-label="Progress"></div>
+  <div id="app" aria-live="polite"></div>
+
+  <footer class="resource-footer">
+    &copy; 2026 Edgewood University &middot; Henry Predolin College of Health Sciences<br>
+    <a href="https://www.edgewood.edu" target="_blank" rel="noopener">edgewood.edu</a>
+  </footer>
+</div>
+
+<script>
+// =====================================================================
+// FMEA WORKBENCH DATA: Discharge Medication Reconciliation and Teaching
+// All numbers, audits, and quotes are fictional teaching material.
+// Format follows the IHI QI Essentials Toolkit FMEA table; scale wording
+// is adapted from NMH FMEA training slides and ASQ FMEA references.
+// =====================================================================
+const PROCESS = {
+  title: "Discharge Medication Reconciliation and Teaching",
+  scope: `Your hospital is planning to redesign how patients go home on new or changed medications. About 12 patients are discharged from a 36-bed medical unit each day, and most take five or more medications. Two readmissions last quarter were linked to confusion about discharge medications. The Chief Nursing Officer and Chief Quality Officer ask you to lead a proactive FMEA before the redesign starts: a team looks ahead to predict where this process could fail, rates the risk, and builds the fixes before another patient is harmed.`
+};
+
+const TEAM = [
+  { id: "t1", text: "Discharging physician or hospitalist", fit: true, why: "The prescriber owns the first step, and knows why orders are written the way they are." },
+  { id: "t2", text: "Discharging nurse", fit: true, why: "Nurses reconcile, teach, and send patients home, so they know how the work really happens." },
+  { id: "t3", text: "Hospital pharmacist", fit: true, why: "Pharmacists bring medication expertise to reconciliation and the final check." },
+  { id: "t4", text: "Case manager or transition coordinator", fit: true, why: "This role handles pharmacies, follow-up calls, and what happens after the patient leaves." },
+  { id: "t5", text: "Patient or family advisor", fit: true, why: "Patients and families live with the process and can see failures the staff no longer notice." },
+  { id: "t6", text: "EHR analyst", fit: true, why: "Many fixes live in the EHR, so someone must know what can be changed and how quickly." },
+  { id: "t7", text: "Community pharmacist", fit: true, why: "Step 3 happens in their pharmacy. They see what arrives and what does not." },
+  { id: "t8", text: "Unit manager (sponsor)", fit: true, why: "A leader who can remove barriers and commit resources keeps the team from stalling." },
+  { id: "t9", text: "Marketing director", fit: false, why: "Marketing does not touch any step of this process. The team should include people who do the work or who are affected by it." },
+  { id: "t10", text: "Board chair", fit: false, why: "The board receives the results, and does not belong on the working team. Too many outside voices slows the analysis." },
+  { id: "t11", text: "Billing coder", fit: false, why: "Coding happens after discharge and does not shape medication safety in this process." }
+];
+
+// Steps in correct order; the page shuffles them for the mapping activity
+const STEPS = [
+  { id: "s1", text: "The prescriber writes the discharge medication orders.",
+    fm: [
+      { k: "strong", t: "A home medication is continued, stopped, or changed in the discharge orders without a documented decision.", why: "A strong failure mode says what could go wrong at this step, in specific words a team could watch for or count." },
+      { k: "weak", t: "Prescribers are rushed at discharge.", why: "This is a possible cause. A failure mode describes what goes wrong in the step; the causes come next." },
+      { k: "weak", t: "Medication errors occur.", why: "This is too broad. It would fit almost any step, and no one could tell how to detect it or prevent it." }
+    ],
+    ca: [
+      { k: "strong", t: "The discharge order screen shows the home list from admission, and the EHR does not require a continue, stop, or change decision for each home medication.", why: "This names a condition in the system that makes the failure likely. A fix could change it." },
+      { k: "weak", t: "The prescriber did not pay enough attention.", why: "This blames a person and gives no reason. It points toward reminding one prescriber, which leaves the system as it was." },
+      { k: "weak", t: "Poor communication.", why: "This is vague. Communication between whom, about what, and where? A team cannot act on it." }
+    ],
+    ef: [
+      { k: "strong", t: "The patient resumes a medication that was meant to stop, or misses one that changed, and may have an adverse drug event or return to the hospital.", why: "A strong effect describes what the patient experiences, in terms of harm or burden." },
+      { k: "weak", t: "The discharge paperwork is wrong.", why: "This describes the document and leaves out what happens to the patient." },
+      { k: "weak", t: "The hospital's readmission measure gets worse.", why: "This describes an effect on the organization. The FMEA asks about the consequence for the people the process serves." }
+    ],
+    facts: "A chart audit of 100 discharges found 18 with at least one home medication that had no documented decision. A pharmacist reviews only the 20% of patients on ten or more medications.",
+    S: [7, 9], O: [8, 10], D: [6, 8],
+    sNote: "Taking a stopped medication or missing a changed one can cause serious injury.",
+    oNote: "With about 12 discharges a day and 18% affected, this happens about daily.",
+    dNote: "Only a fifth of patients get a pharmacist review, so detection is left to chance for most.",
+    acts: [
+      { k: "Weaker", t: "Send a memo reminding prescribers to review every home medication at discharge.", dO: -1, dD: 0, why: "A memo is a new instruction. It depends on memory and does not change the order screen." },
+      { k: "Intermediate", t: "Show the home medication list beside the discharge orders, and add a pharmacist review for every patient on five or more medications.", dO: -2, dD: -2, why: "Better visibility and a second set of eyes help. The review is manual, so it can still be missed." },
+      { k: "Stronger", t: "Require a continue, stop, or change decision for every home medication before the discharge order can be signed.", dO: -4, dD: -4, why: "This forcing function builds the safe step into the workflow, so it no longer depends on anyone remembering." }
+    ] },
+  { id: "s2", text: "The nurse and pharmacist reconcile the discharge list against the home medications.",
+    fm: [
+      { k: "weak", t: "Nurses do not take reconciliation seriously.", why: "This describes an attitude and blames people. A failure mode describes what goes wrong in the step." },
+      { k: "strong", t: "The reconciliation is completed from the patient's recall or an outdated list instead of a verified source.", why: "This names a specific way the step could fail, one that a team could observe." },
+      { k: "weak", t: "The patient's medication list is incomplete.", why: "This is an outcome of the failure and does not say how the step failed. It also leaves out where the list came from." }
+    ],
+    ca: [
+      { k: "weak", t: "The nurse was new and did not know the process.", why: "This points at one person and does not generalize. The next nurse would meet the same conditions." },
+      { k: "strong", t: "The reconciliation tool does not require a second source such as fill history or a family member, and the fill history takes four clicks to open.", why: "These are conditions in the work system that make the shortcut likely. Each can be changed." },
+      { k: "weak", t: "Staff are overworked.", why: "This is vague and cannot be fixed by the team. Look for the specific condition in the process that makes the shortcut easy." }
+    ],
+    ef: [
+      { k: "weak", t: "The reconciliation form is marked complete when it is not.", why: "This is about the form. The patient's experience is what the FMEA asks you to describe." },
+      { k: "strong", t: "The discharge list includes a medication the patient no longer takes, or leaves one off, and nobody warns the patient.", why: "This describes what reaches the patient and how it could cause harm." },
+      { k: "weak", t: "Time is wasted at discharge.", why: "This is a minor effect on staff time, and it ignores the risk to the patient." }
+    ],
+    facts: "Observers watched 30 reconciliations. In 11 of them, the nurse used only the patient's recall. The EHR has no hard stop for a second source.",
+    S: [6, 8], O: [7, 9], D: [6, 8],
+    sNote: "A wrong list can lead to duplicate or missed doses that need medical attention.",
+    oNote: "11 of 30 observed reconciliations, or about a third of the time.",
+    dNote: "Nothing checks the source, so a shortcut is found only by chance.",
+    acts: [
+      { k: "Weaker", t: "Add a line to the nursing policy asking staff to verify the list with a second source.", dO: -1, dD: 0, why: "A policy line asks people to remember. It does not change what is easy to do." },
+      { k: "Intermediate", t: "Put a one-click fill history view in the reconciliation tool and give nurses a checklist.", dO: -2, dD: -2, why: "This makes the safe step easier, and the checklist is still a manual prompt." },
+      { k: "Stronger", t: "Have pharmacy technicians build the medication history from two sources at admission, and require the second source field before reconciliation can be marked complete.", dO: -4, dD: -4, why: "This changes who does the work and builds a required check into the tool." }
+    ] },
+  { id: "s3", text: "Prescriptions are sent to the patient's outpatient pharmacy.",
+    fm: [
+      { k: "strong", t: "A prescription goes to the wrong pharmacy or is not received, so the patient cannot fill a needed medication on discharge day.", why: "This is specific, observable, and tied to this step." },
+      { k: "weak", t: "The pharmacy is slow.", why: "This is vague and puts the problem outside the hospital's control. The step is how the hospital sends prescriptions." },
+      { k: "weak", t: "Patients forget to pick up their medications.", why: "This blames the patient and sits outside this step. A strong failure mode starts from what the hospital's process does." }
+    ],
+    ca: [
+      { k: "strong", t: "The EHR defaults to the pharmacy used at the last visit and the patient is not asked to confirm. An e-prescribe failure raises no alert for the team.", why: "These are two conditions in the system that make the failure likely and hard to see." },
+      { k: "weak", t: "The nurse clicked the wrong pharmacy.", why: "This describes the error and blames the person who made it. It leaves the default and the missing alert in place." },
+      { k: "weak", t: "Technology problems.", why: "This is vague. Which technology, and what about it? The team cannot act on it." }
+    ],
+    ef: [
+      { k: "strong", t: "The patient goes without a needed medication, such as an anticoagulant, insulin, or an antibiotic, for a day or more.", why: "This describes what the patient experiences and why it matters." },
+      { k: "weak", t: "The pharmacy calls the hospital to ask about the prescription.", why: "This is extra work for the pharmacy. Focus on what the patient goes through." },
+      { k: "weak", t: "Staff spend extra time fixing prescriptions.", why: "This is an effect on staff. The patient's risk comes first in an FMEA." }
+    ],
+    facts: "Community pharmacies report about 3 prescriptions a week that never arrive or go to the wrong location. No alert fires when an e-prescription fails. Affected medications include anticoagulants, insulin, and antibiotics.",
+    S: [8, 10], O: [7, 9], D: [6, 8],
+    sNote: "Missing an anticoagulant or insulin can cause major or permanent harm.",
+    oNote: "About 3 a week, which falls near once a week or more.",
+    dNote: "Most are found when the patient or the pharmacy calls, so detection is left to chance.",
+    acts: [
+      { k: "Weaker", t: "Ask staff to double-check the pharmacy name at discharge.", dO: -1, dD: 0, why: "A double-check relies on vigilance and does not change the default." },
+      { k: "Weaker", t: "Add a paper pharmacy-confirmation form to the discharge packet.", dO: 0, dD: 1, why: "This adds a step. The form lives outside the EHR, so nobody can see whether it was done. It makes the process heavier and detection worse, which is why the RPN goes up." },
+      { k: "Stronger", t: "Have the patient confirm the pharmacy at the bedside in the EHR, alert the team when an e-prescription fails, and offer meds-to-beds delivery for high-risk medications.", dO: -4, dD: -4, why: "This changes the default, adds an automatic alert, and removes the pharmacy trip for the riskiest medications." }
+    ] },
+  { id: "s4", text: "The nurse teaches the patient and caregiver using the after-visit summary.",
+    fm: [
+      { k: "weak", t: "Patients do not follow instructions.", why: "This blames the patient. A failure mode describes how the teaching step could fail." },
+      { k: "weak", t: "Teaching takes too long.", why: "This is about staff time. It is not a way the step could harm the patient." },
+      { k: "strong", t: "Teaching is delivered, but the patient or caregiver does not understand which medications are new, changed, or stopped, and no one checks.", why: "This describes the failure in the step: teaching happened and understanding did not." }
+    ],
+    ca: [
+      { k: "strong", t: "Teaching happens while the patient waits for transport. The after-visit summary lists medications alphabetically without marking new, changed, or stopped, and teach-back is optional.", why: "These are conditions in the process and the tool that make the failure likely." },
+      { k: "weak", t: "The nurse rushed through the teaching.", why: "This blames a person and ignores the conditions that rush everyone." },
+      { k: "weak", t: "Patients have low health literacy.", why: "This describes the patient. The process should be built to work for patients with low health literacy, so the question is why it does not." }
+    ],
+    ef: [
+      { k: "strong", t: "The patient takes a stopped medication or doubles up on a duplicate at home, and may return with an adverse event.", why: "This is the patient's experience and the harm that could follow." },
+      { k: "weak", t: "The patient gives the unit a low satisfaction score.", why: "This describes a survey result. The harm to the patient is the main effect." },
+      { k: "weak", t: "The teaching note is incomplete.", why: "This is about the chart and says nothing about the patient." }
+    ],
+    facts: "An audit of 40 teaching notes found teach-back documented in 14. In a patient survey, one in three could not say which medications had changed.",
+    S: [6, 8], O: [7, 9], D: [6, 8],
+    sNote: "Taking a stopped or duplicate medication can cause injury needing treatment.",
+    oNote: "Teach-back is missing in about 65% of audited teaching notes.",
+    dNote: "Nobody checks understanding, and nothing flags a patient who did not understand.",
+    acts: [
+      { k: "Weaker", t: "Give every patient a handout on safe medication use.", dO: -1, dD: 0, why: "A generic handout is training in paper form and does not show the patient what changed for them." },
+      { k: "Intermediate", t: "Require teach-back documentation and move teaching to the afternoon before discharge, with the caregiver present.", dO: -2, dD: -2, why: "More time and a required note help, and the check still depends on the nurse doing it well." },
+      { k: "Stronger", t: "Redesign the after-visit summary to show new, changed, and stopped medications in separate sections, with a pharmacist bedside review and teach-back for patients on five or more medications.", dO: -3, dD: -3, why: "A standardized tool makes the change obvious, and the pharmacist adds a second check where risk is highest." }
+    ] },
+  { id: "s5", text: "The patient leaves the unit with the printed medication list.",
+    fm: [
+      { k: "strong", t: "The patient leaves with a printed medication list that differs from the final orders.", why: "This is specific and could be checked by comparing two documents." },
+      { k: "weak", t: "Patients lose their paperwork.", why: "This is outside the hospital's control, and it does not describe how the step fails." },
+      { k: "weak", t: "The printer jams.", why: "This is a minor equipment issue. It would delay the list and does not describe an error in what the list says." }
+    ],
+    ca: [
+      { k: "weak", t: "Nobody double-checked the list.", why: "This is a missing check, which is a symptom. Ask why no check exists and why the list was wrong in the first place." },
+      { k: "strong", t: "The list prints from the first draft of the discharge orders, and later pharmacist changes do not update the printed copy. No final check happens at the door.", why: "These are system conditions that explain how a wrong list reaches the patient." },
+      { k: "weak", t: "Staff are careless at the end of the shift.", why: "This blames people and says nothing about how the process is built." }
+    ],
+    ef: [
+      { k: "weak", t: "The patient is annoyed by a long wait.", why: "This is a minor inconvenience. The patient risk is in the content of the list." },
+      { k: "strong", t: "The patient and the community pharmacy follow different lists, which can lead to a duplicate or missed dose.", why: "This describes what the patient and the pharmacy experience, and the harm that could follow." },
+      { k: "weak", t: "Staff must reprint the list.", why: "This describes extra work for staff and not the effect on the patient." }
+    ],
+    facts: "Two events in the last quarter where the printed list did not match final orders. Nothing compares the printed list with the final orders before the patient leaves.",
+    S: [6, 8], O: [3, 5], D: [7, 9],
+    sNote: "A list that conflicts with the pharmacy can lead to duplicate or missed doses.",
+    oNote: "Two events in a quarter fits about once a quarter.",
+    dNote: "No one compares the two documents, and the patient is already gone when the error is found.",
+    acts: [
+      { k: "Weaker", t: "Remind nurses to compare the printed list with the final orders.", dO: -1, dD: 0, why: "A reminder to double-check depends on memory at the busiest moment of the shift." },
+      { k: "Intermediate", t: "Add a pharmacist final-check sign-off line to the discharge checklist.", dO: -2, dD: -2, why: "A checklist and a second person help, and the check is still manual." },
+      { k: "Stronger", t: "Print the list at the door from the final locked version. Any order change after printing voids the old copy and alerts the nurse.", dO: -3, dD: -4, why: "This forcing function keeps the list and the orders in sync and alerts the team when they are not." }
+    ] },
+  { id: "s6", text: "A nurse calls the patient 48 to 72 hours after discharge.",
+    fm: [
+      { k: "weak", t: "Patients do not answer their phones.", why: "This is about the patient and does not describe how the hospital's process fails." },
+      { k: "strong", t: "The follow-up call is not made, or is made without a medication review, so problems are found only after the patient returns to care.", why: "This describes how the step could fail and why it matters." },
+      { k: "weak", t: "The call script is boring.", why: "This is a preference. It does not describe a way the step could harm a patient." }
+    ],
+    ca: [
+      { k: "strong", t: "Calls depend on one nurse's open time and a manual list, the script has no medication questions, and the phone number is wrong in about one in eight charts.", why: "These are conditions in the process that explain why calls do not happen or miss the point." },
+      { k: "weak", t: "The nurse forgot to call.", why: "This blames a person. A process that depends on someone remembering is the problem to fix." },
+      { k: "weak", t: "Not enough staff.", why: "This is vague and sounds like a budget request. Look at how the work is organized first." }
+    ],
+    ef: [
+      { k: "weak", t: "The unit's follow-up call rate looks low.", why: "This is a metric for the unit. It leaves out what happens to the patient." },
+      { k: "strong", t: "A medication problem continues unrecognized for days and may end in an emergency visit or readmission.", why: "This describes the patient's path and the harm that follows." },
+      { k: "weak", t: "The patient does not feel cared for.", why: "This is a real concern, and it is less specific than the clinical consequence. A strong effect names the harm." }
+    ],
+    facts: "Only 60% of calls are completed within 72 hours. The script does not include medication questions. Phone numbers are wrong in about one in eight charts. A call log exists.",
+    S: [5, 7], O: [7, 10], D: [3, 5],
+    sNote: "A missed call can delay recognition of a medication problem and lead to an emergency visit.",
+    oNote: "40% of calls are missed or late, which happens almost every day.",
+    dNote: "The call log shows who was not called, so detection is fairly good.",
+    acts: [
+      { k: "Weaker", t: "Ask the unit manager to remind staff to make the calls.", dO: -1, dD: 0, why: "A reminder fades, and the calls still depend on one nurse's open time." },
+      { k: "Intermediate", t: "Add medication review questions to the call script and build the call list into the nurse's daily workflow.", dO: -2, dD: -2, why: "A better script and a workflow cue help. The process still depends on whoever has time." },
+      { k: "Stronger", t: "Assign a transition team to the calls with an automated call list, phone numbers verified at discharge, and a script that includes medication review.", dO: -4, dD: -3, why: "This protects the time for the calls, fixes the phone number problem at the source, and standardizes what is asked." }
+    ] }
+];
+
+// Scale reference tables (adapted wording)
+const SCALE_SEV = [["9 to 10", "Could cause permanent harm or death"], ["7 to 8", "Could cause serious injury that needs treatment or a hospital stay"], ["5 to 6", "Could cause minor injury and some dissatisfaction"], ["3 to 4", "Very minor or no injury, but annoying to the patient"], ["2", "No injury, and the patient would not notice"], ["1", "No effect"]];
+const SCALE_OCC = [["10", "At least once a day, or almost every time"], ["9", "Every 3 or 4 days"], ["7 to 8", "About once a week"], ["5 to 6", "About once a month"], ["3 to 4", "About once every 3 months"], ["2", "About once a year"], ["1", "Almost never"]];
+const SCALE_DET = [["10", "No known way to detect the failure"], ["8 to 9", "Detected only with thorough inspection that is not practical"], ["6 to 7", "Could be detected by manual inspection, but nothing is in place, so detection is left to chance"], ["5", "A double-check exists but is manual, sampled, or relies on vigilance"], ["3 to 4", "Every case is reviewed, but by hand"], ["2", "Every case is checked automatically"], ["1", "An automatic stop or constraint prevents the failure"]];
+
+const MODEL_MONITOR = "Re-score each failure mode with the same scales after three months of the new process, using audit data (for example, 30 discharges a month) instead of estimates. Track the total RPN against the baseline, with a goal such as a 50% reduction. Name an owner for each audit and report the results to the quality committee each month.";
+
+// =====================================================================
+// FMEA WORKBENCH ENGINE
+// =====================================================================
+const app = document.getElementById('app');
+const stepperEl = document.getElementById('stepper');
+const SECTIONS = [
+  { label: 'Team', steps: ['team'] },
+  { label: 'Process Map', steps: ['map'] },
+  { label: 'Failure Modes', steps: ['fm'] },
+  { label: 'Ratings', steps: ['rate'] },
+  { label: 'Priorities', steps: ['prio'] },
+  { label: 'Actions', steps: ['acts'] },
+  { label: 'Summary', steps: ['summary'] }
+];
+const SHUFFLED = ['s4', 's1', 's6', 's3', 's2', 's5'];
+const F = {
+  step: 'intro', start: Date.now(),
+  team: new Set(), teamChk: false,
+  order: SHUFFLED.slice(), orderChk: false,
+  fmI: 0, pick: {}, chk: {},
+  rate: {}, rateChk: false,
+  prio: new Set(), prioChk: false,
+  act: {}, monitor: '', name: ''
+};
+const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const byId = id => STEPS.find(s => s.id === id);
+const stepNo = id => STEPS.findIndex(s => s.id === id) + 1;
+function fb(label, body, strong) { return `<div class="feedback${strong ? ' strong' : ''}"><span class="lbl">${label}</span>${body}</div>`; }
+function nav(b) { return `<div class="nav">${b}</div>`; }
+function keepScroll(fn) { const y = window.scrollY; fn(); window.scrollTo(0, y); }
+
+function renderStepper() {
+  let cur = SECTIONS.findIndex(s => s.steps.indexOf(F.step) >= 0);
+  if (F.step === 'intro') cur = -1;
+  stepperEl.innerHTML = SECTIONS.map((s, i) => `<div class="st ${i < cur ? 'done' : i === cur ? 'now' : ''}">${i + 1}. ${s.label}</div>`).join('');
+}
+function go(step) { F.step = step; renderStepper(); render(); window.scrollTo({ top: 0, behavior: 'smooth' }); }
+function render() {
+  ({ intro: renderIntro, team: renderTeam, map: renderMap, fm: renderFM, rate: renderRate, prio: renderPrio, acts: renderActs, summary: renderSummary })[F.step]();
+}
+function scaleTables() {
+  const t = (title, rows) => `<div class="tbl-scroll"><table><tr><th style="width:90px">Rating</th><th>${title}</th></tr>${rows.map(r => `<tr><td class="num">${r[0]}</td><td>${r[1]}</td></tr>`).join('')}</table></div>`;
+  return `<details class="reveal"><summary class="hd" style="cursor:pointer;"><span>Rating scales (1 to 10)</span><span class="tag">Open to reread</span></summary><div class="bd">
+    <p><strong>Severity:</strong> how serious the effect would be if the failure happens.</p>${t('Severity', SCALE_SEV)}
+    <p style="margin-top:14px;"><strong>Likelihood of occurrence:</strong> how often the failure happens.</p>${t('Occurrence', SCALE_OCC)}
+    <p style="margin-top:14px;"><strong>Likelihood of detection:</strong> 10 means the failure is least likely to be caught before it reaches the patient.</p>${t('Detection', SCALE_DET)}
+  </div></details>`;
+}
+const rpn = r => (r && r.S && r.O && r.D) ? r.S * r.O * r.D : 0;
+const clamp = v => Math.max(1, Math.min(10, v));
+function chosenAct(id) { const s = byId(id); const i = F.act[id]; return i === undefined ? null : s.acts[i]; }
+function after(id) {
+  const r = F.rate[id], a = chosenAct(id);
+  if (!a) return { O: r.O, D: r.D, S: r.S, rpn: rpn(r) };
+  const O = clamp(r.O + a.dO), D = clamp(r.D + a.dD);
+  return { O, D, S: r.S, rpn: O * D * r.S };
+}
+const totalBase = () => STEPS.reduce((n, s) => n + rpn(F.rate[s.id]), 0);
+const totalAfter = () => STEPS.reduce((n, s) => n + (F.prio.has(s.id) ? after(s.id).rpn : rpn(F.rate[s.id])), 0);
+
+// ---------------------------------------------------------------------
+function renderIntro() {
+  app.innerHTML = `<div class="card">
+    <span class="step-label">FMEA Workbench</span>
+    <h1 class="title" style="font-size:1.7rem;">Failure Modes and Effects Analysis</h1>
+    <p>An FMEA looks ahead. Instead of asking why an event happened, a team predicts where, how, and how badly a process could fail, then fixes the highest risks first. It works best on a new process or a planned change, before anyone is harmed.</p>
+    <div class="vignette"><strong>The Process:</strong> ${PROCESS.scope}</div>
+    <div class="box"><strong>What y'all will do</strong><ul>
+      <li>Build the team and map the steps of the process.</li>
+      <li>For each step, judge which statements describe the failure mode, cause, and effect well, and which are weak.</li>
+      <li>Rate severity, occurrence, and detection, then calculate the Risk Priority Number (RPN = occurrence x detection x severity).</li>
+      <li>Decide which failure modes to fix first, choose actions, and see how the RPN would change.</li>
+    </ul></div>
+    ${nav(`<button class="btn" id="go">Begin the FMEA</button>`)}
+  </div>`;
+  document.getElementById('go').onclick = () => go('team');
+}
+
+// ---------------------------------------------------------------------
+function renderTeam() {
+  const items = TEAM.map(m => {
+    const sel = F.team.has(m.id); let f = '';
+    if (F.teamChk) {
+      if (m.fit && sel) f = fb('A voice the team needs.', m.why, true);
+      else if (m.fit && !sel) f = fb('This voice is missing.', m.why);
+      else if (!m.fit && sel) f = fb(`Let's look at this one again.`, m.why);
+      else f = fb('Left off, and that fits.', m.why, true);
+    }
+    return `<div style="margin:8px 0;"><label class="pick"><input type="checkbox" data-team="${m.id}" ${sel ? 'checked' : ''}><span><span class="t">${esc(m.text)}</span></span></label>${f}</div>`;
+  }).join('');
+  const ok = TEAM.every(m => m.fit === F.team.has(m.id));
+  app.innerHTML = `<div class="card">
+    <span class="step-label">Step 1: The Team</span><h2 class="title">Who Belongs on the FMEA Team?</h2>
+    <p>An FMEA team represents every point in the process, because people who do the work see failures that others miss. Select the people who belong on the working team.</p>
+    ${items}
+    ${F.teamChk ? (ok ? fb('Your team is ready.', 'It includes the people who do the work and the people affected by it, and it leaves out voices that would slow the analysis.', true) : fb('Adjust your team and check again.', 'Use the notes above to see who to add or remove.')) : ''}
+    ${nav(!F.teamChk || !ok ? `<button class="btn" id="chk" ${F.team.size ? '' : 'disabled'}>Check My Team</button>` : `<button class="btn" id="nx">Continue to the Process Map</button>`)}
+  </div>`;
+  app.querySelectorAll('[data-team]').forEach(el => el.onchange = () => { el.checked ? F.team.add(el.dataset.team) : F.team.delete(el.dataset.team); F.teamChk = false; keepScroll(renderTeam); });
+  const c = document.getElementById('chk'); if (c) c.onclick = () => { F.teamChk = true; renderTeam(); };
+  const n = document.getElementById('nx'); if (n) n.onclick = () => go('map');
+}
+
+// ---------------------------------------------------------------------
+function renderMap() {
+  const ok = F.order.every((id, i) => id === STEPS[i].id);
+  const rows = F.order.map((id, i) => `<div class="pick" style="align-items:center;"><span class="num" style="font-weight:700;width:24px;">${i + 1}</span><span class="t" style="flex:1;">${esc(byId(id).text)}</span><span class="noprint"><button class="btn alt" style="padding:4px 10px;" data-up="${i}" aria-label="Move step ${i + 1} up" ${i === 0 ? 'disabled' : ''}>&uarr;</button> <button class="btn alt" style="padding:4px 10px;" data-dn="${i}" aria-label="Move step ${i + 1} down" ${i === F.order.length - 1 ? 'disabled' : ''}>&darr;</button></span></div>`).join('');
+  let f = '';
+  if (F.orderChk) {
+    if (ok) f = fb('The map follows the real flow.', 'An agreed, ordered list of steps is the base of the FMEA. Every failure mode will attach to one of these steps. Tip: a flowchart can help the team see where steps connect.', true);
+    else {
+      const firstBad = F.order.findIndex((id, i) => id !== STEPS[i].id);
+      f = fb('Have you thought about the order?', `Think about what must be finished before each step can start. Look again at position ${firstBad + 1}: what has to happen right before it, and what comes right after?`);
+    }
+  }
+  app.innerHTML = `<div class="card">
+    <span class="step-label">Step 2: The Process Map</span><h2 class="title">Put the Steps in Order</h2>
+    <p>The team's first job is to agree on the steps of the process, in order. The steps below are out of sequence. Use the arrows to put them in the order the work happens.</p>
+    ${rows}${f}
+    ${nav(!ok || !F.orderChk ? `<button class="btn" id="chk">Check the Order</button>` : `<button class="btn" id="nx">Continue to Failure Modes</button>`)}
+  </div>`;
+  app.querySelectorAll('[data-up]').forEach(b => b.onclick = () => { const i = +b.dataset.up;[F.order[i - 1], F.order[i]] = [F.order[i], F.order[i - 1]]; F.orderChk = false; keepScroll(renderMap); });
+  app.querySelectorAll('[data-dn]').forEach(b => b.onclick = () => { const i = +b.dataset.dn;[F.order[i + 1], F.order[i]] = [F.order[i], F.order[i + 1]]; F.orderChk = false; keepScroll(renderMap); });
+  const c = document.getElementById('chk'); if (c) c.onclick = () => { F.orderChk = true; renderMap(); };
+  const n = document.getElementById('nx'); if (n) n.onclick = () => { F.fmI = 0; go('fm'); };
+}
+
+// ---------------------------------------------------------------------
+const GROUPS = [
+  { key: 'fm', q: 'Failure mode: What could go wrong?', help: 'Choose the statement that best describes how this step could fail.' },
+  { key: 'ca', q: 'Failure cause: Why would the failure happen?', help: 'Choose the statement that names a condition in the system that makes the failure likely.' },
+  { key: 'ef', q: 'Failure effect: What would the consequence be for the patient?', help: 'Choose the statement that best describes what the patient would experience.' }
+];
+function renderFM() {
+  const s = STEPS[F.fmI];
+  const P = F.pick[s.id] || (F.pick[s.id] = {});
+  const checked = !!F.chk[s.id];
+  const allPicked = GROUPS.every(g => P[g.key] !== undefined);
+  const allStrong = allPicked && GROUPS.every(g => s[g.key][P[g.key]].k === 'strong');
+  const blocks = GROUPS.map(g => {
+    const opts = s[g.key].map((o, i) => `<label class="pick"><input type="radio" name="${g.key}_${s.id}" data-g="${g.key}" data-i="${i}" ${P[g.key] === i ? 'checked' : ''}><span><span class="t">${esc(o.t)}</span></span></label>`).join('');
+    let f = '';
+    if (checked && P[g.key] !== undefined) {
+      const o = s[g.key][P[g.key]];
+      f = o.k === 'strong' ? fb('A strong statement.', o.why, true) : fb(`Let's look at this one again.`, `${o.why} Reread the three choices and look for the one that fits this description.`);
+    }
+    return `<div class="question">${g.q}</div><div class="helper">${g.help}</div><div class="picks">${opts}</div>${f}`;
+  }).join('');
+  const last = F.fmI === STEPS.length - 1;
+  app.innerHTML = `<div class="card">
+    <span class="step-label">Step 3: Failure Modes, Causes, and Effects (${F.fmI + 1} of ${STEPS.length})</span>
+    <h2 class="title">Step ${F.fmI + 1} of the Process</h2>
+    <div class="vignette"><strong>${esc(s.text)}</strong></div>
+    <p>A leader does not need to be an expert in every step, but can tell a strong statement from a weak one. Ask: Is it specific? Does it describe the system and not just a person? Does it name a patient consequence?</p>
+    ${blocks}
+    ${checked && allStrong ? fb('This step is ready.', 'Your failure mode, cause, and effect are specific and about the system, and they will go into your FMEA table.', true) : ''}
+    ${nav(!checked || !allStrong ? `<button class="btn" id="chk" ${allPicked ? '' : 'disabled'}>Check My Choices</button>` : `<button class="btn" id="nx">${last ? 'Continue to Ratings' : 'Next Step of the Process'}</button>`)}
+  </div>`;
+  app.querySelectorAll('[data-g]').forEach(el => el.onchange = () => { P[el.dataset.g] = +el.dataset.i; F.chk[s.id] = false; keepScroll(renderFM); });
+  const c = document.getElementById('chk'); if (c) c.onclick = () => { F.chk[s.id] = true; keepScroll(renderFM); };
+  const n = document.getElementById('nx'); if (n) n.onclick = () => { if (last) go('rate'); else { F.fmI++; renderStepper(); renderFM(); window.scrollTo(0, 0); } };
+}
+
+// ---------------------------------------------------------------------
+function renderRate() {
+  const opts = v => `<option value="">-</option>` + [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(n => `<option value="${n}" ${v === n ? 'selected' : ''}>${n}</option>`).join('');
+  const rows = STEPS.map((s, i) => {
+    const r = F.rate[s.id] || (F.rate[s.id] = {});
+    const fm = s.fm.find(x => x.k === 'strong').t;
+    return `<tr><td class="num">${i + 1}</td><td>${esc(fm)}</td><td class="small">${esc(s.facts)}</td>
+      <td><select data-r="${s.id}" data-f="O" aria-label="Occurrence, step ${i + 1}">${opts(r.O)}</select></td>
+      <td><select data-r="${s.id}" data-f="D" aria-label="Detection, step ${i + 1}">${opts(r.D)}</select></td>
+      <td><select data-r="${s.id}" data-f="S" aria-label="Severity, step ${i + 1}">${opts(r.S)}</select></td>
+      <td class="num" id="rpn_${s.id}">${rpn(r) || ''}</td></tr>`;
+  }).join('');
+  const ready = STEPS.every(s => rpn(F.rate[s.id]));
+  let f = '';
+  if (F.rateChk) {
+    f = STEPS.map((s, i) => {
+      const r = F.rate[s.id]; const bad = [];
+      if (r.S < s.S[0] || r.S > s.S[1]) bad.push(`Severity: ${s.sNote}`);
+      if (r.O < s.O[0] || r.O > s.O[1]) bad.push(`Occurrence: ${s.oNote}`);
+      if (r.D < s.D[0] || r.D > s.D[1]) bad.push(`Detection: ${s.dNote}`);
+      return bad.length ? fb(`Failure mode ${i + 1}: have you thought about the evidence?`, `<ul style="margin:6px 0 0;padding-left:20px;">${bad.map(b => `<li>${b}</li>`).join('')}</ul>Compare your number with the scale and with what the team knows, then adjust if you wish.`) : fb(`Failure mode ${i + 1}: your ratings fit the evidence.`, 'Your numbers line up with what the team knows and with the scales.', true);
+    }).join('');
+  }
+  app.innerHTML = `<div class="card">
+    <span class="step-label">Step 4: Ratings</span><h2 class="title">Rate Severity, Occurrence, and Detection</h2>
+    <p>Use the scales and the data the team gathered to rate each failure mode from 1 to 10. For occurrence, 10 means very likely. For detection, 10 means very unlikely to be caught. For severity, 10 means the most severe harm. The RPN is occurrence x detection x severity, so it ranges from 1 to 1,000.</p>
+    ${scaleTables()}
+    <div class="tbl-scroll"><table><tr><th style="width:44px">Step</th><th>Failure mode</th><th>What the team knows</th><th>Occurrence</th><th>Detection</th><th>Severity</th><th>RPN</th></tr>${rows}</table></div>
+    <p class="small" id="totalLine"></p>
+    ${f}
+    ${nav(!F.rateChk ? `<button class="btn" id="chk" ${ready ? '' : 'disabled'}>Check My Ratings</button>` : `<button class="btn alt" id="redo">Adjust My Ratings</button><button class="btn" id="nx">Continue to Priorities</button>`)}
+    ${!ready ? '<p class="small" style="text-align:right;">Rate every failure mode on all three scales to continue.</p>' : ''}
+  </div>`;
+  const upd = () => { const t = document.getElementById('totalLine'); if (t) t.textContent = ready ? `Total RPN for the process (sum of all RPNs): ${totalBase()}` : ''; };
+  upd();
+  app.querySelectorAll('[data-r]').forEach(el => el.onchange = () => {
+    F.rate[el.dataset.r][el.dataset.f] = el.value ? +el.value : undefined; F.rateChk = false; keepScroll(renderRate);
+  });
+  const c = document.getElementById('chk'); if (c) c.onclick = () => { F.rateChk = true; keepScroll(renderRate); };
+  const n = document.getElementById('nx'); if (n) n.onclick = () => go('prio');
+  const r = document.getElementById('redo'); if (r) r.onclick = () => { F.rateChk = false; renderRate(); };
+}
+
+// ---------------------------------------------------------------------
+function ranked() { return STEPS.slice().sort((a, b) => rpn(F.rate[b.id]) - rpn(F.rate[a.id]) || (stepNo(a.id) - stepNo(b.id))); }
+function renderPrio() {
+  const R = ranked();
+  const rows = R.map((s, i) => {
+    const r = F.rate[s.id]; const hi = r.S >= 9;
+    return `<tr><td class="num">${i + 1}</td><td><label class="pick" style="margin:0;"><input type="checkbox" data-pr="${s.id}" ${F.prio.has(s.id) ? 'checked' : ''}><span><span class="t">Step ${stepNo(s.id)}: ${esc(s.fm.find(x => x.k === 'strong').t)}</span></span></label></td><td class="num">${rpn(r)}</td><td class="num">${r.S}${hi ? ' <span title="High severity">&#9888;</span>' : ''}</td></tr>`;
+  }).join('');
+  const sel = [...F.prio];
+  const top2 = R.slice(0, 2).map(s => s.id);
+  const hiSev = R.filter(s => F.rate[s.id].S >= 9).map(s => s.id);
+  const missTop = top2.filter(id => !F.prio.has(id));
+  const missHi = hiSev.filter(id => !F.prio.has(id));
+  const okSize = sel.length >= 3 && sel.length <= 4;
+  const ok = okSize && !missTop.length && !missHi.length;
+  let f = '';
+  if (F.prioChk) {
+    if (ok) f = fb('Your priorities fit your own numbers.', 'You chose the failure modes with the highest RPNs, and you did not overlook any with very high severity. Failure modes with low RPNs would not change the overall process much, even if eliminated.', true);
+    else {
+      const parts = [];
+      if (!okSize) parts.push('Choose three or four failure modes. A team can only do so many at once, and every choice leaves others waiting.');
+      if (missTop.length) parts.push(`Look again at your highest RPNs. ${missTop.map(id => 'Step ' + stepNo(id)).join(' and ')} ${missTop.length > 1 ? 'are' : 'is'} near the top of your own list.`);
+      if (missHi.length) parts.push(`Special attention belongs to any failure mode with a very high severity score (9 or 10), no matter the RPN. ${missHi.map(id => 'Step ' + stepNo(id)).join(' and ')} ${missHi.length > 1 ? 'carry' : 'carries'} that flag in your ratings.`);
+      f = fb('Have you thought about what the numbers are telling you?', parts.join(' '));
+    }
+  }
+  app.innerHTML = `<div class="card">
+    <span class="step-label">Step 5: Priorities</span><h2 class="title">Which Failure Modes Do You Fix First?</h2>
+    <p>Your failure modes are ranked below by your own RPN. Failure modes with high RPNs are the best place to focus first. Special attention goes to any with high severity, whatever the RPN. Select three or four to carry into the action plan.</p>
+    <p><strong>Total RPN for the process: ${totalBase()}</strong></p>
+    <div class="tbl-scroll"><table><tr><th style="width:50px">Rank</th><th>Failure mode (select to act on)</th><th>RPN</th><th>Severity</th></tr>${rows}</table></div>
+    ${f}
+    ${nav(!ok || !F.prioChk ? `<button class="btn" id="chk" ${sel.length ? '' : 'disabled'}>Check My Priorities</button>` : `<button class="btn" id="nx">Continue to Actions</button>`)}
+  </div>`;
+  app.querySelectorAll('[data-pr]').forEach(el => el.onchange = () => { el.checked ? F.prio.add(el.dataset.pr) : F.prio.delete(el.dataset.pr); F.prioChk = false; keepScroll(renderPrio); });
+  const c = document.getElementById('chk'); if (c) c.onclick = () => { F.prioChk = true; keepScroll(renderPrio); };
+  const n = document.getElementById('nx'); if (n) n.onclick = () => go('acts');
+}
+
+// ---------------------------------------------------------------------
+function renderActs() {
+  const sel = ranked().filter(s => F.prio.has(s.id));
+  const blocks = sel.map(s => {
+    const pick = F.act[s.id];
+    const opts = s.acts.map((a, i) => `<label class="pick"><input type="radio" name="act_${s.id}" data-act="${s.id}" data-i="${i}" ${pick === i ? 'checked' : ''}><span><span class="t">${esc(a.t)}</span></span></label>`).join('');
+    let f = '';
+    if (pick !== undefined) {
+      const a = s.acts[pick], x = after(s.id), before = rpn(F.rate[s.id]);
+      const calc = `<br><em>Action Hierarchy: ${a.k}. Your RPN would move from ${before} to ${x.rpn} (occurrence ${F.rate[s.id].O} to ${x.O}, detection ${F.rate[s.id].D} to ${x.D}).</em>`;
+      if (x.rpn > before) f = fb('This change would raise the RPN.', `${a.why}${calc} An idea that sounds helpful can make the risk worse, which is why a team runs the numbers before it tests a change.`);
+      else if (a.k === 'Stronger') f = fb('A strong choice.', `${a.why}${calc}`, true);
+      else f = fb(`This is ${a.k === 'Weaker' ? 'a weaker' : 'an intermediate'} action.`, `${a.why}${calc} A quick test for a leader: does the action still depend on someone remembering? If so, look for an option that changes the process or the tool.`);
+    }
+    return `<div class="box" style="margin:14px 0;"><strong>Step ${stepNo(s.id)}: ${esc(s.fm.find(x => x.k === 'strong').t)}</strong><p class="small" style="margin:4px 0 10px;">Your RPN now: ${rpn(F.rate[s.id])}</p><div class="picks">${opts}</div>${f}</div>`;
+  }).join('');
+  const allPicked = sel.every(s => F.act[s.id] !== undefined);
+  const base = totalBase(), aft = totalAfter();
+  const pct = base ? Math.round((1 - aft / base) * 100) : 0;
+  const totalFb = allPicked ? fb(pct >= 50 ? 'Your plan meets a common goal.' : 'Have you thought about the overall goal?', `Total RPN for the process: ${base} before and ${aft} after your actions, a change of ${pct}%. Teams often set a goal such as a 50% reduction from the baseline.${pct >= 50 ? '' : ' If you want to reach it, look at which failure modes still carry the largest RPNs and whether a stronger action is available.'}`, pct >= 50) : '';
+  const monOk = F.monitor.trim().length >= 25;
+  app.innerHTML = `<div class="card">
+    <span class="step-label">Step 6: Actions</span><h2 class="title">Choose Actions and Test the Change on Paper</h2>
+    <p>For each failure mode you chose, pick the action you would put in the plan. The team can "verbally simulate" each change by recalculating the RPN before testing it with patients. Some ideas that seem helpful turn out to raise the estimated risk.</p>
+    ${blocks}${totalFb}
+    <div class="question">How will you monitor and track improvement over time?</div>
+    <div class="helper">Say what you will measure, how often, and who will report the results.</div>
+    <textarea id="mon" aria-label="Monitoring plan">${esc(F.monitor)}</textarea>
+    ${nav(`<button class="btn" id="nx" ${allPicked && monOk ? '' : 'disabled'}>Continue to the Summary</button>`)}
+  </div>`;
+  app.querySelectorAll('[data-act]').forEach(el => el.onchange = () => { F.act[el.dataset.act] = +el.dataset.i; keepScroll(renderActs); });
+  document.getElementById('mon').oninput = e => { F.monitor = e.target.value; document.getElementById('nx').disabled = !(allPicked && F.monitor.trim().length >= 25); };
+  document.getElementById('nx').onclick = () => go('summary');
+}
+
+// ---------------------------------------------------------------------
+function renderSummary() {
+  const mins = Math.floor((Date.now() - F.start) / 60000), secs = Math.floor(((Date.now() - F.start) % 60000) / 1000);
+  const today = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+  const team = TEAM.filter(m => F.team.has(m.id)).map(m => m.text).join('; ');
+  const rows = STEPS.map(s => {
+    const P = F.pick[s.id], r = F.rate[s.id], a = chosenAct(s.id);
+    const pr = F.prio.has(s.id);
+    return `<tr><td>${stepNo(s.id)}. ${esc(s.text)}</td><td>${esc(s.fm[P.fm].t)}</td><td>${esc(s.ca[P.ca].t)}</td><td>${esc(s.ef[P.ef].t)}</td><td class="num">${r.O}</td><td class="num">${r.D}</td><td class="num">${r.S}</td><td class="num">${rpn(r)}</td><td>${a ? esc(a.t) + `<br><em>${a.k}. RPN after: ${after(s.id).rpn}</em>` : '<span class="small">Not selected for action in this round.</span>'}</td></tr>`;
+  }).join('');
+  const base = totalBase(), aft = totalAfter();
+  app.innerHTML = `<div class="card">
+    <span class="step-label">FMEA Complete</span><h2 class="title">Failure Modes and Effects Analysis Summary</h2>
+    <div class="nameline noprint"><label for="nm"><strong>Your name (for the printed summary):</strong></label><input type="text" id="nm" value="${esc(F.name)}"></div>
+    <p class="small"><span id="nmPrint"></span>HCA 880: Patient Safety and Risk &middot; FMEA: ${esc(PROCESS.title)} &middot; Time on task: ${mins} min ${secs} sec &middot; ${today}</p>
+    <h3>Team</h3><p>${esc(team)}</p>
+    <div class="stat" style="font-size:1.2rem;">Total RPN: ${base} before, ${aft} after planned actions</div>
+    <div class="tbl-scroll"><table><tr><th>Steps in the process</th><th>Failure mode</th><th>Failure causes</th><th>Failure effects</th><th>Occur-rence</th><th>Detec-tion</th><th>Sever-ity</th><th>RPN</th><th>Actions to reduce occurrence of failure</th></tr>${rows}</table></div>
+    <h3 style="margin-top:20px;">Your Monitoring Plan</h3><p>${esc(F.monitor)}</p>
+    <div class="box"><strong>A model monitoring plan:</strong> ${esc(MODEL_MONITOR)}</div>
+    ${nav(`<button class="btn dark" id="print">Print or Save as PDF</button><button class="btn alt" id="restart">Start Over</button>`)}
+    <p class="small noprint" style="text-align:right;">In the print dialog, choose "Save as PDF" to create the file you will submit to your instructor.</p>
+  </div>`;
+  const nm = document.getElementById('nm'); const np = document.getElementById('nmPrint');
+  const sync = () => { F.name = nm.value; np.textContent = F.name ? F.name + ' · ' : ''; }; sync(); nm.oninput = sync;
+  document.getElementById('print').onclick = () => window.print();
+  document.getElementById('restart').onclick = () => { if (confirm('Start over? Your work in this session will be cleared.')) location.reload(); };
+}
+
+renderStepper();
+render();
+
+</script>
+</body>
+</html>
