@@ -1203,7 +1203,7 @@ function renderSummary() {
       <div class="feedback show neutral" style="text-align:left; margin-top:20px;">
         <span style="font-weight:700;">A note on second victim syndrome.</span> Before closing this case, consider the human dimension. The resident and nurse involved in this event will likely experience what researchers call second victim syndrome: a state of traumatic stress, guilt, self-doubt, and emotional distress that clinicians often experience after a patient safety event occurs on their watch. These are individuals who came to work to provide safe, compassionate care. They made decisions in a culture that constrained their options, and a patient died. The organizational response to this event must include attending to their wellbeing, not only analyzing the system failures. A just culture and a psychologically safe environment are not only preventive measures: they are also part of how organizations care for their people after harm occurs.
       </div>
-      <button class="restart-btn" id="restart-btn">Restart Case 2</button> <button class="next-case-btn" id="next-case-btn" onclick="window.parent.postMessage({type:'>Go to Case 3 &#8594;</button>
+      <button class="restart-btn" id="restart-btn">Restart Case 2</button> <button class="next-case-btn" id="next-case-btn" onclick="window.parent.postMessage({type:'open-case',caseNum:3},'*')">Go to Case 3 &#8594;</button>
     </div>
   `;
   
